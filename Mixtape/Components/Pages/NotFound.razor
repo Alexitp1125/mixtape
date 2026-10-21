@@ -1,0 +1,9 @@
+@attribute [Route(PageNames.NotFound)]
+@layout MainLayout
+
+<PageTitle>@L["NotFound.Title"] · Mixtape</PageTitle>
+
+<RakoMessage Image="brand/rako-error.svg" Title="@L["NotFound.Title"]">
+    <p>@L["NotFound.Text"]</p>
+    <a href="@PageNames.Home">@L["Common.BackHome"]</a>
+</RakoMessage>

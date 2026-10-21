@@ -1,0 +1,76 @@
+/* Brand bar: Rako + app name, language switch and link to the platform. */
+.mx-bar {
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, var(--aqua-light), var(--lavender-light), var(--pink-light)) 1;
+}
+
+.mx-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 18px;
+}
+
+.mx-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: auto;
+    text-decoration: none;
+}
+
+.mx-brand img {
+    width: 32px;
+    height: 32px;
+}
+
+.mx-brand span {
+    font-family: var(--font-title);
+    font-weight: 300;
+    font-size: 15px;
+    letter-spacing: .5em;
+    text-transform: uppercase;
+}
+
+.mx-langs {
+    display: flex;
+    gap: 2px;
+}
+
+.mx-langs a,
+.mx-platform {
+    padding: 4px 6px;
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-decoration: none;
+    opacity: .55;
+    transition: opacity .2s ease, color .2s ease;
+}
+
+.mx-langs a:hover,
+.mx-platform:hover {
+    opacity: 1;
+}
+
+.mx-langs a[aria-current="true"] {
+    color: var(--pink);
+    opacity: 1;
+}
+
+.mx-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 18px 160px;
+}
+
+@media (max-width: 480px) {
+    .mx-bar-inner {
+        gap: 10px;
+    }
+
+    .mx-brand span {
+        letter-spacing: .3em;
+    }
+}

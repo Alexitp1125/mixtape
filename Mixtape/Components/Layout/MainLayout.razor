@@ -1,0 +1,42 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<header class="mx-bar">
+    <div class="mx-bar-inner">
+        <a class="mx-brand" href="/">
+            <img src="brand/rako-mark.svg" alt="" width="32" height="32" />
+            <span>Mixtape</span>
+        </a>
+
+        @* Full page load on purpose: WebAssembly has to restart in the new language. *@
+        <nav class="mx-langs" aria-label="@L["Layout.Language"]">
+            <a href="@CultureUrl("en")" lang="en" aria-current="@Current("en")" data-enhance-nav="false">EN</a>
+            <a href="@CultureUrl("es")" lang="es" aria-current="@Current("es")" data-enhance-nav="false">ES</a>
+        </nav>
+
+        <a class="mx-platform" href="https://alexitp1125.com">alexitp1125 ↗</a>
+    </div>
+</header>
+
+<main class="mx-main">
+    @Body
+</main>
+
+@* Blazor shows this bar when an interactive component fails. *@
+<div id="blazor-error-ui" data-nosnippet>
+    @L["Layout.Error"]
+    <a href="." class="reload">@L["Layout.Reload"]</a>
+    <span class="dismiss">✕</span>
+</div>
+
+@code {
+    // Link that saves the language and comes back to the current page.
+    private string CultureUrl(string culture)
+    {
+        string current = "/" + Navigation.ToBaseRelativePath(Navigation.Uri);
+        return $"/culture/{culture}?redirectUri={Uri.EscapeDataString(current)}";
+    }
+
+    private string? Current(string culture) =>
+        CultureInfo.CurrentUICulture.Name == culture ? "true" : null;
+}

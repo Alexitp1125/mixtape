@@ -1,0 +1,209 @@
+/* Two columns: cover and video on the left, lyrics on the right. */
+.mx-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.mx-stage-side {
+    display: grid;
+    gap: 22px;
+}
+
+/* YouTube asks for a visible player of at least 200x200. */
+.mx-video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    min-height: 200px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--surface);
+}
+
+.mx-video-host {
+    width: 100%;
+    height: 100%;
+}
+
+.mx-video ::deep iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.mx-video-message {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 20px;
+    background: var(--surface);
+    font-size: 12px;
+    line-height: 1.8;
+    letter-spacing: .2em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+/* Lyrics */
+.mx-lyrics {
+    position: relative;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 12px;
+}
+
+.mx-lyrics ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mx-lyrics li {
+    margin: 0 0 14px;
+    font-family: var(--font-title);
+    font-weight: 300;
+    font-size: 19px;
+    line-height: 1.5;
+    opacity: .32;
+    transition: opacity .3s ease, color .3s ease;
+}
+
+.mx-lyrics li.mx-on {
+    color: var(--pink-light);
+    opacity: 1;
+}
+
+.mx-static li {
+    opacity: .85;
+}
+
+.mx-lyrics-empty {
+    display: grid;
+    justify-items: start;
+    gap: 18px;
+    padding-top: 8px;
+}
+
+.mx-lyrics-empty img {
+    width: 96px;
+    height: 96px;
+}
+
+.mx-lyrics-empty p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.9;
+    letter-spacing: .2em;
+    opacity: .6;
+}
+
+/* Control bar, fixed at the bottom. */
+.mx-controls {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 10;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+}
+
+.mx-controls-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.mx-play {
+    display: grid;
+    flex: 0 0 44px;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--pink);
+    border-radius: 50%;
+    color: var(--pink);
+}
+
+.mx-play svg {
+    width: 16px;
+    height: 16px;
+}
+
+.mx-play:disabled {
+    cursor: default;
+    opacity: .4;
+}
+
+.mx-now {
+    flex: 1;
+    min-width: 0;
+}
+
+.mx-now b {
+    display: block;
+    overflow: hidden;
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: .18em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mx-time {
+    font-size: 11px;
+    letter-spacing: .1em;
+    opacity: .5;
+}
+
+/* --progress is set by the JS module. */
+.mx-seek {
+    flex: 2;
+    height: 3px;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(90deg, var(--pink) var(--progress, 0%), var(--border) var(--progress, 0%));
+}
+
+.mx-seek::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--cream);
+}
+
+.mx-seek::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cream);
+}
+
+@media (max-width: 860px) {
+    .mx-stage {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* On small screens the video already shows the song; the cover would push the lyrics down. */
+    .mx-stage-side .mx-cover {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .mx-seek {
+        display: none;
+    }
+}

@@ -1,0 +1,34 @@
+@attribute [Route(PageNames.Track)]
+@inject TrackCatalog Catalog
+@inject NavigationManager Navigation
+
+@if (track is not null)
+{
+    <PageTitle>@track.Title · @track.Artist · Mixtape</PageTitle>
+
+    <a class="mx-back" href="@PageNames.Home">← @L["Track.Back"]</a>
+
+    <header class="mx-head">
+        <h1>@track.Title</h1>
+        <p>@track.Artist</p>
+    </header>
+
+    <SongPlayer Track="track" CoverSvg="@Catalog.GetCover(track.Slug)" @rendermode="InteractiveAuto" />
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    private TrackDetails? track;
+
+    protected override void OnInitialized()
+    {
+        track = Catalog.GetTrack(Slug);
+
+        if (track is null)
+        {
+            Navigation.NotFound();
+        }
+    }
+}

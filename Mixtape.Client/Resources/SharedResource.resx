@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Layout.Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Common.BackHome" xml:space="preserve">
+    <value>Back to the songs</value>
+  </data>
+  <data name="Home.EmptyTitle" xml:space="preserve">
+    <value>No songs yet</value>
+  </data>
+  <data name="Home.EmptyText" xml:space="preserve">
+    <value>They're on their way.</value>
+  </data>
+  <data name="NotFound.Title" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="NotFound.Text" xml:space="preserve">
+    <value>This page doesn't exist or has moved.</value>
+  </data>
+  <data name="Error.Title" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="Error.Text" xml:space="preserve">
+    <value>Try again in a moment.</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Songs</value>
+  </data>
+  <data name="Track.Back" xml:space="preserve">
+    <value>All songs</value>
+  </data>
+  <data name="Player.Play" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="Player.Pause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="Player.Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Player.NoLyrics" xml:space="preserve">
+    <value>This song has no lyrics yet.</value>
+  </data>
+  <data name="Player.ErrorInvalid" xml:space="preserve">
+    <value>Invalid video ID.</value>
+  </data>
+  <data name="Player.ErrorRemoved" xml:space="preserve">
+    <value>This video was removed or is private.</value>
+  </data>
+  <data name="Player.ErrorEmbed" xml:space="preserve">
+    <value>The owner doesn't allow this video to play here.</value>
+  </data>
+  <data name="Player.ErrorGeneric" xml:space="preserve">
+    <value>The video couldn't be loaded.</value>
+  </data>
+  <data name="Layout.Error" xml:space="preserve">
+    <value>An error has occurred.</value>
+  </data>
+  <data name="Layout.Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+</root>

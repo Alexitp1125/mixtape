@@ -1,0 +1,182 @@
+@* Song view: cover, official YouTube player, lyrics and the control bar.
+   The JS module next to this file talks to YouTube and keeps time, seek bar and active line in sync. *@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<div class="mx-stage">
+    <div class="mx-stage-side">
+        <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverSvg)</div>
+
+        <div class="mx-video">
+            <div class="mx-video-host" @ref="videoHost"></div>
+            @if (error is not null)
+            {
+                <p class="mx-video-message">@error</p>
+            }
+        </div>
+    </div>
+
+    <div class="mx-lyrics @(synced ? "" : "mx-static")" @ref="lyricsBox">
+        @if (Track.Lyrics.Count == 0)
+        {
+            <div class="mx-lyrics-empty">
+                <img src="brand/rako-empty.svg" alt="" width="96" height="96" />
+                <p>@L["Player.NoLyrics"]</p>
+            </div>
+        }
+        else
+        {
+            <ol>
+                @foreach (LyricLine line in Track.Lyrics)
+                {
+                    <li data-time="@(line.Time?.ToString(CultureInfo.InvariantCulture))">@line.Text</li>
+                }
+            </ol>
+        }
+    </div>
+</div>
+
+<div class="mx-controls">
+    <div class="mx-controls-inner">
+        <button class="mx-play" type="button" disabled="@(!ready)" aria-label="@(playing ? L["Player.Pause"] : L["Player.Play"])" @onclick="TogglePlayAsync">
+            @if (playing)
+            {
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" fill="currentColor" /><rect x="9.5" y="2" width="3.5" height="12" fill="currentColor" /></svg>
+            }
+            else
+            {
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2 L14 8 L4 14 Z" fill="currentColor" /></svg>
+            }
+        </button>
+
+        <div class="mx-now">
+            <b>@Track.Title — @Track.Artist</b>
+            <span class="mx-time" @ref="timeLabel">0:00 / 0:00</span>
+        </div>
+
+        <input class="mx-seek" type="range" min="0" max="1000" value="0" disabled="@(!ready)" aria-label="@L["Player.Position"]" @ref="seekBar" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TrackDetails Track { get; set; } = null!;
+
+    // SVG markup of the cover.
+    [Parameter, EditorRequired]
+    public string CoverSvg { get; set; } = null!;
+
+    private ElementReference videoHost;
+    private ElementReference lyricsBox;
+    private ElementReference timeLabel;
+    private ElementReference seekBar;
+
+    private IJSObjectReference? module;
+    private IJSObjectReference? player;
+    private DotNetObjectReference<SongPlayer>? selfReference;
+
+    private bool synced;
+    private bool ready;
+    private bool playing;
+    private string? error;
+    private bool disposed;
+
+    protected override void OnParametersSet()
+    {
+        synced = Track.Lyrics.Any(x => x.Time is not null);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            selfReference = DotNetObjectReference.Create(this);
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Tracks/SongPlayer.razor.js");
+            player = await module.InvokeAsync<IJSObjectReference>("create", videoHost, lyricsBox, timeLabel, seekBar, Track.VideoId, selfReference);
+
+            // The user left the page while the player was loading.
+            if (disposed)
+            {
+                await player.InvokeVoidAsync("dispose");
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The tab was closed while the player was loading.
+        }
+        catch (JSException)
+        {
+            // The YouTube API could not be loaded (no connection or blocked).
+            error = L["Player.ErrorGeneric"].Value;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void OnReady()
+    {
+        ready = true;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnPlayingChanged(bool isPlaying)
+    {
+        playing = isPlaying;
+        StateHasChanged();
+    }
+
+    // YouTube error codes: https://developers.google.com/youtube/iframe_api_reference#onError
+    [JSInvokable]
+    public void OnError(int code)
+    {
+        error = code switch
+        {
+            2 => L["Player.ErrorInvalid"].Value,
+            100 => L["Player.ErrorRemoved"].Value,
+            101 or 150 => L["Player.ErrorEmbed"].Value,
+            _ => L["Player.ErrorGeneric"].Value,
+        };
+        StateHasChanged();
+    }
+
+    private async Task TogglePlayAsync()
+    {
+        if (player is not null)
+        {
+            await player.InvokeVoidAsync("toggle");
+        }
+    }
+
+    // Leaving the page destroys the YouTube player, so the music stops.
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+
+        try
+        {
+            if (player is not null)
+            {
+                await player.InvokeVoidAsync("dispose");
+                await player.DisposeAsync();
+            }
+
+            if (module is not null)
+            {
+                await module.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The tab was closed or the connection was lost: there is nothing left to clean up.
+        }
+
+        selfReference?.Dispose();
+    }
+}

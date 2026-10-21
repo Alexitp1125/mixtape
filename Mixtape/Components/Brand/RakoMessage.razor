@@ -1,0 +1,18 @@
+@* Rako with a title and a short text. For empty states and error pages. *@
+<section class="mx-message">
+    <img src="@Image" alt="" width="160" height="160" />
+    <h1>@Title</h1>
+    @ChildContent
+</section>
+
+@code {
+    // rako-empty.svg for empty states, rako-error.svg for 404 and 500.
+    [Parameter, EditorRequired]
+    public string Image { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

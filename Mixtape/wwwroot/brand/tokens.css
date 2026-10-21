@@ -1,0 +1,51 @@
+/* Marca alexitp1125. Tema oscuro (crepúsculo) por defecto; tema claro con data-theme="light". */
+
+:root {
+  /* Aguamarina */
+  --aqua-light: #9EE7F2;
+  --aqua: #7FDBEA;
+  --aqua-deep: #3FB8CF;
+
+  /* Lavanda */
+  --lavender-light: #C9B8F5;
+  --lavender: #C7A3F0;
+  --violet: #6E59C2;
+
+  /* Rosa */
+  --pink-light: #F4B9DF;
+  --pink: #F6A6D7;
+  --pink-strong: #E77BC0;
+
+  /* Tinta y crema */
+  --ink: #3A2766;
+  --cream: #FFF6FB;
+
+  /* Cielo, de arriba abajo */
+  --sky-gradient: linear-gradient(180deg, #9EE7F2, #C9B8F5, #F4B9DF);
+
+  /* Personajes */
+  --rako-fur: #C9B8F5;
+  --sora-hair: #C7A3F0;
+  --sora-skin: #FFE6D8;
+
+  /* Fuentes */
+  --font-title: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  --font-label: 'Space Mono', ui-monospace, monospace;
+}
+
+/* Crepúsculo */
+:root,
+[data-theme="dark"] {
+  --bg: #241650;
+  --surface: #2F1F63;
+  --border: #4B3786;
+  --text: #FFF6FB;
+}
+
+/* Día */
+[data-theme="light"] {
+  --bg: #F7F0FF;
+  --surface: #FFF6FB;
+  --border: #D7C6FA;
+  --text: #3A2766;
+}

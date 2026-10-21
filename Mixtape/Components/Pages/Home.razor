@@ -1,0 +1,39 @@
+@attribute [Route(PageNames.Home)]
+@inject TrackCatalog Catalog
+
+<PageTitle>Mixtape</PageTitle>
+
+@if (tracks.Count == 0)
+{
+    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
+        <p>@L["Home.EmptyText"]</p>
+    </RakoMessage>
+}
+else
+{
+    <h1 class="mx-heading">@L["Home.Title"]</h1>
+
+    <ul class="mx-gallery">
+        @foreach (TrackDetails track in tracks)
+        {
+            <li>
+                <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)Catalog.GetCover(track.Slug))</div>
+                    <span class="mx-gallery-caption">
+                        <b>@track.Title</b>
+                        <span>@track.Artist</span>
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private IReadOnlyList<TrackDetails> tracks = [];
+
+    protected override void OnInitialized()
+    {
+        tracks = Catalog.GetTracks();
+    }
+}

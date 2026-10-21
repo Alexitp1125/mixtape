@@ -1,0 +1,31 @@
+.mx-back {
+    display: inline-flex;
+    margin-bottom: 22px;
+    font-size: 12px;
+    letter-spacing: .24em;
+    text-decoration: none;
+    text-transform: uppercase;
+    opacity: .6;
+}
+
+.mx-back:hover {
+    opacity: 1;
+}
+
+.mx-head {
+    margin-bottom: 26px;
+}
+
+.mx-head h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    letter-spacing: .16em;
+}
+
+.mx-head p {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    opacity: .5;
+}
