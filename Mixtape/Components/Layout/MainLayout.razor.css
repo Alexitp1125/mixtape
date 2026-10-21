@@ -1,4 +1,4 @@
-/* Brand bar: Rako + app name, language switch and link to the platform. Same look as the hub bar. */
+/* Brand bar: Rako + app name, language, theme and link to the platform. Same look as the hub bar. */
 .mx-bar {
     border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
     background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -41,7 +41,8 @@
 }
 
 .mx-langs a,
-.mx-platform {
+.mx-platform,
+.mx-theme {
     padding: 4px 6px;
     color: var(--text-muted);
     font-family: var(--font-label);
@@ -52,13 +53,24 @@
 }
 
 .mx-langs a:hover,
-.mx-platform:hover {
+.mx-platform:hover,
+.mx-theme:hover {
     color: var(--text);
 }
 
 .mx-langs a[aria-current="true"] {
     border-bottom: 2px solid var(--accent-3);
     color: var(--text);
+}
+
+.mx-theme {
+    display: grid;
+    place-items: center;
+}
+
+.mx-theme svg {
+    width: 16px;
+    height: 16px;
 }
 
 .mx-main {
@@ -69,10 +81,14 @@
 
 @media (max-width: 480px) {
     .mx-bar-inner {
-        gap: 10px;
+        gap: 8px;
     }
 
     .mx-brand span {
         letter-spacing: .2em;
+    }
+
+    .mx-platform {
+        display: none;
     }
 }

@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
 
+    @* Saved theme, applied before the first paint. Default: dark. *@
+    <script>
+        try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark'; }
+        catch { document.documentElement.dataset.theme = 'dark'; }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Space+Mono:wght@400;700&display=swap" />
@@ -31,6 +37,7 @@
     <script>
         Blazor.start({ webAssembly: { applicationCulture: document.documentElement.lang } });
     </script>
+    <script src="@Assets["js/theme.js"]"></script>
 </body>
 
 </html>

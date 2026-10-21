@@ -69,6 +69,9 @@
   <data name="Layout.Error" xml:space="preserve">
     <value>An error has occurred.</value>
   </data>
+  <data name="Layout.Theme" xml:space="preserve">
+    <value>Switch theme</value>
+  </data>
   <data name="Layout.Reload" xml:space="preserve">
     <value>Reload</value>
   </data>

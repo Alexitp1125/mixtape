@@ -7,22 +7,18 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 - **Dónde estoy:** la app funciona en local con la paleta v3 de la marca y el aspecto del hub
   (fondo de cielo, barra translúcida, portadas y video con marco de tarjeta). Repo en GitHub
   (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-20, casa):** renombrado a Mixtape, primer commit y push; tokens v3.
-- **Qué sigue**, un commit por paso (los dos primeros ya aprobados con su demo,
+- **Lo último (2026-10-21):** tema claro (botón ◐ en la barra).
+- **Qué sigue**, un commit por paso (el primero ya aprobado con su demo,
   `mixtape-tema-y-cancion.html`, en el chat de Mixtape):
-  1. **Tema claro**, como en el hub: botón ◐ en la barra; el tema se guarda en
-     `localStorage` (`theme`) y un script en el `<head>` lo aplica antes de pintar; por defecto,
-     noche. Aquí con `data-theme` (no hay Bootstrap). Se vuelve a aplicar tras la navegación
-     mejorada de Blazor (`enhancedload`).
-  2. **Página de la canción sin letras, con la portada de protagonista:** copia desenfocada de la
+  1. **Página de la canción sin letras, con la portada de protagonista:** copia desenfocada de la
      portada detrás de toda la página (sin animaciones y con sus propios IDs); un vinilo detrás
      de la portada que sale y gira al sonar; escritorio en dos columnas (portada + vinilo |
      título, artista y video), móvil y tablet en una (portada arriba); ≥1600 px más ancho y el
      catálogo a 4 columnas. Se borra todo lo de la letra (`LyricLine`, sincronización, textos).
-  3. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
+  2. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
      para las que no tengan portada propia.
-  4. Desplegar según "Añadir una app nueva" de `server-infra`.
-  5. La tarjeta del hub se actualiza en el chat del hub, no aquí.
+  3. Desplegar según "Añadir una app nueva" de `server-infra`.
+  4. La tarjeta del hub se actualiza en el chat del hub, no aquí.
 
 ## Qué es
 
@@ -89,6 +85,7 @@ y para recomendarlas con un enlace ("mírala aquí").
 | Al salir de la canción se destruye el reproductor. | La música no sigue sonando con el reproductor oculto (regla de YouTube). |
 | Sin autoplay: el video se prepara y el usuario pulsa play. | Quien llega por un enlace compartido no ha tocado la página y el navegador bloquearía el sonido; así funciona igual siempre. |
 | Sin `DependencyInjection/` vacío: aparece con el primer servicio (`TrackCatalog`). | §0. |
+| Tema claro como en el hub: botón ◐ en la barra; se guarda en `localStorage` (`theme`) y un script en el `<head>` lo aplica antes de pintar; por defecto, noche. `js/theme.js` lo cambia y lo vuelve a poner tras la navegación mejorada (`enhancedload`). Con `data-theme`, no `data-bs-theme`. | Mismo comportamiento en toda la plataforma, sin parpadeo. `data-theme` porque aquí no hay Bootstrap (`tokens.css` acepta los dos). Cada subdominio guarda su propia elección; compartirla (cookie del dominio) sería un cambio del hub y de las apps. |
 
 ## Cómo se arranca
 
@@ -117,6 +114,11 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-10-21
+- Tema claro: botón ◐ en la barra, `js/theme.js`, script en el `<head>` y texto "Cambiar tema"
+  en EN/ES. En el tema claro, el círculo de la barra de avance usa `--text` (el crema no se
+  veía) y la barra de error usa `--ink`.
 
 ### 2026-10-20 (casa, noche)
 - Paleta v3 de `dev-conventions` aplicada con el lenguaje del hub v5: degradado de cielo de fondo,
