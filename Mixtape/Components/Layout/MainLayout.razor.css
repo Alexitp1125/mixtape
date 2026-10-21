@@ -1,7 +1,8 @@
-/* Brand bar: Rako + app name, language switch and link to the platform. */
+/* Brand bar: Rako + app name, language switch and link to the platform. Same look as the hub bar. */
 .mx-bar {
-    border-bottom: 1px solid transparent;
-    border-image: linear-gradient(90deg, var(--aqua-light), var(--lavender-light), var(--pink-light)) 1;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(8px);
 }
 
 .mx-bar-inner {
@@ -28,9 +29,9 @@
 
 .mx-brand span {
     font-family: var(--font-title);
-    font-weight: 300;
+    font-weight: 500;
     font-size: 15px;
-    letter-spacing: .5em;
+    letter-spacing: .32em;
     text-transform: uppercase;
 }
 
@@ -42,21 +43,22 @@
 .mx-langs a,
 .mx-platform {
     padding: 4px 6px;
+    color: var(--text-muted);
+    font-family: var(--font-label);
     font-size: 11px;
     letter-spacing: .2em;
     text-decoration: none;
-    opacity: .55;
-    transition: opacity .2s ease, color .2s ease;
+    transition: color .2s ease;
 }
 
 .mx-langs a:hover,
 .mx-platform:hover {
-    opacity: 1;
+    color: var(--text);
 }
 
 .mx-langs a[aria-current="true"] {
-    color: var(--pink);
-    opacity: 1;
+    border-bottom: 2px solid var(--accent-3);
+    color: var(--text);
 }
 
 .mx-main {
@@ -71,6 +73,6 @@
     }
 
     .mx-brand span {
-        letter-spacing: .3em;
+        letter-spacing: .2em;
     }
 }

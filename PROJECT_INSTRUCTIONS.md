@@ -4,18 +4,25 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** la app funciona en local (catálogo, página por canción, reproductor oficial
-  de YouTube, EN/ES, 404/500 con Rako). Renombrada de `Lyrics` a `Mixtape` antes del primer
-  commit.
-- **Lo último (2026-10-20, casa):** nombre definitivo y renombrado.
-- **Qué sigue**, en este orden, un commit por paso:
-  1. Primer commit y repo en GitHub (push por SSH).
-  2. Tokens v3 de la marca (demo antes de tocar código).
-  3. Quitar las letras y rediseñar la página de la canción para cada pantalla (demo antes).
-  4. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
+- **Dónde estoy:** la app funciona en local con la paleta v3 de la marca y el aspecto del hub
+  (fondo de cielo, barra translúcida, portadas y video con marco de tarjeta). Repo en GitHub
+  (`Alexitp1125/mixtape`).
+- **Lo último (2026-10-20, casa):** renombrado a Mixtape, primer commit y push; tokens v3.
+- **Qué sigue**, un commit por paso (los dos primeros ya aprobados con su demo,
+  `mixtape-tema-y-cancion.html`, en el chat de Mixtape):
+  1. **Tema claro**, como en el hub: botón ◐ en la barra; el tema se guarda en
+     `localStorage` (`theme`) y un script en el `<head>` lo aplica antes de pintar; por defecto,
+     noche. Aquí con `data-theme` (no hay Bootstrap). Se vuelve a aplicar tras la navegación
+     mejorada de Blazor (`enhancedload`).
+  2. **Página de la canción sin letras, con la portada de protagonista:** copia desenfocada de la
+     portada detrás de toda la página (sin animaciones y con sus propios IDs); un vinilo detrás
+     de la portada que sale y gira al sonar; escritorio en dos columnas (portada + vinilo |
+     título, artista y video), móvil y tablet en una (portada arriba); ≥1600 px más ancho y el
+     catálogo a 4 columnas. Se borra todo lo de la letra (`LyricLine`, sincronización, textos).
+  3. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
      para las que no tengan portada propia.
-  5. Desplegar según "Añadir una app nueva" de `server-infra`.
-  6. La tarjeta del hub se actualiza en el chat del hub, no aquí.
+  4. Desplegar según "Añadir una app nueva" de `server-infra`.
+  5. La tarjeta del hub se actualiza en el chat del hub, no aquí.
 
 ## Qué es
 
@@ -110,6 +117,13 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-10-20 (casa, noche)
+- Paleta v3 de `dev-conventions` aplicada con el lenguaje del hub v5: degradado de cielo de fondo,
+  barra translúcida, idioma activo subrayado en `--accent-3`, tarjetas con borde `--line` y
+  sombra dura `--accent-2`, botón de play y barra de avance con `--accent`, Jost para el texto y
+  Space Mono para etiquetas. Chachachá y La Luna pasan al cielo nocturno v3; Doma al de día.
+- Aprobados (pendientes de código): tema claro y la nueva página de la canción (ver "Qué sigue").
 
 ### 2026-10-20 (casa)
 - Nombre definitivo: **Mixtape** (`mixtape.alexitp1125.com`, prefijo `mx-`). Renombrado antes

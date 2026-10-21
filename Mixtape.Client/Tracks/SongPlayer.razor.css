@@ -17,8 +17,10 @@
     aspect-ratio: 16 / 9;
     min-height: 200px;
     overflow: hidden;
-    border-radius: 4px;
+    border: 2px solid var(--line);
+    border-radius: 14px;
     background: var(--surface);
+    box-shadow: 5px 5px 0 var(--accent-2);
 }
 
 .mx-video-host {
@@ -41,6 +43,7 @@
     margin: 0;
     padding: 20px;
     background: var(--surface);
+    font-family: var(--font-label);
     font-size: 12px;
     line-height: 1.8;
     letter-spacing: .2em;
@@ -73,7 +76,7 @@
 }
 
 .mx-lyrics li.mx-on {
-    color: var(--pink-light);
+    color: var(--accent-1);
     opacity: 1;
 }
 
@@ -95,10 +98,9 @@
 
 .mx-lyrics-empty p {
     margin: 0;
-    font-size: 12px;
-    line-height: 1.9;
-    letter-spacing: .2em;
-    opacity: .6;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 /* Control bar, fixed at the bottom. */
@@ -107,8 +109,8 @@
     inset: auto 0 0 0;
     z-index: 10;
     padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border-top: 2px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(10px);
 }
 
@@ -126,9 +128,9 @@
     place-items: center;
     width: 44px;
     height: 44px;
-    border: 1px solid var(--pink);
     border-radius: 50%;
-    color: var(--pink);
+    background: var(--accent);
+    color: var(--cream);
 }
 
 .mx-play svg {
@@ -149,18 +151,18 @@
 .mx-now b {
     display: block;
     overflow: hidden;
-    font-family: var(--font-title);
-    font-weight: 400;
-    font-size: 14px;
-    letter-spacing: .18em;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: .04em;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .mx-time {
+    color: var(--text-muted);
+    font-family: var(--font-label);
     font-size: 11px;
     letter-spacing: .1em;
-    opacity: .5;
 }
 
 /* --progress is set by the JS module. */
@@ -170,7 +172,7 @@
     border-radius: 3px;
     -webkit-appearance: none;
     appearance: none;
-    background: linear-gradient(90deg, var(--pink) var(--progress, 0%), var(--border) var(--progress, 0%));
+    background: var(--accent) no-repeat 0 0 / var(--progress, 0%) 100%, var(--border);
 }
 
 .mx-seek::-webkit-slider-thumb {
