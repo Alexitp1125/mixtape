@@ -11,7 +11,5 @@ namespace Mixtape.Client.Tracks
 
         // YouTube video ID (the part after v=).
         public string VideoId { get; init; } = null!;
-
-        public IReadOnlyList<LyricLine> Lyrics { get; init; } = [];
     }
 }

@@ -1,14 +1,23 @@
-/* Two columns: cover and video on the left, lyrics on the right. */
-.mx-stage {
+/* Title, artist and the official YouTube player. */
+.mx-info {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: start;
+    gap: 24px;
 }
 
-.mx-stage-side {
-    display: grid;
-    gap: 22px;
+.mx-info h1 {
+    margin: 0;
+    font-size: clamp(34px, 4vw, 60px);
+    line-height: 1.05;
+    letter-spacing: .02em;
+}
+
+.mx-artist {
+    margin: -12px 0 0;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
 }
 
 /* YouTube asks for a visible player of at least 200x200. */
@@ -49,58 +58,6 @@
     letter-spacing: .2em;
     text-align: center;
     text-transform: uppercase;
-}
-
-/* Lyrics */
-.mx-lyrics {
-    position: relative;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 12px;
-}
-
-.mx-lyrics ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.mx-lyrics li {
-    margin: 0 0 14px;
-    font-family: var(--font-title);
-    font-weight: 300;
-    font-size: 19px;
-    line-height: 1.5;
-    opacity: .32;
-    transition: opacity .3s ease, color .3s ease;
-}
-
-.mx-lyrics li.mx-on {
-    color: var(--accent-1);
-    opacity: 1;
-}
-
-.mx-static li {
-    opacity: .85;
-}
-
-.mx-lyrics-empty {
-    display: grid;
-    justify-items: start;
-    gap: 18px;
-    padding-top: 8px;
-}
-
-.mx-lyrics-empty img {
-    width: 96px;
-    height: 96px;
-}
-
-.mx-lyrics-empty p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 16px;
-    line-height: 1.6;
 }
 
 /* Control bar, fixed at the bottom. */
@@ -192,20 +149,15 @@
     background: var(--text);
 }
 
-@media (max-width: 860px) {
-    .mx-stage {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    /* On small screens the video already shows the song; the cover would push the lyrics down. */
-    .mx-stage-side .mx-cover {
+@media (max-width: 640px) {
+    .mx-seek {
         display: none;
     }
 }
 
-@media (max-width: 640px) {
-    .mx-seek {
-        display: none;
+/* Big screens. */
+@media (min-width: 1600px) {
+    .mx-controls-inner {
+        max-width: 1440px;
     }
 }

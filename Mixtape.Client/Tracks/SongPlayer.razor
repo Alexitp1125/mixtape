@@ -1,38 +1,18 @@
-@* Song view: cover, official YouTube player, lyrics and the control bar.
-   The JS module next to this file talks to YouTube and keeps time, seek bar and active line in sync. *@
+@* Title, artist, the official YouTube player and the control bar. The page (TrackPage) draws the cover around it.
+   The JS module next to this file talks to YouTube and keeps the time, the seek bar and the record in sync. *@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 
-<div class="mx-stage">
-    <div class="mx-stage-side">
-        <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverSvg)</div>
+<div class="mx-info">
+    <h1>@Track.Title</h1>
+    <p class="mx-artist">@Track.Artist</p>
 
-        <div class="mx-video">
-            <div class="mx-video-host" @ref="videoHost"></div>
-            @if (error is not null)
-            {
-                <p class="mx-video-message">@error</p>
-            }
-        </div>
-    </div>
-
-    <div class="mx-lyrics @(synced ? "" : "mx-static")" @ref="lyricsBox">
-        @if (Track.Lyrics.Count == 0)
+    <div class="mx-video">
+        <div class="mx-video-host" @ref="videoHost"></div>
+        @if (error is not null)
         {
-            <div class="mx-lyrics-empty">
-                <img src="brand/rako-empty.svg" alt="" width="96" height="96" />
-                <p>@L["Player.NoLyrics"]</p>
-            </div>
-        }
-        else
-        {
-            <ol>
-                @foreach (LyricLine line in Track.Lyrics)
-                {
-                    <li data-time="@(line.Time?.ToString(CultureInfo.InvariantCulture))">@line.Text</li>
-                }
-            </ol>
+            <p class="mx-video-message">@error</p>
         }
     </div>
 </div>
@@ -63,12 +43,7 @@
     [Parameter, EditorRequired]
     public TrackDetails Track { get; set; } = null!;
 
-    // SVG markup of the cover.
-    [Parameter, EditorRequired]
-    public string CoverSvg { get; set; } = null!;
-
     private ElementReference videoHost;
-    private ElementReference lyricsBox;
     private ElementReference timeLabel;
     private ElementReference seekBar;
 
@@ -76,16 +51,10 @@
     private IJSObjectReference? player;
     private DotNetObjectReference<SongPlayer>? selfReference;
 
-    private bool synced;
     private bool ready;
     private bool playing;
     private string? error;
     private bool disposed;
-
-    protected override void OnParametersSet()
-    {
-        synced = Track.Lyrics.Any(x => x.Time is not null);
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -98,7 +67,7 @@
         {
             selfReference = DotNetObjectReference.Create(this);
             module = await JS.InvokeAsync<IJSObjectReference>("import", "./Tracks/SongPlayer.razor.js");
-            player = await module.InvokeAsync<IJSObjectReference>("create", videoHost, lyricsBox, timeLabel, seekBar, Track.VideoId, selfReference);
+            player = await module.InvokeAsync<IJSObjectReference>("create", videoHost, timeLabel, seekBar, Track.VideoId, selfReference);
 
             // The user left the page while the player was loading.
             if (disposed)

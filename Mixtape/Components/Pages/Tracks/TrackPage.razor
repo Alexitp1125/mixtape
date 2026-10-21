@@ -8,12 +8,18 @@
 
     <a class="mx-back" href="@PageNames.Home">← @L["Track.Back"]</a>
 
-    <header class="mx-head">
-        <h1>@track.Title</h1>
-        <p>@track.Artist</p>
-    </header>
+    @* The cover stays here (static) and only the player is interactive: the SVG never travels through the circuit. *@
+    <div class="mx-stage">
+        <div class="mx-record">
+            <div class="mx-vinyl"></div>
+            <div class="mx-cover" aria-hidden="true">@((MarkupString)cover)</div>
+        </div>
 
-    <SongPlayer Track="track" CoverSvg="@Catalog.GetCover(track.Slug)" @rendermode="InteractiveAuto" />
+        <SongPlayer Track="track" @rendermode="InteractiveAuto" />
+
+        @* Blurred copy of the cover behind the whole page. *@
+        <div class="mx-ambient" aria-hidden="true">@((MarkupString)ambient)</div>
+    </div>
 }
 
 @code {
@@ -21,6 +27,8 @@
     public string Slug { get; set; } = null!;
 
     private TrackDetails? track;
+    private string cover = "";
+    private string ambient = "";
 
     protected override void OnInitialized()
     {
@@ -29,6 +37,12 @@
         if (track is null)
         {
             Navigation.NotFound();
+            return;
         }
+
+        cover = Catalog.GetCover(track.Slug);
+
+        // Same cover with its own IDs, so the blurred copy doesn't reuse the animated masks and gradients.
+        ambient = cover.Replace("id=\"", "id=\"amb-").Replace("url(#", "url(#amb-");
     }
 }

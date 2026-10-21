@@ -51,8 +51,15 @@
     text-transform: uppercase;
 }
 
-@media (max-width: 760px) {
+/* One column on phones, two on tablets and laptops, four on big screens. */
+@media (max-width: 699px) {
     .mx-gallery {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 1600px) {
+    .mx-gallery {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }

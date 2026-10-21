@@ -79,6 +79,14 @@
     padding: 40px 18px 160px;
 }
 
+/* Big screens: more room for the covers. */
+@media (min-width: 1600px) {
+    .mx-bar-inner,
+    .mx-main {
+        max-width: 1440px;
+    }
+}
+
 @media (max-width: 480px) {
     .mx-bar-inner {
         gap: 8px;

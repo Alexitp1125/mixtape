@@ -3,61 +3,24 @@
     "slug": "doma",
     "title": "Doma",
     "artist": "Jósean Log",
-    "videoId": "pCPYb7KPoUc",
-    "lyrics": [
-      { "time": 8, "text": "Sample line 1" },
-      { "time": 12, "text": "Sample line 2" },
-      { "time": 16, "text": "Sample line 3" },
-      { "time": 20, "text": "Sample line 4" },
-      { "time": 24, "text": "Sample line 5" },
-      { "time": 28, "text": "Sample line 6" },
-      { "time": 32, "text": "Sample line 7" },
-      { "time": 36, "text": "Sample line 8" },
-      { "time": 40, "text": "Sample line 9" },
-      { "time": 44, "text": "Sample line 10" },
-      { "time": 48, "text": "Sample line 11" },
-      { "time": 52, "text": "Sample line 12" }
-    ]
+    "videoId": "pCPYb7KPoUc"
   },
   {
     "slug": "chachacha",
     "title": "Chachachá",
     "artist": "Jósean Log",
-    "videoId": "sDMxQF18yvA",
-    "lyrics": [
-      { "text": "Sample line 1" },
-      { "text": "Sample line 2" },
-      { "text": "Sample line 3" },
-      { "text": "Sample line 4" },
-      { "text": "Sample line 5" },
-      { "text": "Sample line 6" },
-      { "text": "Sample line 7" },
-      { "text": "Sample line 8" }
-    ]
+    "videoId": "sDMxQF18yvA"
   },
   {
     "slug": "beso",
     "title": "Beso",
     "artist": "Jósean Log",
-    "videoId": "ntdwWKaGaPQ",
-    "lyrics": []
+    "videoId": "ntdwWKaGaPQ"
   },
   {
     "slug": "luna",
     "title": "La Luna",
     "artist": "Jósean Log",
-    "videoId": "oJ7WZ_ZS2JA",
-    "lyrics": [
-      { "time": 10, "text": "Sample line 1" },
-      { "time": 15, "text": "Sample line 2" },
-      { "time": 20, "text": "Sample line 3" },
-      { "time": 25, "text": "Sample line 4" },
-      { "time": 30, "text": "Sample line 5" },
-      { "time": 35, "text": "Sample line 6" },
-      { "time": 40, "text": "Sample line 7" },
-      { "time": 45, "text": "Sample line 8" },
-      { "time": 50, "text": "Sample line 9" },
-      { "time": 55, "text": "Sample line 10" }
-    ]
+    "videoId": "oJ7WZ_ZS2JA"
   }
 ]

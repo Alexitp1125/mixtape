@@ -4,21 +4,16 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** la app funciona en local con la paleta v3 de la marca y el aspecto del hub
-  (fondo de cielo, barra translúcida, portadas y video con marco de tarjeta). Repo en GitHub
-  (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-21):** tema claro (botón ◐ en la barra).
-- **Qué sigue**, un commit por paso (el primero ya aprobado con su demo,
-  `mixtape-tema-y-cancion.html`, en el chat de Mixtape):
-  1. **Página de la canción sin letras, con la portada de protagonista:** copia desenfocada de la
-     portada detrás de toda la página (sin animaciones y con sus propios IDs); un vinilo detrás
-     de la portada que sale y gira al sonar; escritorio en dos columnas (portada + vinilo |
-     título, artista y video), móvil y tablet en una (portada arriba); ≥1600 px más ancho y el
-     catálogo a 4 columnas. Se borra todo lo de la letra (`LyricLine`, sincronización, textos).
-  2. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
-     para las que no tengan portada propia.
-  3. Desplegar según "Añadir una app nueva" de `server-infra`.
-  4. La tarjeta del hub se actualiza en el chat del hub, no aquí.
+- **Dónde estoy:** la app funciona en local con la paleta v3, tema claro y la página de la
+  canción nueva (portada de protagonista, vinilo y fondo con la portada desenfocada). Sin letras.
+  Repo en GitHub (`Alexitp1125/mixtape`).
+- **Lo último (2026-10-21):** tema claro; página de la canción sin letras y adaptada a cada
+  pantalla.
+- **Qué sigue**, un commit por paso:
+  1. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
+     para las que no tengan portada propia (hoy saldría un recuadro vacío).
+  2. Desplegar según "Añadir una app nueva" de `server-infra`.
+  3. La tarjeta del hub se actualiza en el chat del hub, no aquí.
 
 ## Qué es
 
@@ -79,9 +74,12 @@ y para recomendarlas con un enlace ("mírala aquí").
 | Sin `UseHttpsRedirection` ni HSTS en la app. | El HTTPS lo pone Caddy en el servidor; el contenedor solo habla HTTP en el 8080. |
 | Canciones y portadas en `Mixtape/Content/`, fuera de `wwwroot`. `TrackCatalog` (singleton) las lee una vez al arrancar. | Las portadas van incrustadas en la página (así cargan las fuentes y corren sus animaciones). Añadir una canción es tocar solo esa carpeta. |
 | `TrackDetails` en `.Client/Tracks/`. | Lo recibe el componente interactivo como parámetro. |
-| Páginas SSR (catálogo y canción) en el host; un solo componente interactivo, `SongPlayer` (`InteractiveAuto`). | Solo el reproductor necesita interactividad. |
+| Páginas SSR (catálogo y canción) en el host; un solo componente interactivo, `SongPlayer` (`InteractiveAuto`). La portada, el vinilo y el fondo desenfocado los pinta la página (`TrackPage`); `SongPlayer` recibe solo la canción (título, artista, ID del video). | Solo el reproductor necesita interactividad. Además, los parámetros de un componente interactivo viajan del navegador al servidor al arrancar el circuito, y Blazor Server corta los mensajes de más de 32 KB: con la portada (~10 KB de SVG) como parámetro, el circuito se caía y la música no arrancaba. |
 | En `SongPlayer`, Blazor lleva lo que pasa pocas veces (play/pausa, montar y desmontar) y el módulo JS `SongPlayer.razor.js` lo que pasa 4 veces por segundo (tiempo y barra). | En modo Server cada evento cruza SignalR; lo frecuente se queda en el navegador. |
 | El JS colocado de `.Client` se importa desde la raíz: `./Tracks/SongPlayer.razor.js`. | Los archivos estáticos de `.Client` se sirven en `/`, no en `_content/`. |
+| Página de la canción: la portada manda. Escritorio en dos columnas (portada con vinilo \| título, artista y video); tablet y móvil en una, portada arriba; ≥1600 px más ancho y catálogo a 4 columnas. | Es lo que hace que la app se vea distinta de YouTube; sin letras, la portada ocupa ese sitio. |
+| Detrás de la página va una copia de la portada muy desenfocada (`.mx-ambient`), sin animaciones y con sus propios IDs (`amb-…`). | La página toma los colores de cada canción. Sin animaciones, porque el desenfoque redibujado en cada fotograma pesa en móviles; con IDs propios, porque las referencias `url(#…)` se resolverían contra la copia animada. |
+| Un vinilo asoma detrás de la portada; al sonar sale un poco más y gira (clase `mx-playing` en `.mx-stage`, que pone `SongPlayer.razor.js` con el estado que manda YouTube). | Refuerza el "Mixtape" y conecta con el vinilo de la tarjeta del hub. Sigue al estado real de YouTube, aunque se use su propio botón. |
 | Al salir de la canción se destruye el reproductor. | La música no sigue sonando con el reproductor oculto (regla de YouTube). |
 | Sin autoplay: el video se prepara y el usuario pulsa play. | Quien llega por un enlace compartido no ha tocado la página y el navegador bloquearía el sonido; así funciona igual siempre. |
 | Sin `DependencyInjection/` vacío: aparece con el primer servicio (`TrackCatalog`). | §0. |
@@ -116,6 +114,13 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 ## Bitácora
 
 ### 2026-10-21
+- Corregido: la música no arrancaba en la página nueva (el servidor cortaba la conexión de Blazor
+  al empezar, sin dejar error en el log). La portada dejó de ser parámetro de `SongPlayer`: ahora
+  la pinta `TrackPage` y el vinilo lo mueve el módulo JS.
+- Página de la canción rediseñada: portada con vinilo, título, artista y video; fondo con la
+  portada desenfocada; una columna en tablet y móvil; más ancho en pantallas grandes y catálogo a
+  4 columnas. Fuera todo lo de las letras (`LyricLine`, sincronización, textos y las líneas de
+  relleno de `tracks.json`).
 - Tema claro: botón ◐ en la barra, `js/theme.js`, script en el `<head>` y texto "Cambiar tema"
   en EN/ES. En el tema claro, el círculo de la barra de avance usa `--text` (el crema no se
   veía) y la barra de error usa `--ink`.

@@ -51,9 +51,6 @@
   <data name="Player.Position" xml:space="preserve">
     <value>Position</value>
   </data>
-  <data name="Player.NoLyrics" xml:space="preserve">
-    <value>This song has no lyrics yet.</value>
-  </data>
   <data name="Player.ErrorInvalid" xml:space="preserve">
     <value>Invalid video ID.</value>
   </data>

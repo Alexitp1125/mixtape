@@ -1,4 +1,4 @@
-// YouTube player for one song. Keeps the time, the seek bar and the active lyric line in sync.
+// YouTube player for one song. Keeps the time and the seek bar in sync.
 // The audio always comes from the official YouTube player, which stays visible.
 
 let apiLoaded;
@@ -29,21 +29,18 @@ function loadYouTubeApi() {
     return apiLoaded;
 }
 
-export async function create(videoHost, lyricsBox, timeLabel, seekBar, videoId, dotNet) {
+export async function create(videoHost, timeLabel, seekBar, videoId, dotNet) {
     await loadYouTubeApi();
-    return new SongPlayer(videoHost, lyricsBox, timeLabel, seekBar, videoId, dotNet);
+    return new SongPlayer(videoHost, timeLabel, seekBar, videoId, dotNet);
 }
 
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
 class SongPlayer {
-    constructor(videoHost, lyricsBox, timeLabel, seekBar, videoId, dotNet) {
-        this.lyricsBox = lyricsBox;
-        this.lines = [...lyricsBox.querySelectorAll("li[data-time]")];
+    constructor(videoHost, timeLabel, seekBar, videoId, dotNet) {
         this.timeLabel = timeLabel;
         this.seekBar = seekBar;
         this.dotNet = dotNet;
-        this.activeLine = null;
+        // Page element around the cover and the player; gets mx-playing while the song plays.
+        this.stage = videoHost.closest(".mx-stage");
         this.playing = false;
         this.dragging = false;
 
@@ -88,6 +85,7 @@ class SongPlayer {
         this.seekBar.removeEventListener("input", this.onSeekInput);
         this.seekBar.removeEventListener("pointerdown", this.onSeekStart);
         this.seekBar.removeEventListener("change", this.onSeekEnd);
+        this.stage?.classList.remove("mx-playing");
         this.player.destroy?.();
     }
 
@@ -106,7 +104,6 @@ class SongPlayer {
         }
 
         this.timeLabel.textContent = `${formatTime(now)} / ${formatTime(duration)}`;
-        this.highlight(now);
     }
 
     seekToBar() {
@@ -119,29 +116,6 @@ class SongPlayer {
         this.player.seekTo(duration * this.seekBar.value / 1000, true);
     }
 
-    // Marks the last line whose time has passed and scrolls the lyrics box (not the page) to it.
-    highlight(now) {
-        let line = null;
-        for (const candidate of this.lines) {
-            if (now >= Number(candidate.dataset.time)) {
-                line = candidate;
-            }
-        }
-
-        if (line === this.activeLine) {
-            return;
-        }
-
-        this.activeLine?.classList.remove("mx-on");
-        line?.classList.add("mx-on");
-        this.activeLine = line;
-
-        if (line) {
-            const top = line.offsetTop - (this.lyricsBox.clientHeight - line.clientHeight) / 2;
-            this.lyricsBox.scrollTo({ top, behavior: reducedMotion.matches ? "auto" : "smooth" });
-        }
-    }
-
     onStateChange(state) {
         const playing = state === YT.PlayerState.PLAYING;
         if (playing === this.playing) {
@@ -149,6 +123,7 @@ class SongPlayer {
         }
 
         this.playing = playing;
+        this.stage?.classList.toggle("mx-playing", playing);
         this.notify("OnPlayingChanged", playing);
     }
 
