@@ -19,7 +19,12 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
      siguiente (tras la última, vuelve a la primera). Arranca sola solo si se ve al menos la
      mitad del video (regla de YouTube); en móvil el video queda bajo la portada: verlo en la demo.
   4. Dos canciones más de Jósean Log con su portada (Alexi elige y pasa los enlaces oficiales).
-  5. La tarjeta del hub (nombre "Mixtape", enlace y estado) se cambia en el chat del hub, no aquí.
+  5. Instalable como app (PWA), según la regla para todas las apps que se define en el chat de
+     configuración (`dev-conventions`). Hoy Brave dice "This app cannot be installed" porque el
+     manifiesto tiene `"display": "browser"`; además lleva el color de la paleta vieja
+     (`#241650`). Falta: `standalone`, colores v3, icono maskable, y que se pueda usar sin la
+     barra del navegador (botón Compartir, porque instalada no hay enlace que copiar).
+  6. La tarjeta del hub (nombre "Mixtape", enlace y estado) se cambia en el chat del hub, no aquí.
 
 ## Qué es
 
@@ -139,7 +144,9 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
   en el Caddyfile de `server-infra`; Caddy sacó el certificado de Let's Encrypt solo. Antes se
   probó la versión publicada (Release) en local.
 - Visto en el móvil ya desplegada: falta un aviso de carga; la barra de abajo brinca y hay
-  scroll lateral mientras suena (causa y arreglo en "Qué sigue").
+  scroll lateral mientras suena (causa y arreglo en "Qué sigue"). Tampoco se puede instalar
+  como app; Alexi lo pide como regla para todas las apps y se lo plantea al chat de
+  configuración.
 - Quitado `LyricLine.cs`, que se había quedado sin usar.
 - Corregido: la música no arrancaba en la página nueva (el servidor cortaba la conexión de Blazor
   al empezar, sin dejar error en el log). La portada dejó de ser parámetro de `SongPlayer`: ahora
