@@ -72,4 +72,40 @@
   <data name="Layout.Reload" xml:space="preserve">
     <value>Reload</value>
   </data>
+  <data name="Layout.Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="Layout.Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Layout.Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="Layout.LinkCopied" xml:space="preserve">
+    <value>Link copied</value>
+  </data>
+  <data name="Install.Title" xml:space="preserve">
+    <value>Install Mixtape</value>
+  </data>
+  <data name="Install.Step1" xml:space="preserve">
+    <value>Tap Share</value>
+  </data>
+  <data name="Install.Step2" xml:space="preserve">
+    <value>Choose “Add to Home Screen”</value>
+  </data>
+  <data name="Install.Step3" xml:space="preserve">
+    <value>Tap “Add”</value>
+  </data>
+  <data name="Install.Close" xml:space="preserve">
+    <value>Got it</value>
+  </data>
+  <data name="Player.Loading" xml:space="preserve">
+    <value>Loading…</value>
+  </data>
+  <data name="Player.Previous" xml:space="preserve">
+    <value>Previous song</value>
+  </data>
+  <data name="Player.Next" xml:space="preserve">
+    <value>Next song</value>
+  </data>
 </root>

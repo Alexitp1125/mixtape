@@ -44,6 +44,59 @@
     border: 0;
 }
 
+/* Shown until the YouTube player is ready. */
+.mx-video-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 16px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.mx-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 28px;
+}
+
+.mx-eq i {
+    width: 6px;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent-1);
+    transform-origin: bottom;
+    animation: mx-eq 1s ease-in-out infinite alternate;
+}
+
+.mx-eq i:nth-child(2) {
+    background: var(--accent-2);
+    animation-delay: -.3s;
+}
+
+.mx-eq i:nth-child(3) {
+    background: var(--accent-3);
+    animation-delay: -.6s;
+}
+
+.mx-eq i:nth-child(4) {
+    background: var(--accent-1);
+    animation-delay: -.15s;
+}
+
+@keyframes mx-eq {
+    from {
+        transform: scaleY(.25);
+    }
+}
+
 .mx-video-message {
     position: absolute;
     inset: 0;
@@ -65,7 +118,7 @@
     position: fixed;
     inset: auto 0 0 0;
     z-index: 10;
-    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    padding: 14px max(18px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
     border-top: 2px solid var(--line);
     background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(10px);
@@ -79,7 +132,36 @@
     margin: 0 auto;
 }
 
+/* Previous, play/pause and next. */
+.mx-transport {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+}
+
+.mx-skip {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: color .2s ease, background-color .2s ease;
+}
+
+.mx-skip:hover {
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    color: var(--text);
+}
+
+.mx-skip svg {
+    width: 18px;
+    height: 18px;
+}
+
 .mx-play {
+    position: relative;
     display: grid;
     flex: 0 0 44px;
     place-items: center;
@@ -98,6 +180,32 @@
 .mx-play:disabled {
     cursor: default;
     opacity: .4;
+}
+
+/* While the song loads: a ring turns around the button. */
+.mx-play.mx-loading {
+    opacity: 1;
+}
+
+.mx-play.mx-loading svg {
+    opacity: .35;
+}
+
+.mx-play.mx-loading::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 2px solid transparent;
+    border-top-color: var(--accent-1);
+    border-right-color: var(--accent-3);
+    border-radius: 50%;
+    animation: mx-turn .9s linear infinite;
+}
+
+@keyframes mx-turn {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .mx-now {

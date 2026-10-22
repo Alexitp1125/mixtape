@@ -1,4 +1,5 @@
-@* Title, artist, the official YouTube player and the control bar. The page (TrackPage) draws the cover around it.
+@* Title, artist, the official YouTube player and the control bar (previous, play/pause, next, time and seek bar).
+   The page (TrackPage) draws the cover around it.
    The JS module next to this file talks to YouTube and keeps the time, the seek bar and the record in sync. *@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
@@ -10,7 +11,14 @@
 
     <div class="mx-video">
         <div class="mx-video-host" @ref="videoHost"></div>
-        @if (error is not null)
+        @if (Loading)
+        {
+            <div class="mx-video-loading">
+                <span class="mx-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                @L["Player.Loading"]
+            </div>
+        }
+        else if (error is not null)
         {
             <p class="mx-video-message">@error</p>
         }
@@ -19,16 +27,27 @@
 
 <div class="mx-controls">
     <div class="mx-controls-inner">
-        <button class="mx-play" type="button" disabled="@(!ready)" aria-label="@(playing ? L["Player.Pause"] : L["Player.Play"])" @onclick="TogglePlayAsync">
-            @if (playing)
-            {
-                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" fill="currentColor" /><rect x="9.5" y="2" width="3.5" height="12" fill="currentColor" /></svg>
-            }
-            else
-            {
-                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2 L14 8 L4 14 Z" fill="currentColor" /></svg>
-            }
-        </button>
+        @* data-autoplay: the JS module starts the next song by itself (see SongPlayer.razor.js). *@
+        <div class="mx-transport">
+            <a class="mx-skip" href="@PreviousUrl" aria-label="@L["Player.Previous"]" data-autoplay>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="2" height="10" rx="1" fill="currentColor" /><path d="M13.5 3.2v9.6L5.8 8z" fill="currentColor" /></svg>
+            </a>
+
+            <button class="mx-play @(Loading ? "mx-loading" : null)" type="button" disabled="@(!ready)" aria-label="@(playing ? L["Player.Pause"] : L["Player.Play"])" @onclick="TogglePlayAsync">
+                @if (playing)
+                {
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" fill="currentColor" /><rect x="9.5" y="2" width="3.5" height="12" fill="currentColor" /></svg>
+                }
+                else
+                {
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2 L14 8 L4 14 Z" fill="currentColor" /></svg>
+                }
+            </button>
+
+            <a class="mx-skip" href="@NextUrl" aria-label="@L["Player.Next"]" data-autoplay @ref="nextLink">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="11.5" y="3" width="2" height="10" rx="1" fill="currentColor" /><path d="M2.5 3.2v9.6L10.2 8z" fill="currentColor" /></svg>
+            </a>
+        </div>
 
         <div class="mx-now">
             <b>@Track.Title — @Track.Artist</b>
@@ -43,9 +62,17 @@
     [Parameter, EditorRequired]
     public TrackDetails Track { get; set; } = null!;
 
+    // Pages of the songs before and after this one.
+    [Parameter, EditorRequired]
+    public string PreviousUrl { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public string NextUrl { get; set; } = null!;
+
     private ElementReference videoHost;
     private ElementReference timeLabel;
     private ElementReference seekBar;
+    private ElementReference nextLink;
 
     private IJSObjectReference? module;
     private IJSObjectReference? player;
@@ -55,6 +82,9 @@
     private bool playing;
     private string? error;
     private bool disposed;
+
+    // Until YouTube says the video is ready (or fails).
+    private bool Loading => !ready && error is null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -67,7 +97,7 @@
         {
             selfReference = DotNetObjectReference.Create(this);
             module = await JS.InvokeAsync<IJSObjectReference>("import", "./Tracks/SongPlayer.razor.js");
-            player = await module.InvokeAsync<IJSObjectReference>("create", videoHost, timeLabel, seekBar, Track.VideoId, selfReference);
+            player = await module.InvokeAsync<IJSObjectReference>("create", videoHost, timeLabel, seekBar, nextLink, Track.VideoId, selfReference);
 
             // The user left the page while the player was loading.
             if (disposed)

@@ -7,24 +7,16 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 - **Dónde estoy:** v1 en producción en https://mixtape.alexitp1125.com desde el 2026-10-21:
   4 canciones de Jósean Log con portada propia, paleta v3, tema claro, EN/ES. Sin letras.
   Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-21):** primer despliegue.
-- **Qué sigue** (próximo despliegue), un commit por paso:
-  1. Aviso de carga hasta que la canción esté lista. Hoy el play sale apagado y el recuadro
-     del video vacío, sin decir que está cargando.
-  2. Móvil: mientras suena, la barra de abajo brinca y la página tiene scroll lateral. Causa:
-     el vinilo gira como un cuadrado y su caja girada se sale de la pantalla (en un Pixel 7 el
-     ancho de la página oscila entre 412 y 448 px). Arreglo probado: que gire una capa interior
-     recortada por el propio vinilo.
-  3. Seguir sin volver atrás: ⏮ ⏭ junto al play, y al terminar una canción pasa sola a la
-     siguiente (tras la última, vuelve a la primera). Arranca sola solo si se ve al menos la
-     mitad del video (regla de YouTube); en móvil el video queda bajo la portada: verlo en la demo.
-  4. Dos canciones más de Jósean Log con su portada (Alexi elige y pasa los enlaces oficiales).
-  5. Instalable como app (PWA), según la regla para todas las apps que se define en el chat de
-     configuración (`dev-conventions`). Hoy Brave dice "This app cannot be installed" porque el
-     manifiesto tiene `"display": "browser"`; además lleva el color de la paleta vieja
-     (`#241650`). Falta: `standalone`, colores v3, icono maskable, y que se pueda usar sin la
-     barra del navegador (botón Compartir, porque instalada no hay enlace que copiar).
-  6. La tarjeta del hub (nombre "Mixtape", enlace y estado) se cambia en el chat del hub, no aquí.
+- **Lo último (2026-10-21, noche):** próxima versión escrita, sin desplegar: instalable como app
+  (§11 de `CONVENTIONS.md`), aviso de carga, ⏮ ⏭ con paso automático a la siguiente, el
+  arreglo del vinilo en el móvil y una quinta canción (*Pruébame a Ti*).
+- **Qué sigue:**
+  1. Alexi la prueba en local, commit y despliegue. Después, en su Android con Brave: instalar,
+     Compartir, Atrás, Recargar, sin conexión y zonas seguras; en el PC, DevTools → Application →
+     Manifest sin avisos (§11.8).
+  2. ¿Una sexta canción? Con cinco, la última fila del catálogo queda con una sola portada.
+  3. La tarjeta del hub (nombre "Mixtape", enlace, estado *Live* e `<install>`) se cambia en el
+     chat del hub, no aquí.
 
 ## Qué es
 
@@ -92,7 +84,13 @@ y para recomendarlas con un enlace ("mírala aquí").
 | Detrás de la página va una copia de la portada muy desenfocada (`.mx-ambient`), sin animaciones y con sus propios IDs (`amb-…`). | La página toma los colores de cada canción. Sin animaciones, porque el desenfoque redibujado en cada fotograma pesa en móviles; con IDs propios, porque las referencias `url(#…)` se resolverían contra la copia animada. |
 | Un vinilo asoma detrás de la portada; al sonar sale un poco más y gira (clase `mx-playing` en `.mx-stage`, que pone `SongPlayer.razor.js` con el estado que manda YouTube). | Refuerza el "Mixtape" y conecta con el vinilo de la tarjeta del hub. Sigue al estado real de YouTube, aunque se use su propio botón. |
 | Al salir de la canción se destruye el reproductor. | La música no sigue sonando con el reproductor oculto (regla de YouTube). |
-| Sin autoplay: el video se prepara y el usuario pulsa play. | Quien llega por un enlace compartido no ha tocado la página y el navegador bloquearía el sonido; así funciona igual siempre. |
+| Al abrir una canción, el video se prepara y espera a play. Solo arranca solo después de ⏮ ⏭ o al terminar la anterior, y solo cuando se ve al menos la mitad del video (sin contar lo que tapa la barra de controles). Lo marca un aviso en `sessionStorage` (`mixtape-autoplay`) que lee el reproductor siguiente. | Quien llega por un enlace compartido no ha tocado la página y el navegador bloquearía el sonido. Lo de la mitad es la regla de YouTube para empezar solo; en el móvil el video queda bajo la portada, así que espera a que se baje hasta él o a que se pulse play. |
+| ⏮ ⏭ en la barra de controles; al terminar una canción pasa a la siguiente y, tras la última, vuelve a la primera (`TrackCatalog.GetPrevious/GetNext`). `TrackPage` pone `@key` al `SongPlayer` para que cada canción tenga un reproductor nuevo. | Escuchar seguido sin volver a la lista. Los enlaces son normales (navegación mejorada) y el `@key` asegura que el reproductor viejo se destruye y el nuevo carga su video. |
+| Mientras YouTube prepara el video: anillo girando en el play y "Cargando…" con un ecualizador en el recuadro del video. | Antes el play salía apagado sin explicar por qué. |
+| El vinilo no gira entero: gira una capa de dentro (`::before`), recortada por el propio disco. | Un cuadrado girado ocupa más que su caja; en el móvil la página cambiaba de ancho al ritmo del disco (scroll lateral y barra de abajo saltando). |
+| Instalable como app según §11 de `CONVENTIONS.md`: manifiesto `standalone` con `id`, archivos de `dev-conventions/pwa/` copiados tal cual (`sw.js`, `offline.html`, `js/app-shell.js`), botón Instalar, diálogo de iPhone, y Atrás/Compartir/Recargar solo instalada. | Regla de la plataforma (2026-10-21). |
+| Icono de app: Rako con un vinilo detrás, sobre el degradado "sol de la ciudad" (`#FF7CC8 → #FFE45C`), etiqueta rosa como el disco de la canción. Fuente en `wwwroot/app-icon.svg`; de ahí salen `icon-maskable-512.png` y `apple-touch-icon.png` (opacos). En el PC, el Rako de siempre (`favicon-192/512`). | Elegido por Alexi en la demo: el detalle del vinilo con los colores del casete. Fondo cálido para distinguirlo del hub (cielo de noche). |
+| Barra: idioma en la píldora EN\|ES del hub. En el móvil, el enlace a alexitp1125 baja al final de la página (`.mx-footer`); en pantallas de 400 px o menos queda solo Rako cuando la barra se llena (Instalar visible, o instalada). Esa regla usa `:has()` y está en `app.css`. | Con Instalar, y con Atrás/Compartir/Recargar instalada, la barra no cabe en un teléfono. |
 | Sin `DependencyInjection/` vacío: aparece con el primer servicio (`TrackCatalog`). | §0. |
 | Tema claro como en el hub: botón ◐ en la barra; se guarda en `localStorage` (`theme`) y un script en el `<head>` lo aplica antes de pintar; por defecto, noche. `js/theme.js` lo cambia y lo vuelve a poner tras la navegación mejorada (`enhancedload`). Con `data-theme`, no `data-bs-theme`. | Mismo comportamiento en toda la plataforma, sin parpadeo. `data-theme` porque aquí no hay Bootstrap (`tokens.css` acepta los dos). Cada subdominio guarda su propia elección; compartirla (cookie del dominio) sería un cambio del hub y de las apps. |
 
@@ -138,6 +136,19 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-10-21 (casa, noche)
+- Leída la regla nueva de `dev-conventions` (§11 "Instalable como app", carpeta `pwa/`, icono del
+  hub). Demo de la próxima versión aprobada; icono elegido: vinilo con los colores del casete.
+- Escrito: instalable (manifiesto, iconos, `sw.js`, `offline.html`, `app-shell.js`, barra con
+  Instalar/Atrás/Compartir/Recargar, diálogo de iPhone, zonas seguras, enlace al hub al final en el
+  móvil), aviso de carga, ⏮ ⏭ con paso automático, arreglo del vinilo. Fuera `favicon-180.png`
+  (lo sustituye `apple-touch-icon.png`, con fondo).
+- Quinta canción: *Pruébame a Ti* (`TR4i7j9Ry74`, video oficial del canal de Jósean Log). Portada
+  V: dos cerezas que se balancean sobre el degradado "sol de la ciudad", el mismo del icono.
+- Probado sin compilar: el módulo JS con un YouTube simulado (espera sin aviso, arranca solo si se
+  ve, espera si el video está fuera de pantalla, pasa a la siguiente al terminar) y el ancho de la
+  página con el disco girando (fijo).
 
 ### 2026-10-21
 - **Desplegada** en https://mixtape.alexitp1125.com: servicio `mixtape` en el compose y sitio

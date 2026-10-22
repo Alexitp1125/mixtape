@@ -1,7 +1,36 @@
 // YouTube player for one song. Keeps the time and the seek bar in sync.
 // The audio always comes from the official YouTube player, which stays visible.
+// When a song ends it goes to the next one.
 
 let apiLoaded;
+
+// Set when the user goes to another song with ⏮ ⏭, or when a song ends; read by the next player.
+const AUTOPLAY_KEY = "mixtape-autoplay";
+
+document.addEventListener("click", e => {
+    if (e.target.closest("[data-autoplay]")) {
+        setAutoplay();
+    }
+}, true);
+
+function setAutoplay() {
+    try {
+        sessionStorage.setItem(AUTOPLAY_KEY, "1");
+    } catch {
+        // Storage blocked: the next song waits for play.
+    }
+}
+
+// Reads the flag once: it's only for the song that comes right after.
+function takeAutoplay() {
+    try {
+        const value = sessionStorage.getItem(AUTOPLAY_KEY) === "1";
+        sessionStorage.removeItem(AUTOPLAY_KEY);
+        return value;
+    } catch {
+        return false;
+    }
+}
 
 // Loads the YouTube IFrame API once for the whole page.
 function loadYouTubeApi() {
@@ -29,20 +58,26 @@ function loadYouTubeApi() {
     return apiLoaded;
 }
 
-export async function create(videoHost, timeLabel, seekBar, videoId, dotNet) {
+export async function create(videoHost, timeLabel, seekBar, nextLink, videoId, dotNet) {
+    const autoplay = takeAutoplay();
     await loadYouTubeApi();
-    return new SongPlayer(videoHost, timeLabel, seekBar, videoId, dotNet);
+    return new SongPlayer(videoHost, timeLabel, seekBar, nextLink, videoId, dotNet, autoplay);
 }
 
 class SongPlayer {
-    constructor(videoHost, timeLabel, seekBar, videoId, dotNet) {
+    constructor(videoHost, timeLabel, seekBar, nextLink, videoId, dotNet, autoplay) {
         this.timeLabel = timeLabel;
         this.seekBar = seekBar;
+        this.nextLink = nextLink;
         this.dotNet = dotNet;
+        this.autoplay = autoplay;
+        this.video = videoHost.closest(".mx-video");
+        this.controls = seekBar.closest(".mx-controls");
         // Page element around the cover and the player; gets mx-playing while the song plays.
         this.stage = videoHost.closest(".mx-stage");
         this.playing = false;
         this.dragging = false;
+        this.observer = null;
 
         this.onSeekInput = () => this.seekToBar();
         this.onSeekStart = () => { this.dragging = true; };
@@ -55,7 +90,7 @@ class SongPlayer {
         const target = document.createElement("div");
         videoHost.appendChild(target);
 
-        // videoId without autoplay: the video is cued and waits for play.
+        // The video is cued: it starts with play, or by itself after ⏮ ⏭ or the end of a song (playWhenVisible).
         this.player = new YT.Player(target, {
             host: "https://www.youtube-nocookie.com",
             videoId,
@@ -63,7 +98,7 @@ class SongPlayer {
             height: "100%",
             playerVars: { playsinline: 1, rel: 0, origin: location.origin },
             events: {
-                onReady: () => this.notify("OnReady"),
+                onReady: () => this.onReady(),
                 onStateChange: e => this.onStateChange(e.data),
                 onError: e => this.notify("OnError", e.data),
             },
@@ -80,7 +115,40 @@ class SongPlayer {
         }
     }
 
+    onReady() {
+        this.notify("OnReady");
+
+        if (this.autoplay) {
+            this.playWhenVisible();
+        }
+    }
+
+    // Starts the video once at least half of it is on screen, not counting what the control bar covers.
+    // On a phone the video can be below the cover: it waits until it's scrolled into view, or until play is pressed.
+    playWhenVisible() {
+        const covered = this.controls?.offsetHeight ?? 0;
+        this.observer = new IntersectionObserver(entries => {
+            if (entries.some(e => e.intersectionRatio >= 0.5)) {
+                this.stopWaiting();
+                this.player.playVideo();
+            }
+        }, { threshold: 0.5, rootMargin: `0px 0px -${covered}px 0px` });
+        this.observer.observe(this.video);
+    }
+
+    stopWaiting() {
+        this.observer?.disconnect();
+        this.observer = null;
+    }
+
+    // Song over: on to the next one, which starts by itself.
+    playNext() {
+        setAutoplay();
+        this.nextLink.click();
+    }
+
     dispose() {
+        this.stopWaiting();
         clearInterval(this.timer);
         this.seekBar.removeEventListener("input", this.onSeekInput);
         this.seekBar.removeEventListener("pointerdown", this.onSeekStart);
@@ -117,7 +185,15 @@ class SongPlayer {
     }
 
     onStateChange(state) {
+        if (state === YT.PlayerState.ENDED) {
+            this.playNext();
+        }
+
         const playing = state === YT.PlayerState.PLAYING;
+        if (playing) {
+            this.stopWaiting();
+        }
+
         if (playing === this.playing) {
             return;
         }

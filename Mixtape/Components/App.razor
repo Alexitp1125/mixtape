@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    @* Title bar (PC) and status bar (Android) of the installed app; js/app-shell.js keeps it on the theme's --bg. *@
+    <meta name="theme-color" content="#110B4A" />
     <base href="/" />
 
     @* Saved theme, applied before the first paint. Default: dark. *@
@@ -22,8 +24,9 @@
 
     <link rel="icon" href="@Assets["favicon.svg"]" type="image/svg+xml" />
     <link rel="icon" href="@Assets["favicon-32.png"]" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="@Assets["favicon-180.png"]" />
+    <link rel="apple-touch-icon" href="@Assets["apple-touch-icon.png"]" />
     <link rel="manifest" href="@Assets["manifest.webmanifest"]" />
+    <meta name="apple-mobile-web-app-title" content="Mixtape" />
 
     <ImportMap />
     <HeadOutlet />
@@ -38,6 +41,7 @@
         Blazor.start({ webAssembly: { applicationCulture: document.documentElement.lang } });
     </script>
     <script src="@Assets["js/theme.js"]"></script>
+    <script src="@Assets["js/app-shell.js"]"></script>
 </body>
 
 </html>

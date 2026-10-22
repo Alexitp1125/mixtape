@@ -6,7 +6,7 @@ namespace Mixtape.Tracks
     // Songs and covers from the Content folder, read once at startup.
     public sealed class TrackCatalog
     {
-        private readonly IReadOnlyList<TrackDetails> tracks;
+        private readonly List<TrackDetails> tracks;
         private readonly Dictionary<string, string> covers;
 
         public TrackCatalog(IWebHostEnvironment environment)
@@ -26,6 +26,13 @@ namespace Mixtape.Tracks
 
         public TrackDetails? GetTrack(string slug) =>
             tracks.FirstOrDefault(x => string.Equals(x.Slug, slug, StringComparison.OrdinalIgnoreCase));
+
+        // The songs before and after this one. The list wraps around: after the last comes the first.
+        public TrackDetails GetPrevious(TrackDetails track) =>
+            tracks[(tracks.IndexOf(track) - 1 + tracks.Count) % tracks.Count];
+
+        public TrackDetails GetNext(TrackDetails track) =>
+            tracks[(tracks.IndexOf(track) + 1) % tracks.Count];
 
         // SVG markup of the cover; empty when the song has none.
         public string GetCover(string slug) => covers.GetValueOrDefault(slug, "");

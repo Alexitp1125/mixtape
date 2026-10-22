@@ -4,6 +4,7 @@ A music player with a city-pop look: favorite songs, each with its own page and 
 
 - Audio always plays through the official YouTube player.
 - Covers are original designs.
+- Installable as an app on phones and computers.
 
 **Status:** in development.
 

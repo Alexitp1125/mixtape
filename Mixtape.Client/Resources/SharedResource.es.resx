@@ -72,4 +72,40 @@
   <data name="Layout.Reload" xml:space="preserve">
     <value>Recargar</value>
   </data>
+  <data name="Layout.Install" xml:space="preserve">
+    <value>Instalar</value>
+  </data>
+  <data name="Layout.Back" xml:space="preserve">
+    <value>Atrás</value>
+  </data>
+  <data name="Layout.Share" xml:space="preserve">
+    <value>Compartir</value>
+  </data>
+  <data name="Layout.LinkCopied" xml:space="preserve">
+    <value>Enlace copiado</value>
+  </data>
+  <data name="Install.Title" xml:space="preserve">
+    <value>Instalar Mixtape</value>
+  </data>
+  <data name="Install.Step1" xml:space="preserve">
+    <value>Toca Compartir</value>
+  </data>
+  <data name="Install.Step2" xml:space="preserve">
+    <value>Elige «Añadir a pantalla de inicio»</value>
+  </data>
+  <data name="Install.Step3" xml:space="preserve">
+    <value>Toca «Añadir»</value>
+  </data>
+  <data name="Install.Close" xml:space="preserve">
+    <value>Entendido</value>
+  </data>
+  <data name="Player.Loading" xml:space="preserve">
+    <value>Cargando…</value>
+  </data>
+  <data name="Player.Previous" xml:space="preserve">
+    <value>Canción anterior</value>
+  </data>
+  <data name="Player.Next" xml:space="preserve">
+    <value>Canción siguiente</value>
+  </data>
 </root>

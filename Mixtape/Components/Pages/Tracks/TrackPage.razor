@@ -15,7 +15,8 @@
             <div class="mx-cover" aria-hidden="true">@((MarkupString)cover)</div>
         </div>
 
-        <SongPlayer Track="track" @rendermode="InteractiveAuto" />
+        @* A new player for each song (@key), also when ⏮ ⏭ go from song to song. *@
+        <SongPlayer @key="track.Slug" Track="track" PreviousUrl="@previousUrl" NextUrl="@nextUrl" @rendermode="InteractiveAuto" />
 
         @* Blurred copy of the cover behind the whole page. *@
         <div class="mx-ambient" aria-hidden="true">@((MarkupString)ambient)</div>
@@ -29,6 +30,8 @@
     private TrackDetails? track;
     private string cover = "";
     private string ambient = "";
+    private string previousUrl = "";
+    private string nextUrl = "";
 
     protected override void OnInitialized()
     {
@@ -44,5 +47,8 @@
 
         // Same cover with its own IDs, so the blurred copy doesn't reuse the animated masks and gradients.
         ambient = cover.Replace("id=\"", "id=\"amb-").Replace("url(#", "url(#amb-");
+
+        previousUrl = PageNames.TrackUrl(Catalog.GetPrevious(track).Slug);
+        nextUrl = PageNames.TrackUrl(Catalog.GetNext(track).Slug);
     }
 }

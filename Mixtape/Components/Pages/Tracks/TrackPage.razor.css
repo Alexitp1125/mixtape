@@ -71,17 +71,28 @@
     left: 16%;
     height: 92%;
     aspect-ratio: 1;
+    overflow: hidden;
     border-radius: 50%;
+    transition: left .7s ease;
+}
+
+/* The grooves spin inside the record: the record itself doesn't turn, so it never sticks out of the page. */
+.mx-vinyl::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     background:
         radial-gradient(circle, var(--cream) 0 2%, var(--accent-3) 2.4% 10%, var(--accent-2) 10% 16%, transparent 16.4%),
         conic-gradient(from 20deg, transparent 0 8%, rgb(255 255 255 / .1) 12%, transparent 18% 58%, rgb(255 255 255 / .1) 62%, transparent 68%),
         repeating-radial-gradient(circle, color-mix(in srgb, var(--ink) 45%, black) 0 2px, color-mix(in srgb, var(--ink) 70%, black) 2px 4px);
-    transition: left .7s ease;
     animation: mx-spin 5s linear infinite paused;
 }
 
 .mx-playing .mx-vinyl {
     left: 27%;
+}
+
+.mx-playing .mx-vinyl::before {
     animation-play-state: running;
 }
 

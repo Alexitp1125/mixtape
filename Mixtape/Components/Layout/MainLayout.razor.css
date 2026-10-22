@@ -1,5 +1,7 @@
-/* Brand bar: Rako + app name, language, theme and link to the platform. Same look as the hub bar. */
+/* Brand bar: Rako + app name, Install, language, theme and link to the platform. Same look as the hub bar.
+   In the installed app it also shows Back, Share and Reload (pwa/app-shell.js runs them). */
 .mx-bar {
+    padding-top: env(safe-area-inset-top);
     border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
     background: color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: blur(8px);
@@ -8,21 +10,23 @@
 .mx-bar-inner {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     max-width: 1180px;
     margin: 0 auto;
-    padding: 14px 18px;
+    padding: 14px max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
 }
 
 .mx-brand {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
     margin-right: auto;
     text-decoration: none;
 }
 
 .mx-brand img {
+    flex: none;
     width: 32px;
     height: 32px;
 }
@@ -35,48 +39,160 @@
     text-transform: uppercase;
 }
 
-.mx-langs {
+.mx-bar-end {
     display: flex;
-    gap: 2px;
+    align-items: center;
+    gap: 14px;
 }
 
-.mx-langs a,
-.mx-platform,
-.mx-theme {
+/* Install: hidden until the browser can install the app. */
+.mx-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--cream);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgb(0 0 0 / .25);
+}
+
+.mx-install[hidden] {
+    display: none;
+}
+
+.mx-install svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Language: two options in a pill, as in the hub. */
+.mx-langs {
+    display: inline-flex;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+}
+
+.mx-langs a {
+    padding: 3px 9px;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-decoration: none;
+    transition: color .2s ease, background-color .2s ease;
+}
+
+.mx-langs a:hover {
+    color: var(--text);
+}
+
+.mx-langs a[aria-current="true"] {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.mx-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--text-muted);
+    transition: color .2s ease;
+}
+
+.mx-icon-btn:hover {
+    color: var(--text);
+}
+
+.mx-icon-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+.mx-platform {
     padding: 4px 6px;
     color: var(--text-muted);
     font-family: var(--font-label);
     font-size: 11px;
     letter-spacing: .2em;
     text-decoration: none;
+    white-space: nowrap;
     transition: color .2s ease;
 }
 
-.mx-langs a:hover,
-.mx-platform:hover,
-.mx-theme:hover {
+.mx-platform:hover {
     color: var(--text);
 }
 
-.mx-langs a[aria-current="true"] {
-    border-bottom: 2px solid var(--accent-3);
-    color: var(--text);
+/* Back, Share and Reload: only in the installed app; the browser has its own. */
+.mx-app-only {
+    display: none;
 }
 
-.mx-theme {
-    display: grid;
-    place-items: center;
-}
-
-.mx-theme svg {
-    width: 16px;
-    height: 16px;
+@media (display-mode: standalone) {
+    .mx-app-only {
+        display: grid;
+    }
 }
 
 .mx-main {
     max-width: 1180px;
     margin: 0 auto;
-    padding: 40px 18px 160px;
+    padding: 40px max(18px, env(safe-area-inset-right)) 160px max(18px, env(safe-area-inset-left));
+}
+
+/* Link to the platform at the end of the page, on phones (there's no room in the bar). */
+.mx-footer {
+    display: none;
+    margin-top: 56px;
+    text-align: center;
+}
+
+/* Steps to install on iPhone / iPad. */
+.mx-ios-install {
+    max-width: min(340px, calc(100vw - 32px));
+    padding: 22px 24px;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 5px 5px 0 var(--accent-2);
+}
+
+.mx-ios-install::backdrop {
+    background: rgb(0 0 0 / .45);
+}
+
+.mx-ios-install h2 {
+    margin: 0 0 12px;
+    font-size: 19px;
+    font-weight: 500;
+}
+
+.mx-ios-install ol {
+    margin: 0 0 20px;
+    padding-left: 20px;
+    line-height: 1.9;
+}
+
+.mx-ios-install ol svg {
+    width: 15px;
+    height: 15px;
+    vertical-align: -2px;
+}
+
+.mx-ios-install button {
+    padding: 9px 18px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--cream);
+    font-weight: 500;
 }
 
 /* Big screens: more room for the covers. */
@@ -87,9 +203,10 @@
     }
 }
 
-@media (max-width: 480px) {
-    .mx-bar-inner {
-        gap: 8px;
+/* Phones: the platform link moves to the end of the page. */
+@media (max-width: 640px) {
+    .mx-bar-end {
+        gap: 10px;
     }
 
     .mx-brand span {
@@ -98,5 +215,13 @@
 
     .mx-platform {
         display: none;
+    }
+
+    .mx-footer {
+        display: block;
+    }
+
+    .mx-footer .mx-platform {
+        display: inline;
     }
 }
