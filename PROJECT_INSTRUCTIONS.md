@@ -4,16 +4,22 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** la app funciona en local con la paleta v3, tema claro y la página de la
-  canción nueva (portada de protagonista, vinilo y fondo con la portada desenfocada). Sin letras.
+- **Dónde estoy:** v1 en producción en https://mixtape.alexitp1125.com desde el 2026-10-21:
+  4 canciones de Jósean Log con portada propia, paleta v3, tema claro, EN/ES. Sin letras.
   Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-21):** tema claro; página de la canción sin letras y adaptada a cada
-  pantalla.
-- **Qué sigue**, un commit por paso:
-  1. Contenido real: las canciones de Alexi con sus videos oficiales, y una portada genérica
-     para las que no tengan portada propia (hoy saldría un recuadro vacío).
-  2. Desplegar según "Añadir una app nueva" de `server-infra`.
-  3. La tarjeta del hub se actualiza en el chat del hub, no aquí.
+- **Lo último (2026-10-21):** primer despliegue.
+- **Qué sigue** (próximo despliegue), un commit por paso:
+  1. Aviso de carga hasta que la canción esté lista. Hoy el play sale apagado y el recuadro
+     del video vacío, sin decir que está cargando.
+  2. Móvil: mientras suena, la barra de abajo brinca y la página tiene scroll lateral. Causa:
+     el vinilo gira como un cuadrado y su caja girada se sale de la pantalla (en un Pixel 7 el
+     ancho de la página oscila entre 412 y 448 px). Arreglo probado: que gire una capa interior
+     recortada por el propio vinilo.
+  3. Seguir sin volver atrás: ⏮ ⏭ junto al play, y al terminar una canción pasa sola a la
+     siguiente (tras la última, vuelve a la primera). Arranca sola solo si se ve al menos la
+     mitad del video (regla de YouTube); en móvil el video queda bajo la portada: verlo en la demo.
+  4. Dos canciones más de Jósean Log con su portada (Alexi elige y pasa los enlaces oficiales).
+  5. La tarjeta del hub (nombre "Mixtape", enlace y estado) se cambia en el chat del hub, no aquí.
 
 ## Qué es
 
@@ -36,7 +42,7 @@ y para recomendarlas con un enlace ("mírala aquí").
 
 ## Hoja de ruta
 
-- **v1 (ahora):** el catálogo de Alexi, sin letras, con buena experiencia en móvil, escritorio
+- **v1 (en producción):** el catálogo de Alexi, sin letras, con buena experiencia en móvil, escritorio
   y pantalla grande. Se despliega.
 - **v2: listas por enlace.** Cualquiera pega un enlace de YouTube y arma su lista. Sin cuentas:
   al crear una lista se reciben dos enlaces, uno privado para editarla y otro para compartirla.
@@ -96,7 +102,22 @@ dotnet run --project Mixtape
 Se abre en http://localhost:5080.
 
 Al depurar con Visual Studio, el depurador de JS se para en excepciones internas del iframe de
-YouTube (`Permissions.query`). No son de la app: Continue, o arrancar con Ctrl+F5.
+YouTube (`Permissions.query`). No son de la app: Continue, o arrancar con Ctrl+F5. Fuera del
+depurador (y en producción) el navegador solo los anota en la consola.
+
+## Cómo se despliega
+
+Servicio `mixtape` en `server-infra` (compose y Caddyfile). Tras el push de la app:
+
+```bash
+ssh hub
+cd ~/projects/mixtape && git pull
+cd ~/server-infra && docker compose up -d --build mixtape
+```
+
+El build tarda unos 2–3 minutos. El log avisa de que las claves de Data Protection viven dentro
+del contenedor: es esperado. Al recrearlo, una pestaña que estaba abierta pierde la conexión y
+pide recargar; no hay sesiones ni datos que perder.
 
 ## Letras: lo investigado (2026-10-20)
 
@@ -114,6 +135,12 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 ## Bitácora
 
 ### 2026-10-21
+- **Desplegada** en https://mixtape.alexitp1125.com: servicio `mixtape` en el compose y sitio
+  en el Caddyfile de `server-infra`; Caddy sacó el certificado de Let's Encrypt solo. Antes se
+  probó la versión publicada (Release) en local.
+- Visto en el móvil ya desplegada: falta un aviso de carga; la barra de abajo brinca y hay
+  scroll lateral mientras suena (causa y arreglo en "Qué sigue").
+- Quitado `LyricLine.cs`, que se había quedado sin usar.
 - Corregido: la música no arrancaba en la página nueva (el servidor cortaba la conexión de Blazor
   al empezar, sin dejar error en el log). La portada dejó de ser parámetro de `SongPlayer`: ahora
   la pinta `TrackPage` y el vinilo lo mueve el módulo JS.
