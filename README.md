@@ -6,7 +6,7 @@ A music player with a city-pop look: favorite songs, each with its own page and 
 - Covers are original designs.
 - Installable as an app on phones and computers.
 
-**Status:** in development.
+**Status:** live at [mixtape.alexitp1125.com](https://mixtape.alexitp1125.com).
 
 ## Stack
 

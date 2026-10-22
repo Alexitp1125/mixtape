@@ -4,19 +4,26 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** v1 en producción en https://mixtape.alexitp1125.com desde el 2026-10-21:
-  4 canciones de Jósean Log con portada propia, paleta v3, tema claro, EN/ES. Sin letras.
+- **Dónde estoy:** en producción en https://mixtape.alexitp1125.com desde el 2026-10-21. La v1.1
+  está en GitHub (commit `f6302b0`): 5 canciones de Jósean Log con portada propia, instalable
+  como app, ⏮ ⏭ con paso automático, aviso de carga, paleta v3, tema claro, EN/ES. Sin letras.
   Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-21, noche):** próxima versión escrita, sin desplegar: instalable como app
-  (§11 de `CONVENTIONS.md`), aviso de carga, ⏮ ⏭ con paso automático a la siguiente, el
-  arreglo del vinilo en el móvil y una quinta canción (*Pruébame a Ti*).
+- **Lo último (2026-10-21, noche):** v1.1 escrita y subida: instalable como app (§11 de
+  `CONVENTIONS.md`), aviso de carga, ⏮ ⏭, arreglo del vinilo en el móvil y la quinta canción
+  (*Pruébame a Ti*).
 - **Qué sigue:**
-  1. Alexi la prueba en local, commit y despliegue. Después, en su Android con Brave: instalar,
-     Compartir, Atrás, Recargar, sin conexión y zonas seguras; en el PC, DevTools → Application →
-     Manifest sin avisos (§11.8).
-  2. ¿Una sexta canción? Con cinco, la última fila del catálogo queda con una sola portada.
-  3. La tarjeta del hub (nombre "Mixtape", enlace, estado *Live* e `<install>`) se cambia en el
-     chat del hub, no aquí.
+  1. Desplegar la v1.1 y probarla en el Android de Alexi con Brave: instalar, Compartir, Atrás,
+     Recargar, sin conexión y zonas seguras; en el PC, DevTools → Application → Manifest sin
+     avisos (§11.8). Contarle el resultado al chat de configuración (lo tiene como pendiente de
+     probar).
+  2. Quitar `Mixtape/wwwroot/favicon-180.png`: se quedó en el repo y ya no lo usa nada
+     (`git rm`).
+  3. Chat de configuración: el aviso "Enlace copiado" de `app-shell.js` sale abajo y tapa la
+     barra de controles 2,5 s. Haría falta poder subirlo (una variable); se cambia en
+     `dev-conventions/pwa/`, no aquí.
+  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>` (el
+     manifiesto ya tiene `id`).
+  5. ¿Una sexta canción? Con cinco, la última fila del catálogo queda con una sola portada.
 
 ## Qué es
 
@@ -40,7 +47,9 @@ y para recomendarlas con un enlace ("mírala aquí").
 ## Hoja de ruta
 
 - **v1 (en producción):** el catálogo de Alexi, sin letras, con buena experiencia en móvil, escritorio
-  y pantalla grande. Se despliega.
+  y pantalla grande.
+- **v1.1 (en GitHub):** instalable como app, ⏮ ⏭ con paso automático a la siguiente, aviso de
+  carga y una quinta canción.
 - **v2: listas por enlace.** Cualquiera pega un enlace de YouTube y arma su lista. Sin cuentas:
   al crear una lista se reciben dos enlaces, uno privado para editarla y otro para compartirla.
   Aquí entran PostgreSQL y `.Shared`, `.Application`, `.Data` y `.Tests` (§1.2).
@@ -50,18 +59,22 @@ y para recomendarlas con un enlace ("mírala aquí").
     condiciones no permiten guardarlos más de 30 días sin refrescar).
   - Listas no públicas por defecto, sin buscador de listas ajenas, límite de peticiones,
     copias de seguridad de la base de datos y una página corta de privacidad.
-- **v3: portadas generadas.** Las 4 portadas actuales como plantillas; el título elige
+- **v3: portadas generadas.** Las portadas actuales como plantillas; el título elige
   plantilla, color y composición.
 - **Después, si hace falta:** cuentas de usuario; vista previa al compartir (Open Graph, con la
   portada en PNG).
 
 ## Cómo añadir una canción
 
-1. Una entrada en `Mixtape/Content/tracks.json`: `slug`, `title`, `artist` y `videoId` (lo que
-   va después de `v=`).
-2. La portada en `Mixtape/Content/covers/{slug}.svg` (800×800, colores de la paleta, IDs y
-   clases con el prefijo del slug, porque el SVG va incrustado en la página).
-3. Reiniciar la app: el catálogo se lee una vez al arrancar.
+1. Video oficial que se pueda incrustar: el oEmbed de YouTube
+   (`https://www.youtube.com/oembed?url=<enlace>&format=json`) da título y canal, y falla si el
+   video no permite incrustarse.
+2. Una entrada en `Mixtape/Content/tracks.json`: `slug`, `title`, `artist` y `videoId` (lo que
+   va después de `v=`). El orden del archivo es el del catálogo y el de ⏮ ⏭.
+3. La portada en `Mixtape/Content/covers/{slug}.svg` (800×800, colores de la paleta, IDs y
+   clases con el prefijo del slug, porque el SVG va incrustado en la página). Lleva su número
+   romano arriba a la izquierda, en el orden de `tracks.json` (la siguiente es la VI).
+4. Reiniciar la app (en el servidor, desplegar): el catálogo se lee una vez al arrancar.
 
 ## Decisiones propias de esta app
 
@@ -108,6 +121,9 @@ Al depurar con Visual Studio, el depurador de JS se para en excepciones internas
 YouTube (`Permissions.query`). No son de la app: Continue, o arrancar con Ctrl+F5. Fuera del
 depurador (y en producción) el navegador solo los anota en la consola.
 
+El service worker (`sw.js`) también se registra en local. Para probar la página sin conexión:
+DevTools → Application → Service workers → *Offline*, y recargar. Para quitarlo: *Unregister*.
+
 ## Cómo se despliega
 
 Servicio `mixtape` en `server-infra` (compose y Caddyfile). Tras el push de la app:
@@ -142,10 +158,11 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
   hub). Demo de la próxima versión aprobada; icono elegido: vinilo con los colores del casete.
 - Escrito: instalable (manifiesto, iconos, `sw.js`, `offline.html`, `app-shell.js`, barra con
   Instalar/Atrás/Compartir/Recargar, diálogo de iPhone, zonas seguras, enlace al hub al final en el
-  móvil), aviso de carga, ⏮ ⏭ con paso automático, arreglo del vinilo. Fuera `favicon-180.png`
-  (lo sustituye `apple-touch-icon.png`, con fondo).
+  móvil), aviso de carga, ⏮ ⏭ con paso automático, arreglo del vinilo. `favicon-180.png` deja
+  de usarse (lo sustituye `apple-touch-icon.png`, con fondo), pero sigue en el repo.
 - Quinta canción: *Pruébame a Ti* (`TR4i7j9Ry74`, video oficial del canal de Jósean Log). Portada
   V: dos cerezas que se balancean sobre el degradado "sol de la ciudad", el mismo del icono.
+- Subida a GitHub como v1.1 (`f6302b0`).
 - Probado sin compilar: el módulo JS con un YouTube simulado (espera sin aviso, arranca solo si se
   ve, espera si el video está fuera de pantalla, pasa a la siguiente al terminar) y el ancho de la
   página con el disco girando (fijo).
