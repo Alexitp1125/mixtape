@@ -4,26 +4,22 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** en producción en https://mixtape.alexitp1125.com desde el 2026-10-21. La v1.1
-  está en GitHub (commit `f6302b0`): 5 canciones de Jósean Log con portada propia, instalable
-  como app, ⏮ ⏭ con paso automático, aviso de carga, paleta v3, tema claro, EN/ES. Sin letras.
-  Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-10-21, noche):** v1.1 escrita y subida: instalable como app (§11 de
-  `CONVENTIONS.md`), aviso de carga, ⏮ ⏭, arreglo del vinilo en el móvil y la quinta canción
-  (*Pruébame a Ti*).
+- **Dónde estoy:** v1.1 en producción en https://mixtape.alexitp1125.com (probada por Alexi,
+  todo bien): 5 canciones de Jósean Log con portada propia, instalable como app, ⏮ ⏭ con paso
+  automático, aviso de carga, paleta v3, tema claro, EN/ES. Sin letras. Repo en GitHub
+  (`Alexitp1125/mixtape`).
+- **Lo último (2026-11-12):** acordada la v2 (ver "Hoja de ruta"): segundo artista con
+  agrupación, usuarios sin contraseña con sus canciones de YouTube y portadas genéricas, y
+  PostgreSQL. Además, un "extra": una explicación breve del proyecto, igual en todas las apps.
 - **Qué sigue:**
-  1. Desplegar la v1.1 y probarla en el Android de Alexi con Brave: instalar, Compartir, Atrás,
-     Recargar, sin conexión y zonas seguras; en el PC, DevTools → Application → Manifest sin
-     avisos (§11.8). Contarle el resultado al chat de configuración (lo tiene como pendiente de
-     probar).
-  2. Quitar `Mixtape/wwwroot/favicon-180.png`: se quedó en el repo y ya no lo usa nada
-     (`git rm`).
-  3. Chat de configuración: el aviso "Enlace copiado" de `app-shell.js` sale abajo y tapa la
-     barra de controles 2,5 s. Haría falta poder subirlo (una variable); se cambia en
-     `dev-conventions/pwa/`, no aquí.
-  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>` (el
-     manifiesto ya tiene `id`).
-  5. ¿Una sexta canción? Con cinco, la última fila del catálogo queda con una sola portada.
+  1. Alexi cierra en el chat de configuración: PostgreSQL en el servidor (uno por app o
+     compartido, volumen, copias, migraciones, base de datos en local), la regla de usuarios de
+     las apps y el formato del "extra". También el aviso "Enlace copiado" de `app-shell.js`, que
+     tapa la barra de controles 2,5 s (se cambia en `dev-conventions/pwa/`, no aquí).
+  2. Con eso decidido, la v2 por pasos, cada uno desplegable (ver "Hoja de ruta").
+  3. Falta que Alexi diga el segundo artista y sus canciones (enlaces oficiales).
+  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
+     está hecho.
 
 ## Qué es
 
@@ -48,19 +44,31 @@ y para recomendarlas con un enlace ("mírala aquí").
 
 - **v1 (en producción):** el catálogo de Alexi, sin letras, con buena experiencia en móvil, escritorio
   y pantalla grande.
-- **v1.1 (en GitHub):** instalable como app, ⏮ ⏭ con paso automático a la siguiente, aviso de
+- **v1.1 (en producción):** instalable como app, ⏮ ⏭ con paso automático a la siguiente, aviso de
   carga y una quinta canción.
-- **v2: listas por enlace.** Cualquiera pega un enlace de YouTube y arma su lista. Sin cuentas:
-  al crear una lista se reciben dos enlaces, uno privado para editarla y otro para compartirla.
-  Aquí entran PostgreSQL y `.Shared`, `.Application`, `.Data` y `.Tests` (§1.2).
-  - Del enlace sale el ID del video. Título y canal, del servicio oEmbed de YouTube (sin clave),
-    que además valida si el video existe y **permite incrustarse** (muchos videos oficiales no).
-  - Se guarda el ID y el título/artista que confirma el usuario, no los datos de YouTube (sus
-    condiciones no permiten guardarlos más de 30 días sin refrescar).
-  - Listas no públicas por defecto, sin buscador de listas ajenas, límite de peticiones,
-    copias de seguridad de la base de datos y una página corta de privacidad.
-- **v3: portadas generadas.** Las portadas actuales como plantillas; el título elige
-  plantilla, color y composición.
+- **v2 (acordada el 2026-11-12), en tres pasos:**
+  1. **PostgreSQL, segundo artista y agrupación.** Entran PostgreSQL y `.Shared`,
+     `.Application`, `.Data` y `.Tests` (§1.2). Tablas: usuarios, artistas, canciones, portadas
+     y listas. El catálogo de Alexi pasa de `tracks.json` a la base de datos (una sola fuente).
+     Catálogo en secciones por artista; propuesta: ⏮ ⏭ se quedan dentro del artista (por
+     confirmar).
+  2. **Usuarios y sus canciones.** Sin contraseña y sin guardar datos de nadie: el usuario crea
+     un nombre y un PIN para volver a su lista. Ni correo ni nada más. Se perfecciona luego.
+     - El PIN se guarda cifrado (hash), nunca tal cual, y con límite de intentos: un PIN corto
+       se adivina probando.
+     - Pega un enlace de YouTube: del enlace sale el ID del video. Título y canal, del servicio
+       oEmbed de YouTube (sin clave), que además valida si el video existe y **permite
+       incrustarse** (muchos videos oficiales no).
+     - Se guarda el ID y el título/artista que confirma el usuario, no los datos de YouTube (sus
+       condiciones no permiten guardarlos más de 30 días sin refrescar).
+     - Elige una de 3 a 5 portadas genéricas; el título se dibuja encima.
+     - Listas visibles solo por enlace, sin buscador de listas ajenas, límite de canciones por
+       lista y de peticiones, una forma de que Alexi borre listas, copias de seguridad y una
+       página corta de privacidad.
+  3. **El "extra":** una explicación breve del proyecto (qué es y cómo está hecho). Mismo
+     formato que Chartwave; lo define el chat de configuración.
+- **Más adelante: portadas generadas.** Las portadas actuales como plantillas; el título elige
+  plantilla, color y composición. Las genéricas de la v2 son el primer paso.
 - **Después, si hace falta:** cuentas de usuario; vista previa al compartir (Open Graph, con la
   portada en PNG).
 
@@ -152,6 +160,14 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-12
+- La v1.1 está desplegada y probada: todo bien. `favicon-180.png` ya está fuera (`508253f`).
+- Acordada la v2 con Alexi: segundo artista y agrupación, usuarios sin contraseña (nombre + PIN,
+  sin guardar datos de nadie) con sus canciones de YouTube y 3–5 portadas genéricas, PostgreSQL, y
+  una explicación breve del proyecto. Lo que afecta a toda la plataforma (PostgreSQL en el
+  servidor, regla de usuarios, formato de la explicación) lo cierra antes en el chat de
+  configuración.
 
 ### 2026-10-21 (casa, noche)
 - Leída la regla nueva de `dev-conventions` (§11 "Instalable como app", carpeta `pwa/`, icono del
