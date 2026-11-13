@@ -9,15 +9,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mixtape.Client\Mixtape.Client.csproj" />
-    <ProjectReference Include="..\Mixtape.Data\Mixtape.Data.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
+    <ProjectReference Include="..\Mixtape.Application\Mixtape.Application.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.14" />
     <!-- For "dotnet ef": creating migrations. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Songs and covers travel with the published app. -->
+  <!-- The catalog and the covers travel with the published app. -->
   <ItemGroup>
-    <Content Update="Content\tracks.json" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="Content\catalog.json" CopyToPublishDirectory="PreserveNewest" />
     <None Update="Content\covers\*.svg" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 

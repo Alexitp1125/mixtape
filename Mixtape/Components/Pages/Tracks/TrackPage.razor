@@ -1,10 +1,11 @@
 @attribute [Route(PageNames.Track)]
-@inject TrackCatalog Catalog
+@inject ITracksService TracksService
+@inject CoverStore CoverStore
 @inject NavigationManager Navigation
 
 @if (track is not null)
 {
-    <PageTitle>@track.Title · @track.Artist · Mixtape</PageTitle>
+    <PageTitle>@track.Title · @track.ArtistName · Mixtape</PageTitle>
 
     <a class="mx-back" href="@PageNames.Home">← @L["Track.Back"]</a>
 
@@ -33,9 +34,9 @@
     private string previousUrl = "";
     private string nextUrl = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        track = Catalog.GetTrack(Slug);
+        track = await TracksService.GetTrackAsync(Slug);
 
         if (track is null)
         {
@@ -43,12 +44,12 @@
             return;
         }
 
-        cover = Catalog.GetCover(track.Slug);
+        cover = CoverStore.GetCover(track.CoverFileName);
 
         // Same cover with its own IDs, so the blurred copy doesn't reuse the animated masks and gradients.
         ambient = cover.Replace("id=\"", "id=\"amb-").Replace("url(#", "url(#amb-");
 
-        previousUrl = PageNames.TrackUrl(Catalog.GetPrevious(track).Slug);
-        nextUrl = PageNames.TrackUrl(Catalog.GetNext(track).Slug);
+        previousUrl = PageNames.TrackUrl(track.PreviousSlug);
+        nextUrl = PageNames.TrackUrl(track.NextSlug);
     }
 }

@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Mixtape.Application.Catalog;
+using Mixtape.Application.Tracks;
+using Mixtape.Covers;
 using Mixtape.Data;
-using Mixtape.Tracks;
+using Mixtape.Shared.Tracks;
 
 namespace Mixtape.DependencyInjection
 {
@@ -25,7 +28,9 @@ namespace Mixtape.DependencyInjection
 
         private static void AddBusinessServices(this IServiceCollection services)
         {
-            services.AddSingleton<TrackCatalog>();
+            services.AddSingleton<CoverStore>();
+            services.AddTransient<CatalogManager>();
+            services.AddTransient<ITracksService, TrackManager>();
         }
     }
 }

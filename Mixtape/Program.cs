@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Mixtape.Application.Catalog;
+using Mixtape.Catalog;
 using Mixtape.Components;
+using Mixtape.Covers;
 using Mixtape.Culture;
 using Mixtape.Data;
 using Mixtape.DependencyInjection;
@@ -20,6 +23,11 @@ await using (MixtapeDbContext dbContext = await app.Services.GetRequiredService<
 {
     await dbContext.Database.MigrateAsync();
 }
+
+// Puts Alexi's catalog (Content/catalog.json) into the database: adds what is new and updates what changed.
+await app.Services.GetRequiredService<CatalogManager>().SyncAsync(
+    CatalogFile.Read(app.Environment),
+    app.Services.GetRequiredService<CoverStore>().FileNames);
 
 if (app.Environment.IsDevelopment())
 {

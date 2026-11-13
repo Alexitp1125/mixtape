@@ -1,5 +1,6 @@
 @attribute [Route(PageNames.Home)]
-@inject TrackCatalog Catalog
+@inject ITracksService TracksService
+@inject CoverStore CoverStore
 
 <PageTitle>Mixtape</PageTitle>
 
@@ -14,14 +15,14 @@ else
     <h1 class="mx-heading">@L["Home.Title"]</h1>
 
     <ul class="mx-gallery">
-        @foreach (TrackDetails track in tracks)
+        @foreach (TrackInfo track in tracks)
         {
             <li>
                 <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)Catalog.GetCover(track.Slug))</div>
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName))</div>
                     <span class="mx-gallery-caption">
                         <b>@track.Title</b>
-                        <span>@track.Artist</span>
+                        <span>@track.ArtistName</span>
                     </span>
                 </a>
             </li>
@@ -30,10 +31,10 @@ else
 }
 
 @code {
-    private IReadOnlyList<TrackDetails> tracks = [];
+    private IReadOnlyList<TrackInfo> tracks = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        tracks = Catalog.GetTracks();
+        tracks = await TracksService.GetTracksAsync();
     }
 }

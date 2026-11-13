@@ -8,17 +8,21 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
   todo bien): 5 canciones de Jósean Log con portada propia, instalable como app, ⏮ ⏭ con paso
   automático, aviso de carga, paleta v3, tema claro, EN/ES. Sin letras. Repo en GitHub
   (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-12):** acordada la v2 (ver "Hoja de ruta"): segundo artista con
-  agrupación, usuarios sin contraseña con sus canciones de YouTube y portadas genéricas, y
-  PostgreSQL. Además, un "extra": una explicación breve del proyecto, igual en todas las apps.
+- **Lo último (2026-11-13):** v2, paso 1 en marcha. Commit 1 hecho y subido: PostgreSQL conectado,
+  tablas `Artists`, `Tracks` y `Covers`. Commit 2 (la app lee de la base de datos) probado en
+  local por Alexi: compila sin avisos y el volcado no repite nada.
 - **Qué sigue:**
-  1. Alexi cierra en el chat de configuración: PostgreSQL en el servidor (uno por app o
-     compartido, volumen, copias, migraciones, base de datos en local), la regla de usuarios de
-     las apps y el formato del "extra". También el aviso "Enlace copiado" de `app-shell.js`, que
-     tapa la barra de controles 2,5 s (se cambia en `dev-conventions/pwa/`, no aquí).
-  2. Con eso decidido, la v2 por pasos, cada uno desplegable (ver "Hoja de ruta").
-  3. Falta que Alexi diga el segundo artista y sus canciones (enlaces oficiales).
-  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
+  1. Commit 2 (`feat: read the catalog from the database`), push y despliegue. Es el primer
+     despliegue con base de datos: antes, copia a mano en el servidor
+     (`bash ~/server-infra/scripts/backup.sh`); después, mirar en el log las migraciones y
+     `Catalog synced`.
+  2. Commit 3: segundo artista (Alexi lo dice, con enlaces oficiales) y catálogo en secciones
+     por artista. Demo antes.
+  3. Paso 2 de la v2: usuarios (nombre + PIN) y sus canciones. Ahí el `Dockerfile` tiene que
+     crear `/home/app/.aspnet/DataProtection-Keys` con dueño `$APP_UID` antes de `USER`, y hay
+     que avisar al chat de estructura para que añada el volumen.
+  4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
+  5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
      está hecho.
 
 ## Qué es
@@ -49,9 +53,9 @@ y para recomendarlas con un enlace ("mírala aquí").
 - **v2 (acordada el 2026-11-12), en tres pasos:**
   1. **PostgreSQL, segundo artista y agrupación.** Entran PostgreSQL y `.Shared`,
      `.Application`, `.Data` y `.Tests` (§1.2). Tablas: usuarios, artistas, canciones, portadas
-     y listas. El catálogo de Alexi pasa de `tracks.json` a la base de datos (una sola fuente).
-     Catálogo en secciones por artista; propuesta: ⏮ ⏭ se quedan dentro del artista (por
-     confirmar).
+     y listas. El catálogo de Alexi se escribe en `catalog.json` y se vuelca en la base de datos al
+     arrancar; las páginas leen de la base de datos.
+     Catálogo en secciones por artista; ⏮ ⏭ se quedan dentro del artista.
   2. **Usuarios y sus canciones.** Sin contraseña y sin guardar datos de nadie: el usuario crea
      un nombre y un PIN para volver a su lista. Ni correo ni nada más. Se perfecciona luego.
      - El PIN se guarda cifrado (hash), nunca tal cual, y con límite de intentos: un PIN corto
@@ -74,15 +78,21 @@ y para recomendarlas con un enlace ("mírala aquí").
 
 ## Cómo añadir una canción
 
+Esto es para el catálogo de Alexi. Las canciones de los usuarios (paso 2 de la v2) entran por
+la app y viven solo en la base de datos.
+
 1. Video oficial que se pueda incrustar: el oEmbed de YouTube
    (`https://www.youtube.com/oembed?url=<enlace>&format=json`) da título y canal, y falla si el
    video no permite incrustarse.
-2. Una entrada en `Mixtape/Content/tracks.json`: `slug`, `title`, `artist` y `videoId` (lo que
-   va después de `v=`). El orden del archivo es el del catálogo y el de ⏮ ⏭.
+2. Una entrada en `Mixtape/Content/catalog.json`, dentro de su artista: `slug`, `title` y
+   `videoId` (lo que va después de `v=`). Un artista nuevo es un bloque más, con `slug`, `name`
+   y `tracks`. El orden del archivo es el del catálogo y el de ⏮ ⏭.
 3. La portada en `Mixtape/Content/covers/{slug}.svg` (800×800, colores de la paleta, IDs y
    clases con el prefijo del slug, porque el SVG va incrustado en la página). Lleva su número
-   romano arriba a la izquierda, en el orden de `tracks.json` (la siguiente es la VI).
-4. Reiniciar la app (en el servidor, desplegar): el catálogo se lee una vez al arrancar.
+   romano arriba a la izquierda, en el orden de `catalog.json` (la siguiente es la VI).
+4. Reiniciar la app (en el servidor, desplegar): al arrancar, el archivo se vuelca en la base
+   de datos. Añade lo nuevo y actualiza lo que cambió, buscando por slug; nunca borra. Para
+   quitar una canción hay que borrarla también de la tabla `Tracks`.
 
 ## Decisiones propias de esta app
 
@@ -92,12 +102,16 @@ y para recomendarlas con un enlace ("mírala aquí").
 | **Sin letras en la v1.** | Las letras de otros necesitan licencia. Mostrar una sola línea no cambia eso. Ver "Letras" más abajo. |
 | Portadas propias con la paleta de la marca; sin el nombre del artista en la portada. El crédito va debajo. | Que se vean de la familia de la plataforma y no parezcan las oficiales. |
 | **Sin Bootstrap** (excepción a §4). | Nada lo usa: no hay formularios ni tablas, y el diseño es CSS propio. Entra si llega un formulario (la v2). |
-| Sin `.Shared` ni API por ahora. | La página SSR le pasa la canción como parámetro al componente interactivo. `.Shared` entra cuando el cliente tenga que pedir datos por su cuenta. |
+| Proyectos (v2): `Mixtape.Data` (entidades, `MixtapeDbContext`, migraciones), `Mixtape.Application` (`TrackManager`, `CatalogManager`) y `Mixtape.Shared` (`ITracksService`, `TrackInfo`, `TrackDetails`, `AppException`). Sin API ni servicio HTTP todavía. | El Manager devuelve modelos que también recibe `SongPlayer` en el navegador, así que tienen que estar en `.Shared`. La API entra cuando un componente del navegador pida datos (paso 2). |
+| Base de datos PostgreSQL `mixtape` (§3). Tablas `Artists`, `Tracks` y `Covers`, con nombres en mayúscula inicial como en Apollo. Usuarios y listas se crean en el paso 2, con su migración. | En SQL a mano hay que poner comillas (`select * from "Tracks"`); la app no lo nota. No se crean tablas vacías. |
+| El catálogo de Alexi se escribe en `Content/catalog.json` y al arrancar se vuelca en la base de datos (`CatalogManager.SyncAsync`). Las páginas leen siempre de la base de datos. | Queda en git junto a sus portadas, no hay que repetir nada a mano en dos bases de datos (PC y servidor) y, si se pierde la base de datos, vuelve solo. |
+| Las portadas siguen siendo archivos SVG del repo (`Content/covers`); `CoverStore` las lee una vez al arrancar. La tabla `Covers` dice qué archivo usa cada canción. La portada de una canción del catálogo es `{slug}.svg`. | Son diseño, van con el código. Con la tabla, en el paso 2 muchas canciones pueden compartir una portada genérica. |
+| ⏮ ⏭ se quedan dentro del artista (`TrackDetails.PreviousSlug` / `NextSlug`). | Acordado con Alexi el 2026-11-12. |
+| En el log no salen las consultas SQL de EF (`Microsoft.EntityFrameworkCore.Database.Command` en `Warning`, en `appsettings.json`). Sí salen las migraciones y `Catalog synced`. | Cada página escribía su consulta entera y tapaba lo que importa. Para verlas un rato, cambiar ese nivel a `Information` y no subir el cambio. |
 | Idioma: lo decide el servidor (cookie si el usuario eligió, si no el idioma del navegador) y el WebAssembly arranca con el mismo (`applicationCulture`). | Una sola fuente de verdad. El cambio de idioma recarga la página entera para que el WebAssembly arranque en el nuevo idioma. |
 | Los textos de la interfaz (`SharedResource` y sus `.resx`) viven en `.Client`. | El host referencia al cliente, así los dos los usan sin necesitar `.Shared`. |
 | Sin `UseHttpsRedirection` ni HSTS en la app. | El HTTPS lo pone Caddy en el servidor; el contenedor solo habla HTTP en el 8080. |
-| Canciones y portadas en `Mixtape/Content/`, fuera de `wwwroot`. `TrackCatalog` (singleton) las lee una vez al arrancar. | Las portadas van incrustadas en la página (así cargan las fuentes y corren sus animaciones). Añadir una canción es tocar solo esa carpeta. |
-| `TrackDetails` en `.Client/Tracks/`. | Lo recibe el componente interactivo como parámetro. |
+| Catálogo y portadas en `Mixtape/Content/`, fuera de `wwwroot`. | Las portadas van incrustadas en la página (así cargan las fuentes y corren sus animaciones). Añadir una canción es tocar solo esa carpeta. |
 | Páginas SSR (catálogo y canción) en el host; un solo componente interactivo, `SongPlayer` (`InteractiveAuto`). La portada, el vinilo y el fondo desenfocado los pinta la página (`TrackPage`); `SongPlayer` recibe solo la canción (título, artista, ID del video). | Solo el reproductor necesita interactividad. Además, los parámetros de un componente interactivo viajan del navegador al servidor al arrancar el circuito, y Blazor Server corta los mensajes de más de 32 KB: con la portada (~10 KB de SVG) como parámetro, el circuito se caía y la música no arrancaba. |
 | En `SongPlayer`, Blazor lleva lo que pasa pocas veces (play/pausa, montar y desmontar) y el módulo JS `SongPlayer.razor.js` lo que pasa 4 veces por segundo (tiempo y barra). | En modo Server cada evento cruza SignalR; lo frecuente se queda en el navegador. |
 | El JS colocado de `.Client` se importa desde la raíz: `./Tracks/SongPlayer.razor.js`. | Los archivos estáticos de `.Client` se sirven en `/`, no en `_content/`. |
@@ -106,13 +120,12 @@ y para recomendarlas con un enlace ("mírala aquí").
 | Un vinilo asoma detrás de la portada; al sonar sale un poco más y gira (clase `mx-playing` en `.mx-stage`, que pone `SongPlayer.razor.js` con el estado que manda YouTube). | Refuerza el "Mixtape" y conecta con el vinilo de la tarjeta del hub. Sigue al estado real de YouTube, aunque se use su propio botón. |
 | Al salir de la canción se destruye el reproductor. | La música no sigue sonando con el reproductor oculto (regla de YouTube). |
 | Al abrir una canción, el video se prepara y espera a play. Solo arranca solo después de ⏮ ⏭ o al terminar la anterior, y solo cuando se ve al menos la mitad del video (sin contar lo que tapa la barra de controles). Lo marca un aviso en `sessionStorage` (`mixtape-autoplay`) que lee el reproductor siguiente. | Quien llega por un enlace compartido no ha tocado la página y el navegador bloquearía el sonido. Lo de la mitad es la regla de YouTube para empezar solo; en el móvil el video queda bajo la portada, así que espera a que se baje hasta él o a que se pulse play. |
-| ⏮ ⏭ en la barra de controles; al terminar una canción pasa a la siguiente y, tras la última, vuelve a la primera (`TrackCatalog.GetPrevious/GetNext`). `TrackPage` pone `@key` al `SongPlayer` para que cada canción tenga un reproductor nuevo. | Escuchar seguido sin volver a la lista. Los enlaces son normales (navegación mejorada) y el `@key` asegura que el reproductor viejo se destruye y el nuevo carga su video. |
+| ⏮ ⏭ en la barra de controles; al terminar una canción pasa a la siguiente y, tras la última, vuelve a la primera dentro de su artista (lo calcula `TrackManager`). `TrackPage` pone `@key` al `SongPlayer` para que cada canción tenga un reproductor nuevo. | Escuchar seguido sin volver a la lista. Los enlaces son normales (navegación mejorada) y el `@key` asegura que el reproductor viejo se destruye y el nuevo carga su video. |
 | Mientras YouTube prepara el video: anillo girando en el play y "Cargando…" con un ecualizador en el recuadro del video. | Antes el play salía apagado sin explicar por qué. |
 | El vinilo no gira entero: gira una capa de dentro (`::before`), recortada por el propio disco. | Un cuadrado girado ocupa más que su caja; en el móvil la página cambiaba de ancho al ritmo del disco (scroll lateral y barra de abajo saltando). |
 | Instalable como app según §11 de `CONVENTIONS.md`: manifiesto `standalone` con `id`, archivos de `dev-conventions/pwa/` copiados tal cual (`sw.js`, `offline.html`, `js/app-shell.js`), botón Instalar, diálogo de iPhone, y Atrás/Compartir/Recargar solo instalada. | Regla de la plataforma (2026-10-21). |
 | Icono de app: Rako con un vinilo detrás, sobre el degradado "sol de la ciudad" (`#FF7CC8 → #FFE45C`), etiqueta rosa como el disco de la canción. Fuente en `wwwroot/app-icon.svg`; de ahí salen `icon-maskable-512.png` y `apple-touch-icon.png` (opacos). En el PC, el Rako de siempre (`favicon-192/512`). | Elegido por Alexi en la demo: el detalle del vinilo con los colores del casete. Fondo cálido para distinguirlo del hub (cielo de noche). |
 | Barra: idioma en la píldora EN\|ES del hub. En el móvil, el enlace a alexitp1125 baja al final de la página (`.mx-footer`); en pantallas de 400 px o menos queda solo Rako cuando la barra se llena (Instalar visible, o instalada). Esa regla usa `:has()` y está en `app.css`. | Con Instalar, y con Atrás/Compartir/Recargar instalada, la barra no cabe en un teléfono. |
-| Sin `DependencyInjection/` vacío: aparece con el primer servicio (`TrackCatalog`). | §0. |
 | Tema claro como en el hub: botón ◐ en la barra; se guarda en `localStorage` (`theme`) y un script en el `<head>` lo aplica antes de pintar; por defecto, noche. `js/theme.js` lo cambia y lo vuelve a poner tras la navegación mejorada (`enhancedload`). Con `data-theme`, no `data-bs-theme`. | Mismo comportamiento en toda la plataforma, sin parpadeo. `data-theme` porque aquí no hay Bootstrap (`tokens.css` acepta los dos). Cada subdominio guarda su propia elección; compartirla (cookie del dominio) sería un cambio del hub y de las apps. |
 
 ## Cómo se arranca
@@ -124,6 +137,23 @@ dotnet run --project Mixtape
 ```
 
 Se abre en http://localhost:5080.
+
+**Base de datos en local:** PostgreSQL 18 de Windows, base de datos `mixtape` (la crea la app la
+primera vez). La cadena de conexión se guarda una vez, fuera del repo:
+
+```powershell
+# Guarda la cadena de conexión del PC (con la contraseña del usuario postgres del PC)
+dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=mixtape;Username=postgres;Password=<la del PC>" --project Mixtape
+```
+
+Al arrancar, la app aplica las migraciones pendientes y vuelca `catalog.json`.
+
+**Cambiar las tablas:** se cambia la entidad en `Mixtape.Data/Entities` y se crea una migración:
+
+```powershell
+# Genera la migración con los cambios de las entidades (solo crea archivos)
+dotnet ef migrations add <Nombre> --project Mixtape.Data --startup-project Mixtape
+```
 
 Al depurar con Visual Studio, el depurador de JS se para en excepciones internas del iframe de
 YouTube (`Permissions.query`). No son de la app: Continue, o arrancar con Ctrl+F5. Fuera del
@@ -137,10 +167,21 @@ DevTools → Application → Service workers → *Offline*, y recargar. Para qui
 Servicio `mixtape` en `server-infra` (compose y Caddyfile). Tras el push de la app:
 
 ```bash
+# Entra al servidor
 ssh hub
+# Solo si el despliegue trae migraciones: copia de seguridad antes
+bash ~/server-infra/scripts/backup.sh
+# Trae el código nuevo
 cd ~/projects/mixtape && git pull
+# Reconstruye y levanta el contenedor
 cd ~/server-infra && docker compose up -d --build mixtape
+# Mira el arranque: migraciones y "Catalog synced"
+docker compose logs mixtape --tail 30
 ```
+
+En el servidor la base de datos es `mixtape`, usuario `mixtape`, en el Postgres compartido
+(`postgres:5432`); el contenedor recibe la cadena en `ConnectionStrings__Default`. Para abrirla
+desde el PC: túnel `ssh -L 5433:localhost:5432 hub` y pgAdmin en `localhost:5433`.
 
 El build tarda unos 2–3 minutos. El log avisa de que las claves de Data Protection viven dentro
 del contenedor: es esperado. Al recrearlo, una pestaña que estaba abierta pierde la conexión y
@@ -160,6 +201,27 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-13: commit 2 probado
+- Alexi lo probó en local: primer arranque `Catalog synced: 1 artists, 5 tracks, 11 changes`;
+  los siguientes, `0 changes` (el volcado no repite nada).
+- Paquetes de ASP.NET de 10.0.13 a 10.0.14 (`Components.WebAssembly.Server`,
+  `Components.WebAssembly`, `Extensions.Localization`). El build avisaba (`NU1903`) de un fallo
+  de seguridad en el depurador de WebAssembly (GHSA-g27p-qf6j-c96c); afecta al PC de quien
+  depura, no al servidor. Con la 10.0.14 compila sin avisos. `EntityFrameworkCore.Design` sigue
+  en 10.0.13.
+- Las consultas SQL de EF ya no salen en el log (ver decisiones).
+
+### 2026-11-12 (noche): v2, paso 1
+- El chat de infra dejó PostgreSQL 18 en el servidor (base y usuario `mixtape`, copias cada
+  noche). Acordado con Alexi: tablas con mayúscula inicial, ⏮ ⏭ dentro del artista y el
+  catálogo en `catalog.json`, volcado al arrancar.
+- Commit 1 (`feat: PostgreSQL with artists, tracks and covers tables`): proyecto `Mixtape.Data`,
+  migración `InitialCreate` (creada por Alexi con `dotnet ef`), migrar al arrancar. Probado en
+  local: tablas creadas.
+- Commit 2 (escrito): `Mixtape.Shared` y `Mixtape.Application`; `TrackManager` y
+  `CatalogManager`; `catalog.json` sustituye a `tracks.json`; `CoverStore` sustituye a
+  `TrackCatalog`; el catálogo y la página de la canción leen de la base de datos.
 
 ### 2026-11-12
 - La v1.1 está desplegada y probada: todo bien. `favicon-180.png` ya está fuera (`508253f`).

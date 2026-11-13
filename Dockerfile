@@ -5,6 +5,8 @@ WORKDIR /src
 COPY Mixtape/Mixtape.csproj Mixtape/
 COPY Mixtape.Client/Mixtape.Client.csproj Mixtape.Client/
 COPY Mixtape.Data/Mixtape.Data.csproj Mixtape.Data/
+COPY Mixtape.Shared/Mixtape.Shared.csproj Mixtape.Shared/
+COPY Mixtape.Application/Mixtape.Application.csproj Mixtape.Application/
 RUN dotnet restore Mixtape/Mixtape.csproj
 
 COPY . .

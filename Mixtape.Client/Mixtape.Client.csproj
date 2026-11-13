@@ -9,8 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.13" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.13" />
+    <ProjectReference Include="..\Mixtape.Shared\Mixtape.Shared.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.14" />
   </ItemGroup>
 
 </Project>

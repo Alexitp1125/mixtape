@@ -1,0 +1,13 @@
+[
+  {
+    "slug": "josean-log",
+    "name": "Jósean Log",
+    "tracks": [
+      { "slug": "doma", "title": "Doma", "videoId": "pCPYb7KPoUc" },
+      { "slug": "chachacha", "title": "Chachachá", "videoId": "sDMxQF18yvA" },
+      { "slug": "beso", "title": "Beso", "videoId": "ntdwWKaGaPQ" },
+      { "slug": "luna", "title": "La Luna", "videoId": "oJ7WZ_ZS2JA" },
+      { "slug": "pruebame", "title": "Pruébame a Ti", "videoId": "TR4i7j9Ry74" }
+    ]
+  }
+]
