@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mixtape.Data.Entities
 {
-    // An artist of the catalog, with their songs.
+    // An artist of the catalog, with their cover and their songs.
     [Table("Artists")]
     [Index(nameof(Slug), IsUnique = true)]
     public sealed class Artist
@@ -27,6 +27,13 @@ namespace Mixtape.Data.Entities
         // Position in the catalog.
         [Column("SortOrder")]
         public int SortOrder { get; set; }
+
+        // Empty when the artist has no cover.
+        [Column("CoverKey")]
+        public Guid? CoverKey { get; set; }
+
+        [ForeignKey(nameof(CoverKey))]
+        public Cover? Cover { get; set; }
 
         public List<Track> Tracks { get; set; } = [];
     }

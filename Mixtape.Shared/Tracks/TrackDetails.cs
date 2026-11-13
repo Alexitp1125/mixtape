@@ -11,6 +11,9 @@ namespace Mixtape.Shared.Tracks
 
         public string ArtistName { get; init; } = null!;
 
+        // Name of its artist in addresses: /artists/{slug}.
+        public string ArtistSlug { get; init; } = null!;
+
         // YouTube video ID (the part after v=).
         public string VideoId { get; init; } = null!;
 

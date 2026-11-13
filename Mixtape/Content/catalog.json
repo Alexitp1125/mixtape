@@ -9,5 +9,15 @@
       { "slug": "luna", "title": "La Luna", "videoId": "oJ7WZ_ZS2JA" },
       { "slug": "pruebame", "title": "Pruébame a Ti", "videoId": "TR4i7j9Ry74" }
     ]
+  },
+  {
+    "slug": "moneda-dura",
+    "name": "Moneda Dura",
+    "tracks": [
+      { "slug": "verde-manana", "title": "Comienzo y Final de una Verde Mañana", "videoId": "4llbkVox5qA" },
+      { "slug": "al-sudeste", "title": "Al Sudeste", "videoId": "8X74LEXlIpo" },
+      { "slug": "ojos-de-aitana", "title": "Los Ojos de Aitana", "videoId": "xYAA_4LshJ0" },
+      { "slug": "b", "title": "B", "videoId": "T-h6KwA1GOQ" }
+    ]
   }
 ]

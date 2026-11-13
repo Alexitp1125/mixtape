@@ -7,7 +7,7 @@
 {
     <PageTitle>@track.Title · @track.ArtistName · Mixtape</PageTitle>
 
-    <a class="mx-back" href="@PageNames.Home">← @L["Track.Back"]</a>
+    <a class="mx-back" href="@PageNames.ArtistUrl(track.ArtistSlug)">← @track.ArtistName</a>
 
     @* The cover stays here (static) and only the player is interactive: the SVG never travels through the circuit. *@
     <div class="mx-stage">

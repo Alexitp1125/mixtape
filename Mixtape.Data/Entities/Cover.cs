@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mixtape.Data.Entities
 {
-    // A cover: an SVG file of Content/covers. The file stays in the repo; this row says which songs use it.
+    // A cover: an SVG file of Content/covers. The file stays in the repo; this row says which songs and artists use it.
     [Table("Covers")]
     [Index(nameof(Name), IsUnique = true)]
     public sealed class Cover
@@ -24,10 +24,12 @@ namespace Mixtape.Data.Entities
         [Column("FileName")]
         public string FileName { get; set; } = null!;
 
-        // True for the covers any song can use; false for the one drawn for a single song.
+        // True for the covers anyone can pick; false for the one drawn for a single song or artist.
         [Column("IsGeneric")]
         public bool IsGeneric { get; set; }
 
         public List<Track> Tracks { get; set; } = [];
+
+        public List<Artist> Artists { get; set; } = [];
     }
 }

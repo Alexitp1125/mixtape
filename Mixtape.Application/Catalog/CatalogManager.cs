@@ -22,7 +22,8 @@ namespace Mixtape.Application.Catalog
 
         // Adds the artists and songs that are new and updates the ones that changed, matching by slug.
         // It never deletes. The order of the file is the order of the catalog.
-        // coverFiles: names of the SVG files that exist; the cover of a song is "{slug}.svg".
+        // coverFiles: names of the SVG files that exist. The cover of a song is "{slug}.svg"
+        // and the cover of an artist is "artist-{slug}.svg".
         public async Task SyncAsync(
             IReadOnlyList<CatalogArtist> catalog,
             IReadOnlySet<string> coverFiles,
@@ -47,6 +48,7 @@ namespace Mixtape.Application.Catalog
 
                     artist.Name = catalogArtist.Name;
                     artist.SortOrder = artistOrder;
+                    artist.Cover = GetCover(dbContext, covers, coverFiles, "artist-" + catalogArtist.Slug);
 
                     foreach ((CatalogTrack catalogTrack, int trackOrder) in catalogArtist.Tracks.Select((x, i) => (x, i)))
                     {
@@ -76,23 +78,23 @@ namespace Mixtape.Application.Catalog
             }
         }
 
-        // The cover drawn for a song: the file "{slug}.svg". Null when the file doesn't exist.
+        // The cover drawn for a song or an artist: the file "{name}.svg". Null when the file doesn't exist.
         private static Cover? GetCover(
             MixtapeDbContext dbContext,
             Dictionary<string, Cover> covers,
             IReadOnlySet<string> coverFiles,
-            string slug)
+            string name)
         {
-            string fileName = slug + ".svg";
+            string fileName = name + ".svg";
 
             if (!coverFiles.Contains(fileName))
             {
                 return null;
             }
 
-            if (!covers.TryGetValue(slug, out Cover? cover))
+            if (!covers.TryGetValue(name, out Cover? cover))
             {
-                cover = new Cover { Name = slug, IsGeneric = false };
+                cover = new Cover { Name = name, IsGeneric = false };
                 covers.Add(cover.Name, cover);
                 dbContext.Covers.Add(cover);
             }

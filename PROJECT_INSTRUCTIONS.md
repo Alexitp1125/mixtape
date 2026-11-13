@@ -4,25 +4,25 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** v1.1 en producción en https://mixtape.alexitp1125.com (probada por Alexi,
-  todo bien): 5 canciones de Jósean Log con portada propia, instalable como app, ⏮ ⏭ con paso
-  automático, aviso de carga, paleta v3, tema claro, EN/ES. Sin letras. Repo en GitHub
-  (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-13):** v2, paso 1 en marcha. Commit 1 hecho y subido: PostgreSQL conectado,
-  tablas `Artists`, `Tracks` y `Covers`. Commit 2 (la app lee de la base de datos) probado en
-  local por Alexi: compila sin avisos y el volcado no repite nada.
+- **Dónde estoy:** en producción en https://mixtape.alexitp1125.com está la v1.1 más los commits
+  1 y 2 de la v2 (el catálogo ya se lee de PostgreSQL; se ve igual que antes): 5 canciones de
+  Jósean Log con portada propia, instalable como app, ⏮ ⏭ con paso automático, aviso de carga,
+  paleta v3, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
+- **Lo último (2026-11-13):** commit 2 desplegado (primer despliegue con base de datos, bien).
+  Commit 3 escrito y en el PC, sin probar: segundo artista (Moneda Dura, 4 canciones), inicio con
+  una carátula por artista y una página por artista con sus canciones.
 - **Qué sigue:**
-  1. Commit 2 (`feat: read the catalog from the database`), push y despliegue. Es el primer
-     despliegue con base de datos: antes, copia a mano en el servidor
-     (`bash ~/server-infra/scripts/backup.sh`); después, mirar en el log las migraciones y
-     `Catalog synced`.
-  2. Commit 3: segundo artista (Alexi lo dice, con enlaces oficiales) y catálogo en secciones
-     por artista. Demo antes.
-  3. Paso 2 de la v2: usuarios (nombre + PIN) y sus canciones. Ahí el `Dockerfile` tiene que
-     crear `/home/app/.aspnet/DataProtection-Keys` con dueño `$APP_UID` antes de `USER`, y hay
-     que avisar al chat de estructura para que añada el volumen.
-  4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
-  5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
+  1. Commit 3. Alexi crea la migración
+     (`dotnet ef migrations add AddArtistCover --project Mixtape.Data --startup-project Mixtape`)
+     y prueba en local: inicio con 2 carátulas, cada artista con sus canciones, el primer
+     arranque dice `Catalog synced: 2 artists, 9 tracks, 12 changes`, y los 4 videos de Moneda
+     Dura se dejan reproducir (no se pudo comprobar desde el chat). Luego commit
+     (`feat: artists with their own cover and page`), push y despliegue con copia antes.
+  2. Paso 2 de la v2: usuarios (nombre + PIN) y sus grupos de canciones (ver la hoja de ruta).
+     Ahí el `Dockerfile` tiene que crear `/home/app/.aspnet/DataProtection-Keys` con dueño
+     `$APP_UID` antes de `USER`, y hay que avisar al chat de estructura para que añada el volumen.
+  3. Paso 3: página `/about` (`CONVENTIONS.md` §13).
+  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
      está hecho.
 
 ## Qué es
@@ -52,12 +52,18 @@ y para recomendarlas con un enlace ("mírala aquí").
   carga y una quinta canción.
 - **v2 (acordada el 2026-11-12), en tres pasos:**
   1. **PostgreSQL, segundo artista y agrupación.** Entran PostgreSQL y `.Shared`,
-     `.Application`, `.Data` y `.Tests` (§1.2). Tablas: usuarios, artistas, canciones, portadas
-     y listas. El catálogo de Alexi se escribe en `catalog.json` y se vuelca en la base de datos al
-     arrancar; las páginas leen de la base de datos.
-     Catálogo en secciones por artista; ⏮ ⏭ se quedan dentro del artista.
+     `.Application`, `.Data` y `.Tests` (§1.2). Tablas: artistas, canciones y portadas (los
+     usuarios llegan en el paso 2). El catálogo de Alexi se escribe en `catalog.json` y se vuelca
+     en la base de datos al arrancar; las páginas leen de la base de datos.
+     El inicio muestra una carátula por artista y cada artista tiene su página con sus
+     canciones; ⏮ ⏭ se quedan dentro del artista.
   2. **Usuarios y sus canciones.** Sin contraseña y sin guardar datos de nadie: el usuario crea
      un nombre y un PIN para volver a su lista. Ni correo ni nada más. Se perfecciona luego.
+     - Los grupos son de cada usuario (acordado el 2026-11-13). Al añadir una canción, el
+       usuario crea un "artista", que sirve de grupo, o elige uno suyo. Un artista funciona casi
+       como una lista de reproducción, así que no hace falta una tabla de listas: `Artists` gana
+       un dueño. Los de Alexi van sin dueño: son ejemplos y su forma de compartir las suyas con
+       todos. El grupo de un usuario lleva una carátula genérica.
      - El PIN se guarda cifrado (hash), nunca tal cual, y con límite de intentos: un PIN corto
        se adivina probando.
      - Pega un enlace de YouTube: del enlace sale el ID del video. Título y canal, del servicio
@@ -76,20 +82,27 @@ y para recomendarlas con un enlace ("mírala aquí").
 - **Después, si hace falta:** cuentas de usuario; vista previa al compartir (Open Graph, con la
   portada en PNG).
 
-## Cómo añadir una canción
+## Cómo añadir una canción o un artista
 
 Esto es para el catálogo de Alexi. Las canciones de los usuarios (paso 2 de la v2) entran por
 la app y viven solo en la base de datos.
 
 1. Video oficial que se pueda incrustar: el oEmbed de YouTube
    (`https://www.youtube.com/oembed?url=<enlace>&format=json`) da título y canal, y falla si el
-   video no permite incrustarse.
+   video no permite incrustarse. Desde el chat de Claude no se puede abrir YouTube: se comprueba
+   al probar en local (si no se deja, la app muestra su aviso).
 2. Una entrada en `Mixtape/Content/catalog.json`, dentro de su artista: `slug`, `title` y
    `videoId` (lo que va después de `v=`). Un artista nuevo es un bloque más, con `slug`, `name`
-   y `tracks`. El orden del archivo es el del catálogo y el de ⏮ ⏭.
-3. La portada en `Mixtape/Content/covers/{slug}.svg` (800×800, colores de la paleta, IDs y
-   clases con el prefijo del slug, porque el SVG va incrustado en la página). Lleva su número
-   romano arriba a la izquierda, en el orden de `catalog.json` (la siguiente es la VI).
+   y `tracks`. El orden del archivo es el del inicio y el de ⏮ ⏭.
+3. La portada de la canción en `Mixtape/Content/covers/{slug}.svg` y la carátula del artista en
+   `Mixtape/Content/covers/artist-{slug}.svg`. Las dos: 800×800, colores de la paleta, e IDs,
+   clases y animaciones con un prefijo propio, porque el SVG va incrustado en la página.
+   - La de la canción lleva su número romano arriba a la izquierda, en el orden dentro de su
+     artista (Jósean Log va por la V; Moneda Dura, por la IV).
+   - La del artista sale de su nombre, sin número. Ni fotos, ni logos, ni las carátulas de sus
+     discos.
+   - Sin animación tiene que verse bien: la pose de reposo va en el `transform` de la clase, no
+     solo en la animación (la copia desenfocada y `prefers-reduced-motion` las quitan).
 4. Reiniciar la app (en el servidor, desplegar): al arrancar, el archivo se vuelca en la base
    de datos. Añade lo nuevo y actualiza lo que cambió, buscando por slug; nunca borra. Para
    quitar una canción hay que borrarla también de la tabla `Tracks`.
@@ -102,17 +115,21 @@ la app y viven solo en la base de datos.
 | **Sin letras en la v1.** | Las letras de otros necesitan licencia. Mostrar una sola línea no cambia eso. Ver "Letras" más abajo. |
 | Portadas propias con la paleta de la marca; sin el nombre del artista en la portada. El crédito va debajo. | Que se vean de la familia de la plataforma y no parezcan las oficiales. |
 | **Sin Bootstrap** (excepción a §4). | Nada lo usa: no hay formularios ni tablas, y el diseño es CSS propio. Entra si llega un formulario (la v2). |
-| Proyectos (v2): `Mixtape.Data` (entidades, `MixtapeDbContext`, migraciones), `Mixtape.Application` (`TrackManager`, `CatalogManager`) y `Mixtape.Shared` (`ITracksService`, `TrackInfo`, `TrackDetails`, `AppException`). Sin API ni servicio HTTP todavía. | El Manager devuelve modelos que también recibe `SongPlayer` en el navegador, así que tienen que estar en `.Shared`. La API entra cuando un componente del navegador pida datos (paso 2). |
+| Proyectos (v2): `Mixtape.Data` (entidades, `MixtapeDbContext`, migraciones), `Mixtape.Application` (`ArtistManager`, `TrackManager`, `CatalogManager`) y `Mixtape.Shared` (`IArtistsService`, `ArtistInfo`, `ArtistDetails`, `ITracksService`, `TrackInfo`, `TrackDetails`, `AppException`). Sin API ni servicio HTTP todavía. | El Manager devuelve modelos que también recibe `SongPlayer` en el navegador, así que tienen que estar en `.Shared`. La API entra cuando un componente del navegador pida datos (paso 2). |
 | Base de datos PostgreSQL `mixtape` (§3). Tablas `Artists`, `Tracks` y `Covers`, con nombres en mayúscula inicial como en Apollo. Usuarios y listas se crean en el paso 2, con su migración. | En SQL a mano hay que poner comillas (`select * from "Tracks"`); la app no lo nota. No se crean tablas vacías. |
 | El catálogo de Alexi se escribe en `Content/catalog.json` y al arrancar se vuelca en la base de datos (`CatalogManager.SyncAsync`). Las páginas leen siempre de la base de datos. | Queda en git junto a sus portadas, no hay que repetir nada a mano en dos bases de datos (PC y servidor) y, si se pierde la base de datos, vuelve solo. |
-| Las portadas siguen siendo archivos SVG del repo (`Content/covers`); `CoverStore` las lee una vez al arrancar. La tabla `Covers` dice qué archivo usa cada canción. La portada de una canción del catálogo es `{slug}.svg`. | Son diseño, van con el código. Con la tabla, en el paso 2 muchas canciones pueden compartir una portada genérica. |
+| Las portadas siguen siendo archivos SVG del repo (`Content/covers`); `CoverStore` las lee una vez al arrancar. La tabla `Covers` dice qué archivo usa cada canción. La portada de una canción del catálogo es `{slug}.svg`; la carátula de un artista, `artist-{slug}.svg` (`Artist.CoverKey`). | Son diseño, van con el código. Con la tabla, en el paso 2 muchas canciones pueden compartir una portada genérica. |
 | ⏮ ⏭ se quedan dentro del artista (`TrackDetails.PreviousSlug` / `NextSlug`). | Acordado con Alexi el 2026-11-12. |
+| El inicio (`Home`) muestra una carátula por artista y cada artista tiene su página (`ArtistPage`, `/artists/{slug}`) con sus canciones. En la canción, el enlace de volver lleva a su artista. Las direcciones de las canciones (`/tracks/{slug}`) no cambian. | Elegido por Alexi en la demo (2026-11-13), en vez de secciones por artista: el inicio queda corto y, en el paso 2, el grupo de cada usuario es una carátula más. |
+| La carátula del artista es una fila de `Covers` (`Artist.CoverKey`), igual que la portada de una canción. | Un solo mecanismo. En el paso 2, el grupo de un usuario elige ahí una genérica. |
+| Las carátulas de artista salen del nombre (Jósean Log: ondas de sonido; Moneda Dura: un puñado de monedas), no de fotos, logos ni de las carátulas de sus discos. Una portada puede tomar la idea de la canción (Los Ojos de Aitana: amanece en La Habana), nunca una frase de la letra. | Son obra de otros, como las letras. |
+| `.mx-gallery` (rejilla de portadas) y `.mx-back` (enlace de volver) están en `app.css`. | Cada una la usan dos páginas, y el CSS de un componente solo vale dentro de él. |
 | En el log no salen las consultas SQL de EF (`Microsoft.EntityFrameworkCore.Database.Command` en `Warning`, en `appsettings.json`). Sí salen las migraciones y `Catalog synced`. | Cada página escribía su consulta entera y tapaba lo que importa. Para verlas un rato, cambiar ese nivel a `Information` y no subir el cambio. |
 | Idioma: lo decide el servidor (cookie si el usuario eligió, si no el idioma del navegador) y el WebAssembly arranca con el mismo (`applicationCulture`). | Una sola fuente de verdad. El cambio de idioma recarga la página entera para que el WebAssembly arranque en el nuevo idioma. |
 | Los textos de la interfaz (`SharedResource` y sus `.resx`) viven en `.Client`. | El host referencia al cliente, así los dos los usan sin necesitar `.Shared`. |
 | Sin `UseHttpsRedirection` ni HSTS en la app. | El HTTPS lo pone Caddy en el servidor; el contenedor solo habla HTTP en el 8080. |
 | Catálogo y portadas en `Mixtape/Content/`, fuera de `wwwroot`. | Las portadas van incrustadas en la página (así cargan las fuentes y corren sus animaciones). Añadir una canción es tocar solo esa carpeta. |
-| Páginas SSR (catálogo y canción) en el host; un solo componente interactivo, `SongPlayer` (`InteractiveAuto`). La portada, el vinilo y el fondo desenfocado los pinta la página (`TrackPage`); `SongPlayer` recibe solo la canción (título, artista, ID del video). | Solo el reproductor necesita interactividad. Además, los parámetros de un componente interactivo viajan del navegador al servidor al arrancar el circuito, y Blazor Server corta los mensajes de más de 32 KB: con la portada (~10 KB de SVG) como parámetro, el circuito se caía y la música no arrancaba. |
+| Páginas SSR (inicio, artista y canción) en el host; un solo componente interactivo, `SongPlayer` (`InteractiveAuto`). La portada, el vinilo y el fondo desenfocado los pinta la página (`TrackPage`); `SongPlayer` recibe solo la canción (título, artista, ID del video). | Solo el reproductor necesita interactividad. Además, los parámetros de un componente interactivo viajan del navegador al servidor al arrancar el circuito, y Blazor Server corta los mensajes de más de 32 KB: con la portada (~10 KB de SVG) como parámetro, el circuito se caía y la música no arrancaba. |
 | En `SongPlayer`, Blazor lleva lo que pasa pocas veces (play/pausa, montar y desmontar) y el módulo JS `SongPlayer.razor.js` lo que pasa 4 veces por segundo (tiempo y barra). | En modo Server cada evento cruza SignalR; lo frecuente se queda en el navegador. |
 | El JS colocado de `.Client` se importa desde la raíz: `./Tracks/SongPlayer.razor.js`. | Los archivos estáticos de `.Client` se sirven en `/`, no en `_content/`. |
 | Página de la canción: la portada manda. Escritorio en dos columnas (portada con vinilo \| título, artista y video); tablet y móvil en una, portada arriba; ≥1600 px más ancho y catálogo a 4 columnas. | Es lo que hace que la app se vea distinta de YouTube; sin letras, la portada ocupa ese sitio. |
@@ -183,9 +200,17 @@ En el servidor la base de datos es `mixtape`, usuario `mixtape`, en el Postgres 
 (`postgres:5432`); el contenedor recibe la cadena en `ConnectionStrings__Default`. Para abrirla
 desde el PC: túnel `ssh -L 5433:localhost:5432 hub` y pgAdmin en `localhost:5433`.
 
-El build tarda unos 2–3 minutos. El log avisa de que las claves de Data Protection viven dentro
-del contenedor: es esperado. Al recrearlo, una pestaña que estaba abierta pierde la conexión y
-pide recargar; no hay sesiones ni datos que perder.
+El build tarda unos 2–3 minutos. En el log del arranque salen cosas que no son fallos:
+
+- `Cannot load library libgssapi_krb5.so.2`: el conector de Postgres busca una librería de
+  Kerberos que la imagen no trae y que no se usa (se entra con usuario y contraseña).
+- Los avisos de que las claves de Data Protection viven dentro del contenedor: se arreglan en
+  el paso 2, con la carpeta en el `Dockerfile` y el volumen.
+- Solo con la base de datos vacía: un `fail` al leer `__EFMigrationsHistory`. La tabla aún no
+  existe; EF la crea a continuación.
+
+Al recrear el contenedor, una pestaña que estaba abierta pierde la conexión y pide recargar;
+no hay sesiones ni datos que perder.
 
 ## Letras: lo investigado (2026-10-20)
 
@@ -201,6 +226,20 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-13 (madrugada): commit 2 desplegado, commit 3 escrito
+- Commit 2 desplegado con copia antes. En el servidor: migración `InitialCreate` aplicada y
+  `Catalog synced: 1 artists, 5 tracks, 11 changes`.
+- Alexi dio el segundo artista: Moneda Dura, con "Comienzo y Final de una Verde Mañana",
+  "Al Sudeste", "Los Ojos de Aitana" y "B".
+- Demos: primero secciones por artista (portadas grandes o compactas); Alexi propuso una
+  carátula por artista que abre sus canciones, y es lo que quedó. Portadas elegidas por él:
+  Los Ojos de Aitana con dos soles sobre La Habana (a partir del estribillo), "B" con la letra
+  y sus ecos, y Moneda Dura con un puñado de monedas. Para la mañana verde entró un tono menta
+  que no está en la paleta.
+- Commit 3 (escrito): `Artist.CoverKey`, `ArtistManager`, `IArtistsService`, `ArtistPage`,
+  `Home` con artistas, el volver de la canción a su artista, y fuera `GetTracksAsync`.
+- Acordado para el paso 2: los grupos son de cada usuario y un artista hace de grupo.
 
 ### 2026-11-13: commit 2 probado
 - Alexi lo probó en local: primer arranque `Catalog synced: 1 artists, 5 tracks, 11 changes`;

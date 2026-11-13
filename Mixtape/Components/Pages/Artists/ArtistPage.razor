@@ -1,0 +1,47 @@
+@attribute [Route(PageNames.Artist)]
+@inject IArtistsService ArtistsService
+@inject CoverStore CoverStore
+@inject NavigationManager Navigation
+
+@if (artist is not null)
+{
+    <PageTitle>@artist.Name · Mixtape</PageTitle>
+
+    <a class="mx-back" href="@PageNames.Home">← @L["Home.Title"]</a>
+
+    <h1 class="mx-artist-title">
+        @artist.Name
+        <span>@L["Artist.Songs", artist.Tracks.Count]</span>
+    </h1>
+
+    <ul class="mx-gallery">
+        @foreach (TrackInfo track in artist.Tracks)
+        {
+            <li>
+                <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName))</div>
+                    <span class="mx-gallery-caption">
+                        <b>@track.Title</b>
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    private ArtistDetails? artist;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artist = await ArtistsService.GetArtistAsync(Slug);
+
+        if (artist is null)
+        {
+            Navigation.NotFound();
+        }
+    }
+}

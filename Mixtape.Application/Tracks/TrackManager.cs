@@ -20,34 +20,6 @@ namespace Mixtape.Application.Tracks
             this.logger = logger;
         }
 
-        // All the songs: by artist, and inside each artist in its own order.
-        public async Task<IReadOnlyList<TrackInfo>> GetTracksAsync(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
-
-                return await dbContext.Tracks
-                    .AsNoTracking()
-                    .OrderBy(x => x.Artist.SortOrder)
-                    .ThenBy(x => x.SortOrder)
-                    .Select(x => new TrackInfo
-                    {
-                        Key = x.Key,
-                        Slug = x.Slug,
-                        Title = x.Title,
-                        ArtistName = x.Artist.Name,
-                        CoverFileName = x.Cover != null ? x.Cover.FileName : null,
-                    })
-                    .ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            when (ex is not AppException)
-            {
-                throw ex.Handle("Error listing tracks.", logger);
-            }
-        }
-
         // One song by its slug, with the slugs of the previous and next songs of its artist.
         public async Task<TrackDetails?> GetTrackAsync(string slug, CancellationToken cancellationToken = default)
         {
@@ -68,6 +40,7 @@ namespace Mixtape.Application.Tracks
                         x.Title,
                         x.VideoId,
                         ArtistName = x.Artist.Name,
+                        ArtistSlug = x.Artist.Slug,
                         CoverFileName = x.Cover != null ? x.Cover.FileName : null,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
@@ -92,6 +65,7 @@ namespace Mixtape.Application.Tracks
                     Slug = track.Slug,
                     Title = track.Title,
                     ArtistName = track.ArtistName,
+                    ArtistSlug = track.ArtistSlug,
                     VideoId = track.VideoId,
                     CoverFileName = track.CoverFileName,
                     PreviousSlug = slugs[(index - 1 + slugs.Count) % slugs.Count],

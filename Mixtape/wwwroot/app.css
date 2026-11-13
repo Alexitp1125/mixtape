@@ -63,6 +63,80 @@ button {
     height: 100%;
 }
 
+/* Link back to the level above: the artists, or the artist of a song. */
+.mx-back {
+    display: inline-flex;
+    margin-bottom: 28px;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: .2em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.mx-back:hover {
+    color: var(--text);
+}
+
+/* Grid of covers with a caption under each one: the artists (home) and the songs of an artist. */
+.mx-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mx-gallery-item {
+    display: grid;
+    gap: 14px;
+    text-decoration: none;
+}
+
+.mx-gallery-item .mx-cover {
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.mx-gallery-item:hover .mx-cover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--accent-3);
+}
+
+.mx-gallery-caption {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.mx-gallery-caption b {
+    font-weight: 500;
+    font-size: 17px;
+}
+
+.mx-gallery-caption span {
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+/* Gallery: one column on phones, two on tablets and laptops, four on big screens. */
+@media (max-width: 699px) {
+    .mx-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 1600px) {
+    .mx-gallery {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
 /* Error bar for interactive components. Blazor makes it visible. */
 #blazor-error-ui {
     display: none;

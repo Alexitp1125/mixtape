@@ -7,59 +7,11 @@
     text-transform: uppercase;
 }
 
-.mx-gallery {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 36px 28px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+/* Artist cover: two more sheets behind it, because there are songs inside. */
+.mx-artist-item .mx-cover {
+    box-shadow: 6px 6px 0 var(--accent-2), 12px 12px 0 var(--accent-3);
 }
 
-.mx-gallery-item {
-    display: grid;
-    gap: 14px;
-    text-decoration: none;
-}
-
-.mx-gallery-item .mx-cover {
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.mx-gallery-item:hover .mx-cover {
-    transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 var(--accent-3);
-}
-
-.mx-gallery-caption {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.mx-gallery-caption b {
-    font-weight: 500;
-    font-size: 17px;
-}
-
-.mx-gallery-caption span {
-    color: var(--text-muted);
-    font-family: var(--font-label);
-    font-size: 11px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-}
-
-/* One column on phones, two on tablets and laptops, four on big screens. */
-@media (max-width: 699px) {
-    .mx-gallery {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (min-width: 1600px) {
-    .mx-gallery {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+.mx-artist-item:hover .mx-cover {
+    box-shadow: 8px 8px 0 var(--accent-2), 16px 16px 0 var(--accent-3);
 }

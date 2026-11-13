@@ -1,0 +1,20 @@
+/* Name of the artist and its number of songs. */
+.mx-artist-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 34px;
+}
+
+.mx-artist-title span {
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}

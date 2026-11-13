@@ -1,10 +1,10 @@
 @attribute [Route(PageNames.Home)]
-@inject ITracksService TracksService
+@inject IArtistsService ArtistsService
 @inject CoverStore CoverStore
 
 <PageTitle>Mixtape</PageTitle>
 
-@if (tracks.Count == 0)
+@if (artists.Count == 0)
 {
     <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
         <p>@L["Home.EmptyText"]</p>
@@ -15,14 +15,14 @@ else
     <h1 class="mx-heading">@L["Home.Title"]</h1>
 
     <ul class="mx-gallery">
-        @foreach (TrackInfo track in tracks)
+        @foreach (ArtistInfo artist in artists)
         {
             <li>
-                <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName))</div>
+                <a class="mx-gallery-item mx-artist-item" href="@PageNames.ArtistUrl(artist.Slug)">
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(artist.CoverFileName))</div>
                     <span class="mx-gallery-caption">
-                        <b>@track.Title</b>
-                        <span>@track.ArtistName</span>
+                        <b>@artist.Name</b>
+                        <span>@L["Artist.Songs", artist.TrackCount]</span>
                     </span>
                 </a>
             </li>
@@ -31,10 +31,10 @@ else
 }
 
 @code {
-    private IReadOnlyList<TrackInfo> tracks = [];
+    private IReadOnlyList<ArtistInfo> artists = [];
 
     protected override async Task OnInitializedAsync()
     {
-        tracks = await TracksService.GetTracksAsync();
+        artists = await ArtistsService.GetArtistsAsync();
     }
 }

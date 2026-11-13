@@ -16,7 +16,7 @@
     <value>Language</value>
   </data>
   <data name="Common.BackHome" xml:space="preserve">
-    <value>Back to the songs</value>
+    <value>Back to the start</value>
   </data>
   <data name="Home.EmptyTitle" xml:space="preserve">
     <value>No songs yet</value>
@@ -37,10 +37,10 @@
     <value>Try again in a moment.</value>
   </data>
   <data name="Home.Title" xml:space="preserve">
-    <value>Songs</value>
+    <value>Artists</value>
   </data>
-  <data name="Track.Back" xml:space="preserve">
-    <value>All songs</value>
+  <data name="Artist.Songs" xml:space="preserve">
+    <value>{0} songs</value>
   </data>
   <data name="Player.Play" xml:space="preserve">
     <value>Play</value>

@@ -29,6 +29,10 @@ namespace Mixtape.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("Key");
 
+                    b.Property<Guid?>("CoverKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CoverKey");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -46,6 +50,8 @@ namespace Mixtape.Data.Migrations
                         .HasColumnName("SortOrder");
 
                     b.HasKey("Key");
+
+                    b.HasIndex("CoverKey");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -133,6 +139,15 @@ namespace Mixtape.Data.Migrations
                     b.ToTable("Tracks");
                 });
 
+            modelBuilder.Entity("Mixtape.Data.Entities.Artist", b =>
+                {
+                    b.HasOne("Mixtape.Data.Entities.Cover", "Cover")
+                        .WithMany("Artists")
+                        .HasForeignKey("CoverKey");
+
+                    b.Navigation("Cover");
+                });
+
             modelBuilder.Entity("Mixtape.Data.Entities.Track", b =>
                 {
                     b.HasOne("Mixtape.Data.Entities.Artist", "Artist")
@@ -157,6 +172,8 @@ namespace Mixtape.Data.Migrations
 
             modelBuilder.Entity("Mixtape.Data.Entities.Cover", b =>
                 {
+                    b.Navigation("Artists");
+
                     b.Navigation("Tracks");
                 });
 #pragma warning restore 612, 618
