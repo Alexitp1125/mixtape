@@ -4,11 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>mixtape-02dc97b6-1abd-47cb-b26e-e1e163d02244</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Mixtape.Client\Mixtape.Client.csproj" />
+    <ProjectReference Include="..\Mixtape.Data\Mixtape.Data.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
+    <!-- For "dotnet ef": creating migrations. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Songs and covers travel with the published app. -->

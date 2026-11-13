@@ -4,6 +4,7 @@ WORKDIR /src
 
 COPY Mixtape/Mixtape.csproj Mixtape/
 COPY Mixtape.Client/Mixtape.Client.csproj Mixtape.Client/
+COPY Mixtape.Data/Mixtape.Data.csproj Mixtape.Data/
 RUN dotnet restore Mixtape/Mixtape.csproj
 
 COPY . .
