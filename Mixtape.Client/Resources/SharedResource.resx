@@ -37,7 +37,7 @@
     <value>Try again in a moment.</value>
   </data>
   <data name="Home.Title" xml:space="preserve">
-    <value>Artists</value>
+    <value>Mixtapes</value>
   </data>
   <data name="Artist.Songs" xml:space="preserve">
     <value>{0} songs</value>

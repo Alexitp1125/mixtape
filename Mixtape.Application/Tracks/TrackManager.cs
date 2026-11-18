@@ -41,6 +41,7 @@ namespace Mixtape.Application.Tracks
                         x.VideoId,
                         ArtistName = x.Artist.Name,
                         ArtistSlug = x.Artist.Slug,
+                        Performer = x.Performer ?? x.Artist.Name,
                         CoverFileName = x.Cover != null ? x.Cover.FileName : null,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
@@ -66,6 +67,7 @@ namespace Mixtape.Application.Tracks
                     Title = track.Title,
                     ArtistName = track.ArtistName,
                     ArtistSlug = track.ArtistSlug,
+                    Performer = track.Performer,
                     VideoId = track.VideoId,
                     CoverFileName = track.CoverFileName,
                     PreviousSlug = slugs[(index - 1 + slugs.Count) % slugs.Count],

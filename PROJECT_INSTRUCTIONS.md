@@ -4,25 +4,29 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 
 ## Resumen
 
-- **Dónde estoy:** en producción en https://mixtape.alexitp1125.com está la v1.1 más los commits
-  1 y 2 de la v2 (el catálogo ya se lee de PostgreSQL; se ve igual que antes): 5 canciones de
-  Jósean Log con portada propia, instalable como app, ⏮ ⏭ con paso automático, aviso de carga,
-  paleta v3, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-13):** commit 2 desplegado (primer despliegue con base de datos, bien).
-  Commit 3 escrito y en el PC, sin probar: segundo artista (Moneda Dura, 4 canciones), inicio con
-  una carátula por artista y una página por artista con sus canciones.
+- **Dónde estoy:** en producción en https://mixtape.alexitp1125.com está la v1.1 más el paso 1
+  de la v2 completo (commits 1, 2 y 3): el catálogo se lee de PostgreSQL; el inicio muestra una
+  carátula por artista y cada artista tiene su página. Jósean Log (5 canciones) y Moneda Dura
+  (4), con portada propia, instalable como app, ⏮ ⏭ con paso automático, tema claro, EN/ES. Sin
+  letras. Repo en GitHub (`Alexitp1125/mixtape`).
+- **Lo último (2026-11-17):** escrito y en el PC, sin probar: el grupo "Mix" (9 canciones de
+  varios artistas, para uso personal de Alexi), el intérprete por canción (`Track.Performer`) y
+  el título "Mixtapes" en el inicio.
 - **Qué sigue:**
-  1. Commit 3. Alexi crea la migración
-     (`dotnet ef migrations add AddArtistCover --project Mixtape.Data --startup-project Mixtape`)
-     y prueba en local: inicio con 2 carátulas, cada artista con sus canciones, el primer
-     arranque dice `Catalog synced: 2 artists, 9 tracks, 12 changes`, y los 4 videos de Moneda
-     Dura se dejan reproducir (no se pudo comprobar desde el chat). Luego commit
-     (`feat: artists with their own cover and page`), push y despliegue con copia antes.
-  2. Paso 2 de la v2: usuarios (nombre + PIN) y sus grupos de canciones (ver la hoja de ruta).
-     Ahí el `Dockerfile` tiene que crear `/home/app/.aspnet/DataProtection-Keys` con dueño
-     `$APP_UID` antes de `USER`, y hay que avisar al chat de estructura para que añada el volumen.
-  3. Paso 3: página `/about` (`CONVENTIONS.md` §13).
-  4. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
+  1. Mix. Alexi crea la migración
+     (`dotnet ef migrations add AddTrackPerformer --project Mixtape.Data --startup-project Mixtape`)
+     y prueba en local: el inicio con 3 carátulas, la página de Mix con el intérprete debajo de
+     cada canción, el primer arranque dice `Catalog synced: 3 artists, 18 tracks, 20 changes`,
+     y los 9 videos se dejan reproducir (no se pudo comprobar desde el chat). Luego commit
+     (`feat: mix group with a performer per song`), push y despliegue con copia antes.
+  2. Paso 2, entrega 1 (bienvenida y entrar con nombre y PIN): aprobada por Alexi el
+     2026-11-17 ("hagamos esa entrega 1 y así me hago una idea mejor"). Se escribe cuando el Mix
+     esté en un commit, para no mezclar las dos migraciones. La propuesta está en la hoja de
+     ruta. Ahí el `Dockerfile` crea `/home/app/.aspnet/DataProtection-Keys` con dueño `$APP_UID`
+     antes de `USER`, y hay que avisar al chat de estructura para que añada el volumen.
+  3. Paso 2, entrega 2: crear una mixtape, añadir canciones y moverlas entre mixtapes.
+  4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
+  5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
      está hecho.
 
 ## Qué es
@@ -75,6 +79,34 @@ y para recomendarlas con un enlace ("mírala aquí").
      - Listas visibles solo por enlace, sin buscador de listas ajenas, límite de canciones por
        lista y de peticiones, una forma de que Alexi borre listas, copias de seguridad y una
        página corta de privacidad.
+     - **Acordado el 2026-11-13 (demo `mixtape-bienvenida.html`):**
+       - El inicio es una pantalla de bienvenida: qué es la app, "Crear mi mixtape", "Entrar"
+         y "Ver un ejemplo". Con la cuenta abierta, el inicio son las mixtapes del usuario. Los
+         artistas de Alexi quedan como ejemplo, en su propia dirección (`/examples`).
+       - PIN de 4 dígitos; a los 5 fallos seguidos, la cuenta se bloquea 15 minutos. Sin correo
+         no hay forma de recuperar el PIN: lo avisa la tarjeta al crear la cuenta.
+       - Límites: 5 mixtapes por usuario y 20 canciones por mixtape.
+       - En la interfaz, el grupo de un usuario se llama "mixtape" (en la base de datos sigue
+         siendo `Artists`).
+       - Carátula genérica: un casete con el nombre de la mixtape en la etiqueta, en varias
+         combinaciones de color. Es un primer boceto.
+     - **Mover canciones (idea de Alexi, 2026-11-17):** una canción se puede pasar a otra
+       mixtape o a una nueva; por ejemplo, sacar las de Sabina de "Mix" a una mixtape "Sabina".
+       En el catálogo de Alexi es cambiarla de bloque en `catalog.json` (el volcado ya lo hace)
+       y dibujarle su carátula. Para los usuarios, un botón "Mover a…" en cada canción, con sus
+       mixtapes y "Nueva mixtape"; las suyas usan las carátulas genéricas.
+     - **Tres entregas:** (1) bienvenida y entrar con nombre y PIN; (2) crear una mixtape,
+       añadir canciones y moverlas entre mixtapes; (3) carátulas genéricas, límites, borrado por Alexi y página de
+       privacidad. La 1 no se despliega sola (se podría entrar a una pantalla vacía): va con la 2.
+     - **Propuesta de código de la entrega 1 (aprobada el 2026-11-17):** tabla `Users`
+       (migración `AddUsers`: nombre, PIN con hash de `PasswordHasher`, fallos seguidos y
+       bloqueado hasta); `AccountManager` en `.Application` (crear cuenta, comprobar nombre y
+       PIN, bloqueo); sesión con la cookie de ASP.NET Core, sin Identity; páginas `/`
+       (bienvenida o mixtapes), `/access` (una tarjeta con dos pestañas) y `/examples`;
+       formularios HTML que procesa el servidor, sin JavaScript; "Entrar"/"Salir" en la barra;
+       límite de peticiones al crear cuentas; la carpeta de claves en el `Dockerfile`. Seguimos
+       sin Bootstrap (dos campos y un botón). El nombre: de 3 a 30 caracteres, único sin
+       distinguir mayúsculas.
   3. **El "extra":** una explicación breve del proyecto (qué es y cómo está hecho). Mismo
      formato que Chartwave; lo define el chat de configuración.
 - **Más adelante: portadas generadas.** Las portadas actuales como plantillas; el título elige
@@ -94,11 +126,14 @@ la app y viven solo en la base de datos.
 2. Una entrada en `Mixtape/Content/catalog.json`, dentro de su artista: `slug`, `title` y
    `videoId` (lo que va después de `v=`). Un artista nuevo es un bloque más, con `slug`, `name`
    y `tracks`. El orden del archivo es el del inicio y el de ⏮ ⏭.
+   - En un grupo con canciones de varios artistas (como "Mix"), cada canción lleva además
+     `performer`: quién la canta. Si no se pone, vale el nombre del grupo.
+   - Mover una canción a otro grupo es cambiarla de bloque; al arrancar, pasa al grupo nuevo.
 3. La portada de la canción en `Mixtape/Content/covers/{slug}.svg` y la carátula del artista en
    `Mixtape/Content/covers/artist-{slug}.svg`. Las dos: 800×800, colores de la paleta, e IDs,
    clases y animaciones con un prefijo propio, porque el SVG va incrustado en la página.
    - La de la canción lleva su número romano arriba a la izquierda, en el orden dentro de su
-     artista (Jósean Log va por la V; Moneda Dura, por la IV).
+     artista (Jósean Log va por la V; Moneda Dura, por la IV; Mix, por la IX).
    - La del artista sale de su nombre, sin número. Ni fotos, ni logos, ni las carátulas de sus
      discos.
    - Sin animación tiene que verse bien: la pose de reposo va en el `transform` de la clase, no
@@ -123,6 +158,8 @@ la app y viven solo en la base de datos.
 | El inicio (`Home`) muestra una carátula por artista y cada artista tiene su página (`ArtistPage`, `/artists/{slug}`) con sus canciones. En la canción, el enlace de volver lleva a su artista. Las direcciones de las canciones (`/tracks/{slug}`) no cambian. | Elegido por Alexi en la demo (2026-11-13), en vez de secciones por artista: el inicio queda corto y, en el paso 2, el grupo de cada usuario es una carátula más. |
 | La carátula del artista es una fila de `Covers` (`Artist.CoverKey`), igual que la portada de una canción. | Un solo mecanismo. En el paso 2, el grupo de un usuario elige ahí una genérica. |
 | Las carátulas de artista salen del nombre (Jósean Log: ondas de sonido; Moneda Dura: un puñado de monedas), no de fotos, logos ni de las carátulas de sus discos. Una portada puede tomar la idea de la canción (Los Ojos de Aitana: amanece en La Habana), nunca una frase de la letra. | Son obra de otros, como las letras. |
+| Cada canción puede llevar su intérprete (`Track.Performer`, `performer` en `catalog.json`). Si está vacío, vale el nombre de su artista. Se muestra bajo el título de la canción y, en la página del grupo, solo cuando no coincide con el nombre del grupo. `ArtistName` sigue siendo el nombre del grupo (el enlace de volver). | "Mix" junta canciones de varios artistas; sin esto, debajo de "Saturno" pondría "Mix". Acordado el 2026-11-17. |
+| El inicio se titula "Mixtapes" (antes "Artistas"), en los dos idiomas. | Con "Mix" ya no son solo artistas, y es el nombre acordado para los grupos de los usuarios. |
 | `.mx-gallery` (rejilla de portadas) y `.mx-back` (enlace de volver) están en `app.css`. | Cada una la usan dos páginas, y el CSS de un componente solo vale dentro de él. |
 | En el log no salen las consultas SQL de EF (`Microsoft.EntityFrameworkCore.Database.Command` en `Warning`, en `appsettings.json`). Sí salen las migraciones y `Catalog synced`. | Cada página escribía su consulta entera y tapaba lo que importa. Para verlas un rato, cambiar ese nivel a `Information` y no subir el cambio. |
 | Idioma: lo decide el servidor (cookie si el usuario eligió, si no el idioma del navegador) y el WebAssembly arranca con el mismo (`applicationCulture`). | Una sola fuente de verdad. El cambio de idioma recarga la página entera para que el WebAssembly arranque en el nuevo idioma. |
@@ -226,6 +263,29 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-17: grupo "Mix"
+- Alexi confirmó que el commit 3 quedó "subido y probado".
+- Trajo 9 canciones para un grupo "Mix" de uso personal: Bugambilia (Nasa Histoires),
+  California (Los Vaguens), La Canción Más Hermosa del Mundo y 19 Días y 500 Noches (Joaquín
+  Sabina), Habana Blues y En Todas Partes (Habana Blues), Saturno (Pablo Alborán), Sábanas
+  Blancas (Omi Hernández, Leoni Torres) y El Club de los Corazones Rotos (Adrián Berazaín y
+  Diana Fuentes). Los nombres, como él los dio.
+- Demo `mixtape-mix.html` con las 9 portadas y la carátula de Mix (tres colores que se mezclan):
+  aprobadas todas.
+- Escrito: `Track.Performer`, `performer` en `catalog.json`, el intérprete en la canción y en
+  la página del grupo, y "Mixtapes" como título del inicio.
+- Idea de Alexi para el paso 2: mover canciones entre mixtapes (ver la hoja de ruta).
+- Entrega 1 del paso 2 aprobada; se escribe después del commit del Mix.
+
+### 2026-11-13 (madrugada, después): paso 2 acordado
+- Alexi probó el commit 3: todo bien.
+- Preguntas del paso 2 respondidas por Alexi: pantalla de bienvenida (idea suya), PIN de 4
+  dígitos con bloqueo, 5 mixtapes de 20 canciones y el nombre "mixtape".
+- Demo `mixtape-bienvenida.html` (bienvenida, crear cuenta / entrar, tus mixtapes, ejemplos y
+  el boceto del casete): le pareció perfecta.
+- Propuesta de código de la entrega 1 presentada. No se escribió nada: quedaba poca sesión y
+  no convenía dejar archivos a medias.
 
 ### 2026-11-13 (madrugada): commit 2 desplegado, commit 3 escrito
 - Commit 2 desplegado con copia antes. En el servidor: migración `InitialCreate` aplicada y

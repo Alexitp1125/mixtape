@@ -83,6 +83,7 @@ namespace Mixtape.Application.Artists
                         Slug = x.Slug,
                         Title = x.Title,
                         ArtistName = x.Artist.Name,
+                        Performer = x.Performer ?? x.Artist.Name,
                         CoverFileName = x.Cover != null ? x.Cover.FileName : null,
                     })
                     .ToListAsync(cancellationToken);

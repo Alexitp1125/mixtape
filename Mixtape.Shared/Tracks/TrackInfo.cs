@@ -11,6 +11,9 @@ namespace Mixtape.Shared.Tracks
 
         public string ArtistName { get; init; } = null!;
 
+        // Who performs the song: its own performer or, when it has none, its artist.
+        public string Performer { get; init; } = null!;
+
         // File of its cover inside Content/covers; null when it has none.
         public string? CoverFileName { get; init; }
     }

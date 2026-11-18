@@ -7,6 +7,9 @@ namespace Mixtape.Application.Catalog
 
         public string Title { get; init; } = null!;
 
+        // Who performs the song, when it isn't the artist the song is listed under.
+        public string? Performer { get; init; }
+
         // YouTube video ID (the part after v=).
         public string VideoId { get; init; } = null!;
     }

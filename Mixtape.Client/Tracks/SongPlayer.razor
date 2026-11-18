@@ -7,7 +7,7 @@
 
 <div class="mx-info">
     <h1>@Track.Title</h1>
-    <p class="mx-artist">@Track.ArtistName</p>
+    <p class="mx-artist">@Track.Performer</p>
 
     <div class="mx-video">
         <div class="mx-video-host" @ref="videoHost"></div>
@@ -50,7 +50,7 @@
         </div>
 
         <div class="mx-now">
-            <b>@Track.Title — @Track.ArtistName</b>
+            <b>@Track.Title — @Track.Performer</b>
             <span class="mx-time" @ref="timeLabel">0:00 / 0:00</span>
         </div>
 

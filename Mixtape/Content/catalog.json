@@ -19,5 +19,20 @@
       { "slug": "ojos-de-aitana", "title": "Los Ojos de Aitana", "videoId": "xYAA_4LshJ0" },
       { "slug": "b", "title": "B", "videoId": "T-h6KwA1GOQ" }
     ]
+  },
+  {
+    "slug": "mix",
+    "name": "Mix",
+    "tracks": [
+      { "slug": "bugambilia", "title": "Bugambilia", "performer": "Nasa Histoires", "videoId": "PoGkO5iRcM8" },
+      { "slug": "california", "title": "California", "performer": "Los Vaguens", "videoId": "LJVl4LzsZ4s" },
+      { "slug": "cancion-mas-hermosa", "title": "La Canción Más Hermosa del Mundo", "performer": "Joaquín Sabina", "videoId": "-SPCZidQYk4" },
+      { "slug": "19-dias-y-500-noches", "title": "19 Días y 500 Noches", "performer": "Joaquín Sabina", "videoId": "qahBeZB1g54" },
+      { "slug": "habana-blues", "title": "Habana Blues", "performer": "Habana Blues", "videoId": "SYnWp0XbYCI" },
+      { "slug": "en-todas-partes", "title": "En Todas Partes", "performer": "Habana Blues", "videoId": "WCDyC-rNy_w" },
+      { "slug": "saturno", "title": "Saturno", "performer": "Pablo Alborán", "videoId": "5Ipg_Aof1SM" },
+      { "slug": "sabanas-blancas", "title": "Sábanas Blancas", "performer": "Omi Hernández, Leoni Torres", "videoId": "VLOVVnhDh5U" },
+      { "slug": "corazones-rotos", "title": "El Club de los Corazones Rotos", "performer": "Adrián Berazaín y Diana Fuentes", "videoId": "tm31v66QUOI" }
+    ]
   }
 ]

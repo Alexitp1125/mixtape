@@ -22,6 +22,10 @@
                     <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName))</div>
                     <span class="mx-gallery-caption">
                         <b>@track.Title</b>
+                        @if (track.Performer != artist.Name)
+                        {
+                            <span>@track.Performer</span>
+                        }
                     </span>
                 </a>
             </li>

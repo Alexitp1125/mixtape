@@ -105,6 +105,11 @@ namespace Mixtape.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("CoverKey");
 
+                    b.Property<string>("Performer")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("Performer");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(80)

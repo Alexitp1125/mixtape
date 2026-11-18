@@ -61,6 +61,7 @@ namespace Mixtape.Application.Catalog
 
                         track.Artist = artist;
                         track.Title = catalogTrack.Title;
+                        track.Performer = catalogTrack.Performer;
                         track.VideoId = catalogTrack.VideoId;
                         track.SortOrder = trackOrder;
                         track.Cover = GetCover(dbContext, covers, coverFiles, catalogTrack.Slug);

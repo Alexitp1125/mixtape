@@ -37,6 +37,11 @@ namespace Mixtape.Data.Entities
         [Column("Title")]
         public string Title { get; set; } = null!;
 
+        // Who performs the song. Empty when it is the artist the song belongs to.
+        [StringLength(120)]
+        [Column("Performer")]
+        public string? Performer { get; set; }
+
         // YouTube video ID (the part after v=).
         [Required]
         [StringLength(20)]
