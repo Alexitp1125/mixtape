@@ -3,6 +3,8 @@
 // data-enable-with="id": the field can only be used while the radio button with that id is chosen
 // (the name of a new mixtape, when moving a song). The page already sends it enabled or disabled;
 // this keeps it right when the choice changes.
+//
+// A form shown as a window over the page (.mx-modal) also closes with Escape, like its close button.
 (function () {
     'use strict';
 
@@ -11,6 +13,14 @@
 
         if (field) {
             field.disabled = !document.getElementById(field.getAttribute('data-enable-with')).checked;
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var close = e.key === 'Escape' && document.querySelector('.mx-modal-close');
+
+        if (close) {
+            close.click();
         }
     });
 })();

@@ -214,7 +214,7 @@
     <value>Portada</value>
   </data>
   <data name="AddTrack.Submit" xml:space="preserve">
-    <value>Añadir a {0}</value>
+    <value>Añadir</value>
   </data>
   <data name="Mixtape.Error.NotFound" xml:space="preserve">
     <value>Eso no existe o no es tuyo.</value>
@@ -253,19 +253,40 @@
     <value>YouTube no respondió. Prueba otra vez en un momento.</value>
   </data>
   <data name="Mixtape.Move" xml:space="preserve">
-    <value>Mover a…</value>
+    <value>Mover a otra mixtape…</value>
   </data>
   <data name="Mixtape.Remove" xml:space="preserve">
-    <value>Quitar</value>
+    <value>Quitar de la mixtape</value>
   </data>
   <data name="Mixtape.Delete" xml:space="preserve">
-    <value>Borrar mixtape</value>
+    <value>Borrar</value>
   </data>
   <data name="Mixtape.DeleteConfirm" xml:space="preserve">
     <value>Se borra con todas sus canciones. No se puede deshacer.</value>
   </data>
   <data name="Mixtape.DeleteYes" xml:space="preserve">
     <value>Sí, borrarla</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Mixtape.Songs" xml:space="preserve">
+    <value>{0} de {1} canciones</value>
+  </data>
+  <data name="Mixtape.DeleteTitle" xml:space="preserve">
+    <value>¿Borrar «{0}»?</value>
+  </data>
+  <data name="Mixtape.SongActions" xml:space="preserve">
+    <value>Acciones de {0}</value>
+  </data>
+  <data name="Mixtape.RemoveConfirm" xml:space="preserve">
+    <value>¿Seguro? Sale de esta mixtape. Puedes volver a añadirla con su enlace.</value>
+  </data>
+  <data name="Mixtape.RemoveYes" xml:space="preserve">
+    <value>Sí, quitarla</value>
   </data>
   <data name="MoveTrack.Title" xml:space="preserve">
     <value>Mover «{0}»</value>

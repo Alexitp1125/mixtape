@@ -6,35 +6,7 @@
 
 @if (userKey is not null)
 {
-    @* With the session open: the mixtapes of the person and the tile to start a new one. *@
-    <h1 class="mx-heading">@L["Mine.Title"]</h1>
-
-    <ul class="mx-gallery">
-        @foreach (ArtistInfo mixtape in mixtapes)
-        {
-            <li>
-                <a class="mx-gallery-item mx-artist-item" href="@PageNames.ArtistUrl(mixtape.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(mixtape.CoverFileName, mixtape.Name))</div>
-                    <span class="mx-gallery-caption">
-                        <b>@mixtape.Name</b>
-                        <span>@L["Artist.Songs", mixtape.TrackCount]</span>
-                    </span>
-                </a>
-            </li>
-        }
-
-        <li>
-            <a class="mx-gallery-item mx-new" href="@PageNames.NewMixtape">
-                <div class="mx-cover" aria-hidden="true">+</div>
-                <span class="mx-gallery-caption">
-                    <b>@L["Mine.New"]</b>
-                    <span>@L["Mine.Count", mixtapes.Count, MixtapeLimits.MaxMixtapes]</span>
-                </span>
-            </a>
-        </li>
-    </ul>
-
-    <p class="mx-more"><a class="mx-small" href="@PageNames.Examples">@L["Examples.Title"] →</a></p>
+    <MyMixtapes Mixtapes="mixtapes" />
 }
 else
 {

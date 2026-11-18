@@ -1,7 +1,6 @@
 @attribute [Route(PageNames.Artist)]
 @inject IArtistsService ArtistsService
 @inject IMixtapesService MixtapesService
-@inject CoverStore CoverStore
 @inject NavigationManager Navigation
 
 @if (artist is not null)
@@ -10,73 +9,68 @@
 
     <a class="mx-back" href="@BackUrl">← @BackText</a>
 
-    <h1 class="mx-artist-title">
-        @artist.Name
-        <span>@L["Artist.Songs", artist.Tracks.Count]</span>
-    </h1>
-
-    @* What the owner of a mixtape can do with it. Share is run by js/app-shell.js. *@
-    @if (isOwner)
+    @if (error is not null)
     {
-        <div class="mx-owner">
-            <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
-            <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
+        <p class="mx-error" role="alert">@error</p>
+    }
 
-            @* Deleting asks first: the button only shows after opening this line. *@
-            <details class="mx-confirm">
-                <summary class="mx-small">@L["Mixtape.Delete"]</summary>
+    <MixtapeView Artist="artist" ShowLimit="isOwner" EmptyText="@(isOwner ? L["Mixtape.Empty"].Value : L["Home.EmptyText"].Value)">
+        <OwnerTools>
+            @* What the owner of a mixtape can do with it. Share is run by js/app-shell.js. *@
+            @if (isOwner)
+            {
+                <div class="mx-owner">
+                    <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
+                    <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
+                    <button class="mx-btn mx-btn-danger" type="button" popovertarget="delete-mixtape">@L["Mixtape.Delete"]</button>
+                </div>
 
-                <form method="post" @formname="delete-mixtape" @onsubmit="DeleteAsync">
+                @* Deleting asks first, in a small window. *@
+                <div class="mx-sheet" id="delete-mixtape" popover>
+                    <h2>@L["Mixtape.DeleteTitle", artist.Name]</h2>
+                    <p>@L["Mixtape.DeleteConfirm"]</p>
+
+                    <form class="mx-form-actions" method="post" @formname="delete-mixtape" @onsubmit="DeleteAsync">
+                        <AntiforgeryToken />
+                        <button class="mx-btn" type="button" popovertarget="delete-mixtape" popovertargetaction="hide">@L["Common.Cancel"]</button>
+                        <button class="mx-btn mx-btn-danger" type="submit">@L["Mixtape.DeleteYes"]</button>
+                    </form>
+                </div>
+
+                @* The "yes, remove it" button of each song sends this form with the slug of its song. *@
+                <form id="remove-track" method="post" @formname="remove-track" @onsubmit="RemoveAsync">
                     <AntiforgeryToken />
-                    <span>@L["Mixtape.DeleteConfirm"]</span>
-                    <button class="mx-btn" type="submit">@L["Mixtape.DeleteYes"]</button>
                 </form>
-            </details>
-        </div>
+            }
+        </OwnerTools>
 
-        @* The "remove" button under each song sends this form with the slug of its song. *@
-        <form id="remove-track" method="post" @formname="remove-track" @onsubmit="RemoveAsync">
-            <AntiforgeryToken />
-        </form>
+        <SongTools Context="track">
+            @* The actions of a song, in a small window that the button on its cover opens. *@
+            @if (isOwner)
+            {
+                <button class="mx-more-btn" type="button" popovertarget="@SheetId(track)" aria-label="@L["Mixtape.SongActions", track.Title]">⋯</button>
 
-        @if (error is not null)
-        {
-            <p class="mx-error" role="alert">@error</p>
-        }
-    }
+                <div class="mx-sheet" id="@SheetId(track)" popover>
+                    <h2>@track.Title</h2>
 
-    @if (artist.Tracks.Count == 0)
-    {
-        <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
-            <p>@(isOwner ? L["Mixtape.Empty"] : L["Home.EmptyText"])</p>
-        </RakoMessage>
-    }
+                    <div class="mx-sheet-list">
+                        <a href="@PageNames.MoveTrackUrl(track.Slug)">@L["Mixtape.Move"]</a>
 
-    <ul class="mx-gallery">
-        @foreach (TrackInfo track in artist.Tracks)
-        {
-            <li>
-                <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName, track.Title))</div>
-                    <span class="mx-gallery-caption">
-                        <b>@track.Title</b>
-                        @if (track.Performer != artist.Name)
-                        {
-                            <span>@track.Performer</span>
-                        }
-                    </span>
-                </a>
+                        @* Removing asks first: the line opens and shows the question. *@
+                        <details class="mx-sheet-ask">
+                            <summary class="mx-sheet-danger">@L["Mixtape.Remove"]</summary>
+                            <p>@L["Mixtape.RemoveConfirm"]</p>
 
-                @if (isOwner)
-                {
-                    <div class="mx-song-actions">
-                        <a class="mx-small" href="@PageNames.MoveTrackUrl(track.Slug)">@L["Mixtape.Move"]</a>
-                        <button class="mx-small" type="submit" form="remove-track" name="RemoveSlug" value="@track.Slug">@L["Mixtape.Remove"]</button>
+                            <div class="mx-form-actions">
+                                <button class="mx-btn" type="button" popovertarget="@SheetId(track)" popovertargetaction="hide">@L["Common.Cancel"]</button>
+                                <button class="mx-btn mx-btn-danger" type="submit" form="remove-track" name="RemoveSlug" value="@track.Slug">@L["Mixtape.RemoveYes"]</button>
+                            </div>
+                        </details>
                     </div>
-                }
-            </li>
-        }
-    </ul>
+                </div>
+            }
+        </SongTools>
+    </MixtapeView>
 }
 
 @code {
@@ -117,6 +111,9 @@
         userKey = HttpContext.User.GetUserKey();
         isOwner = artist.OwnerKey is not null && artist.OwnerKey == userKey;
     }
+
+    // Id of the window with the actions of a song.
+    private static string SheetId(TrackInfo track) => $"song-{track.Slug}";
 
     // Takes a song out of the mixtape and shows the page again.
     private async Task RemoveAsync()

@@ -1,0 +1,59 @@
+@* A mixtape (or an artist of the catalog) as its page shows it: the name, the number of songs and the songs.
+   OwnerTools goes between the name and the songs; SongTools goes on the cover of each song. *@
+@inject CoverStore CoverStore
+
+<h1 class="mx-artist-title">
+    @Artist.Name
+    <span>@(ShowLimit ? L["Mixtape.Songs", Artist.Tracks.Count, MixtapeLimits.MaxTracks] : L["Artist.Songs", Artist.Tracks.Count])</span>
+</h1>
+
+@OwnerTools
+
+@if (Artist.Tracks.Count == 0)
+{
+    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
+        <p>@EmptyText</p>
+    </RakoMessage>
+}
+
+<ul class="mx-gallery">
+    @foreach (TrackInfo track in Artist.Tracks)
+    {
+        <li>
+            <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
+                <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName, track.Title))</div>
+                <span class="mx-gallery-caption">
+                    <b>@track.Title</b>
+                    @if (track.Performer != Artist.Name)
+                    {
+                        <span>@track.Performer</span>
+                    }
+                </span>
+            </a>
+
+            @if (SongTools is not null)
+            {
+                @SongTools(track)
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired]
+    public ArtistDetails Artist { get; set; } = null!;
+
+    // What to say under "no songs yet".
+    [Parameter, EditorRequired]
+    public string EmptyText { get; set; } = null!;
+
+    // True for the owner of a mixtape: the number of songs also says how many fit.
+    [Parameter]
+    public bool ShowLimit { get; set; }
+
+    [Parameter]
+    public RenderFragment? OwnerTools { get; set; }
+
+    [Parameter]
+    public RenderFragment<TrackInfo>? SongTools { get; set; }
+}

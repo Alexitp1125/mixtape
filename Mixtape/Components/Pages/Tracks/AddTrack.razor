@@ -9,62 +9,69 @@
 {
     <PageTitle>@L["Mixtape.AddTrack"] · @mixtape.Name · Mixtape</PageTitle>
 
-    <a class="mx-back" href="@PageNames.ArtistUrl(mixtape.Slug)">← @mixtape.Name</a>
+    @* The form is a window over the mixtape. Two steps in one form: first the link (the app asks YouTube about it),
+       then the title, the artist and the cover. *@
+    <div class="mx-modal">
+        <form class="mx-form" method="post" @formname="add-track" @onsubmit="SubmitAsync">
+            <AntiforgeryToken />
 
-    @* Two steps in one form: first the link (the app asks YouTube about it), then the title, the artist and the cover. *@
-    <form class="mx-form" method="post" @formname="add-track" @onsubmit="SubmitAsync">
-        <AntiforgeryToken />
+            <a class="mx-modal-close" href="@PageNames.ArtistUrl(mixtape.Slug)" aria-label="@L["Common.Close"]">✕</a>
 
-        <h1 class="mx-form-title">@L["Mixtape.AddTrack"]</h1>
+            <h1 class="mx-form-title">@L["Mixtape.AddTrack"]</h1>
 
-        @if (error is not null)
-        {
-            <p class="mx-error" role="alert">@error</p>
-        }
-
-        <label class="mx-field">
-            <span>@L["AddTrack.Link"]</span>
-            <input type="url" name="Link" value="@Link" maxlength="200" required readonly="@IsFound" placeholder="https://youtu.be/…" />
-        </label>
-
-        @if (IsFound)
-        {
-            <input type="hidden" name="VideoId" value="@VideoId" />
-
-            <p class="mx-found">
-                @L["AddTrack.Found"]
-                <a href="@PageNames.AddTrackUrl(mixtape.Slug)">@L["AddTrack.OtherLink"]</a>
-            </p>
+            @if (error is not null)
+            {
+                <p class="mx-error" role="alert">@error</p>
+            }
 
             <label class="mx-field">
-                <span>@L["AddTrack.SongTitle"]</span>
-                <input type="text" name="Title" value="@Title" maxlength="120" required />
+                <span>@L["AddTrack.Link"]</span>
+                <input type="url" name="Link" value="@Link" maxlength="200" required readonly="@IsFound" placeholder="https://youtu.be/…" />
             </label>
 
-            <label class="mx-field">
-                <span>@L["AddTrack.Performer"]</span>
-                <input type="text" name="Performer" value="@Performer" maxlength="120" required />
-            </label>
+            @if (IsFound)
+            {
+                <input type="hidden" name="VideoId" value="@VideoId" />
 
-            <fieldset class="mx-choices">
-                <legend>@L["AddTrack.Cover"]</legend>
+                <p class="mx-found">
+                    @L["AddTrack.Found"]
+                    <a href="@PageNames.AddTrackUrl(mixtape.Slug)">@L["AddTrack.OtherLink"]</a>
+                </p>
 
-                @foreach (string fileName in CoverStore.GenericSongs)
-                {
-                    <label>
-                        <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
-                        <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, Title ?? ""))</span>
-                    </label>
-                }
-            </fieldset>
+                <label class="mx-field">
+                    <span>@L["AddTrack.SongTitle"]</span>
+                    <input type="text" name="Title" value="@Title" maxlength="120" required />
+                </label>
 
-            <button class="mx-btn mx-btn-main" type="submit">@L["AddTrack.Submit", mixtape.Name]</button>
-        }
-        else
-        {
-            <button class="mx-btn mx-btn-main" type="submit">@L["AddTrack.Find"]</button>
-        }
-    </form>
+                <label class="mx-field">
+                    <span>@L["AddTrack.Performer"]</span>
+                    <input type="text" name="Performer" value="@Performer" maxlength="120" required />
+                </label>
+
+                <fieldset class="mx-choices">
+                    <legend>@L["AddTrack.Cover"]</legend>
+
+                    @foreach (string fileName in CoverStore.GenericSongs)
+                    {
+                        <label>
+                            <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                            <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, Title ?? ""))</span>
+                        </label>
+                    }
+                </fieldset>
+            }
+
+            <div class="mx-form-actions">
+                <a class="mx-btn" href="@PageNames.ArtistUrl(mixtape.Slug)">@L["Common.Cancel"]</a>
+                <button class="mx-btn mx-btn-main" type="submit">@(IsFound ? L["AddTrack.Submit"] : L["AddTrack.Find"])</button>
+            </div>
+        </form>
+    </div>
+
+    @* Behind the window, the mixtape as it is now. It cannot be used while the window is open. *@
+    <div inert aria-hidden="true">
+        <MixtapeView Artist="mixtape" ShowLimit="true" EmptyText="@L["Mixtape.Empty"].Value" />
+    </div>
 }
 
 @code {

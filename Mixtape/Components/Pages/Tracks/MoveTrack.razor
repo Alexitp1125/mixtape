@@ -1,49 +1,61 @@
 @attribute [Route(PageNames.MoveTrack)]
 @inject ITracksService TracksService
+@inject IArtistsService ArtistsService
 @inject IMixtapesService MixtapesService
 @inject NavigationManager Navigation
 
-@if (track is not null)
+@if (track is not null && mixtape is not null)
 {
     <PageTitle>@L["MoveTrack.Title", track.Title] · Mixtape</PageTitle>
 
-    <a class="mx-back" href="@PageNames.ArtistUrl(track.ArtistSlug)">← @track.ArtistName</a>
+    @* The form is a window over the mixtape the song is in. *@
+    <div class="mx-modal">
+        <form class="mx-form" method="post" @formname="move-track" @onsubmit="SubmitAsync">
+            <AntiforgeryToken />
 
-    <form class="mx-form" method="post" @formname="move-track" @onsubmit="SubmitAsync">
-        <AntiforgeryToken />
+            <a class="mx-modal-close" href="@PageNames.ArtistUrl(mixtape.Slug)" aria-label="@L["Common.Close"]">✕</a>
 
-        <h1 class="mx-form-title">@L["MoveTrack.Title", track.Title]</h1>
+            <h1 class="mx-form-title">@L["MoveTrack.Title", track.Title]</h1>
 
-        @if (error is not null)
-        {
-            <p class="mx-error" role="alert">@error</p>
-        }
-
-        <fieldset class="mx-options">
-            <legend>@L["MoveTrack.To"]</legend>
-
-            @foreach (ArtistInfo mixtape in others)
+            @if (error is not null)
             {
-                <label>
-                    <input type="radio" name="Target" value="@mixtape.Slug" checked="@(mixtape.Slug == SelectedTarget)" required />
-                    @mixtape.Name
-                </label>
+                <p class="mx-error" role="alert">@error</p>
             }
 
-            <label>
-                <input type="radio" name="Target" value="@NewTarget" id="move-new" checked="@(SelectedTarget == NewTarget)" required />
-                @L["Mine.New"]
+            <fieldset class="mx-options">
+                <legend>@L["MoveTrack.To"]</legend>
+
+                @foreach (ArtistInfo other in others)
+                {
+                    <label>
+                        <input type="radio" name="Target" value="@other.Slug" checked="@(other.Slug == SelectedTarget)" required />
+                        @other.Name
+                    </label>
+                }
+
+                <label>
+                    <input type="radio" name="Target" value="@NewTarget" id="move-new" checked="@(SelectedTarget == NewTarget)" required />
+                    @L["Mine.New"]
+                </label>
+            </fieldset>
+
+            @* Only for a new mixtape: js/forms.js enables it when "New mixtape" is chosen. *@
+            <label class="mx-field">
+                <span>@L["MoveTrack.NewName"]</span>
+                <input type="text" name="NewName" value="@NewName" maxlength="30" required disabled="@(SelectedTarget != NewTarget)" data-enable-with="move-new" />
             </label>
-        </fieldset>
 
-        @* Only for a new mixtape: js/forms.js enables it when "New mixtape" is chosen. *@
-        <label class="mx-field">
-            <span>@L["MoveTrack.NewName"]</span>
-            <input type="text" name="NewName" value="@NewName" maxlength="30" required disabled="@(SelectedTarget != NewTarget)" data-enable-with="move-new" />
-        </label>
+            <div class="mx-form-actions">
+                <a class="mx-btn" href="@PageNames.ArtistUrl(mixtape.Slug)">@L["Common.Cancel"]</a>
+                <button class="mx-btn mx-btn-main" type="submit">@L["MoveTrack.Submit"]</button>
+            </div>
+        </form>
+    </div>
 
-        <button class="mx-btn mx-btn-main" type="submit">@L["MoveTrack.Submit"]</button>
-    </form>
+    @* Behind the window, the mixtape as it is now. It cannot be used while the window is open. *@
+    <div inert aria-hidden="true">
+        <MixtapeView Artist="mixtape" ShowLimit="true" EmptyText="@L["Mixtape.Empty"].Value" />
+    </div>
 }
 
 @code {
@@ -65,6 +77,9 @@
     private string? NewName { get; set; }
 
     private TrackDetails? track;
+
+    // The mixtape the song is in: what shows behind the window.
+    private ArtistDetails? mixtape;
     private Guid? userKey;
     private string? error;
 
@@ -95,6 +110,7 @@
         }
 
         track = found;
+        mixtape = await ArtistsService.GetArtistAsync(found.ArtistSlug);
         others = mine.Where(x => x.Slug != found.ArtistSlug).ToList();
     }
 

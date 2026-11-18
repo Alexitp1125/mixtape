@@ -5,37 +5,48 @@
 
 <PageTitle>@L["Mine.New"] · Mixtape</PageTitle>
 
-<a class="mx-back" href="@PageNames.Home">← @L["Mine.Title"]</a>
+@* The form is a window over the mixtapes of the person. *@
+<div class="mx-modal">
+    <form class="mx-form" method="post" @formname="new-mixtape" @onsubmit="SubmitAsync">
+        <AntiforgeryToken />
 
-<form class="mx-form" method="post" @formname="new-mixtape" @onsubmit="SubmitAsync">
-    <AntiforgeryToken />
+        <a class="mx-modal-close" href="@PageNames.Home" aria-label="@L["Common.Close"]">✕</a>
 
-    <h1 class="mx-form-title">@L["Mine.New"]</h1>
+        <h1 class="mx-form-title">@L["Mine.New"]</h1>
 
-    @if (error is not null)
-    {
-        <p class="mx-error" role="alert">@error</p>
-    }
-
-    <label class="mx-field">
-        <span>@L["Access.Name"]</span>
-        <input type="text" name="Name" value="@Name" maxlength="30" required />
-    </label>
-
-    <fieldset class="mx-choices">
-        <legend>@L["NewMixtape.Cover"]</legend>
-
-        @foreach (string fileName in CoverStore.GenericTapes)
+        @if (error is not null)
         {
-            <label>
-                <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
-                <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, "Mixtape"))</span>
-            </label>
+            <p class="mx-error" role="alert">@error</p>
         }
-    </fieldset>
 
-    <button class="mx-btn mx-btn-main" type="submit">@L["NewMixtape.Submit"]</button>
-</form>
+        <label class="mx-field">
+            <span>@L["Access.Name"]</span>
+            <input type="text" name="Name" value="@Name" maxlength="30" required />
+        </label>
+
+        <fieldset class="mx-choices">
+            <legend>@L["NewMixtape.Cover"]</legend>
+
+            @foreach (string fileName in CoverStore.GenericTapes)
+            {
+                <label>
+                    <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                    <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, "Mixtape"))</span>
+                </label>
+            }
+        </fieldset>
+
+        <div class="mx-form-actions">
+            <a class="mx-btn" href="@PageNames.Home">@L["Common.Cancel"]</a>
+            <button class="mx-btn mx-btn-main" type="submit">@L["NewMixtape.Submit"]</button>
+        </div>
+    </form>
+</div>
+
+@* Behind the window, the mixtapes as they are now. They cannot be used while the window is open. *@
+<div inert aria-hidden="true">
+    <MyMixtapes Mixtapes="mixtapes" />
+</div>
 
 @code {
     [CascadingParameter]
@@ -49,16 +60,24 @@
 
     private string? error;
 
+    // The mixtapes of the person: what shows behind the window.
+    private IReadOnlyList<ArtistInfo> mixtapes = [];
+
     // The cover that was chosen or, before choosing, the first one.
     private string? SelectedCover => CoverFile ?? CoverStore.GenericTapes.FirstOrDefault();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        Guid? userKey = HttpContext.User.GetUserKey();
+
         // Only for who signed in.
-        if (HttpContext.User.GetUserKey() is null)
+        if (userKey is null)
         {
             Navigation.NavigateTo(PageNames.Access);
+            return;
         }
+
+        mixtapes = await MixtapesService.GetMineAsync(userKey.Value);
     }
 
     // Creates the mixtape and opens its page.

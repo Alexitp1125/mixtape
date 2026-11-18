@@ -88,6 +88,14 @@ button {
     text-shadow: 0 1px 2px rgb(0 0 0 / .3);
 }
 
+/* A button for things that delete. */
+.mx-btn-danger {
+    border-color: var(--accent-3);
+    background: none;
+    box-shadow: none;
+    color: var(--accent-3);
+}
+
 /* Small action: a quiet link or button. */
 .mx-small {
     padding: 0;
@@ -135,6 +143,131 @@ button {
 .mx-form .mx-btn {
     width: 100%;
     margin-top: 6px;
+}
+
+/* The two buttons at the end of a form or a question: cancel on the left, the action on the right. */
+.mx-form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.mx-form-actions .mx-btn {
+    margin: 0;
+}
+
+/* A form as a window over the page it belongs to (the page stays behind, blurred). */
+.mx-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: start center;
+    padding: 9vh 16px 32px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    backdrop-filter: blur(6px);
+}
+
+.mx-modal .mx-form {
+    position: relative;
+    width: 100%;
+    margin: 0;
+}
+
+/* Room for the close button next to the title. */
+.mx-modal .mx-form-title {
+    padding-right: 34px;
+}
+
+.mx-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.mx-modal-close:hover {
+    color: var(--text);
+}
+
+/* A small window in the middle of the screen (the popover attribute opens and closes it):
+   the actions of a song, or a question before deleting. */
+.mx-sheet {
+    width: min(360px, calc(100vw - 32px));
+    padding: 22px;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--accent-2);
+    color: var(--text);
+}
+
+.mx-sheet::backdrop {
+    background: rgb(0 0 0 / .5);
+    backdrop-filter: blur(3px);
+}
+
+.mx-sheet h2 {
+    margin: 0 0 6px;
+    font-size: 21px;
+}
+
+.mx-sheet p {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* The actions, one per line. */
+.mx-sheet-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.mx-sheet-list > a,
+.mx-sheet-list > button,
+.mx-sheet-ask summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: left;
+    text-decoration: none;
+}
+
+.mx-sheet-list .mx-sheet-danger {
+    border-color: var(--accent-3);
+    color: var(--accent-3);
+}
+
+/* An action that asks first: the line opens and shows the question with its buttons. */
+.mx-sheet-ask summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.mx-sheet-ask summary::-webkit-details-marker {
+    display: none;
+}
+
+.mx-sheet-ask p {
+    margin: 12px 0;
 }
 
 /* What went wrong, at the top of the form. */
@@ -297,6 +430,27 @@ button {
     color: var(--text);
 }
 
+/* Name of an artist or a mixtape and its number of songs, at the top of its page. */
+.mx-artist-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 34px;
+}
+
+.mx-artist-title span {
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 /* Grid of covers with a caption under each one: the artists (home) and the songs of an artist. */
 .mx-gallery {
     display: grid;
@@ -305,6 +459,11 @@ button {
     margin: 0;
     padding: 0;
     list-style: none;
+}
+
+/* Each tile can carry a button on its cover. */
+.mx-gallery li {
+    position: relative;
 }
 
 .mx-gallery-item {
