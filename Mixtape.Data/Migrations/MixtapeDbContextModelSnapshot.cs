@@ -49,12 +49,18 @@ namespace Mixtape.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("SortOrder");
 
+                    b.Property<Guid?>("UserKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserKey");
+
                     b.HasKey("Key");
 
                     b.HasIndex("CoverKey");
 
                     b.HasIndex("Slug")
                         .IsUnique();
+
+                    b.HasIndex("UserKey");
 
                     b.ToTable("Artists");
                 });
@@ -195,7 +201,13 @@ namespace Mixtape.Data.Migrations
                         .WithMany("Artists")
                         .HasForeignKey("CoverKey");
 
+                    b.HasOne("Mixtape.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserKey");
+
                     b.Navigation("Cover");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Mixtape.Data.Entities.Track", b =>

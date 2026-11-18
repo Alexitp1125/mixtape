@@ -44,7 +44,7 @@
             return;
         }
 
-        cover = CoverStore.GetCover(track.CoverFileName);
+        cover = CoverStore.GetCover(track.CoverFileName, track.Title);
 
         // Same cover with its own IDs, so the blurred copy doesn't reuse the animated masks and gradients.
         ambient = cover.Replace("id=\"", "id=\"amb-").Replace("url(#", "url(#amb-");

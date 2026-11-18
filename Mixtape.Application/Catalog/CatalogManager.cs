@@ -23,7 +23,8 @@ namespace Mixtape.Application.Catalog
         // Adds the artists and songs that are new and updates the ones that changed, matching by slug.
         // It never deletes. The order of the file is the order of the catalog.
         // coverFiles: names of the SVG files that exist. The cover of a song is "{slug}.svg"
-        // and the cover of an artist is "artist-{slug}.svg".
+        // and the cover of an artist is "artist-{slug}.svg". The files "generic-*.svg" are
+        // the covers people can choose for their own mixtapes and songs.
         public async Task SyncAsync(
             IReadOnlyList<CatalogArtist> catalog,
             IReadOnlySet<string> coverFiles,
@@ -66,6 +67,11 @@ namespace Mixtape.Application.Catalog
                         track.SortOrder = trackOrder;
                         track.Cover = GetCover(dbContext, covers, coverFiles, catalogTrack.Slug);
                     }
+                }
+
+                foreach (string fileName in coverFiles.Where(x => x.StartsWith("generic-", StringComparison.OrdinalIgnoreCase)))
+                {
+                    GetCover(dbContext, covers, coverFiles, Path.GetFileNameWithoutExtension(fileName))!.IsGeneric = true;
                 }
 
                 int changes = await dbContext.SaveChangesAsync(cancellationToken);

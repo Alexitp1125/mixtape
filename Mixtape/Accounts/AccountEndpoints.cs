@@ -12,10 +12,10 @@ namespace Mixtape.Accounts
             return endpoints;
         }
 
-        private static async Task<IResult> CloseSessionAsync(HttpContext httpContext)
+        private static async Task CloseSessionAsync(HttpContext httpContext)
         {
             await httpContext.SignOutAsync();
-            return Results.LocalRedirect(PageNames.Home);
+            httpContext.Response.Redirect(PageNames.Home);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Mixtape.Application.Artists
             this.logger = logger;
         }
 
-        // All the artists, in the order of the catalog, each with its cover and its number of songs.
+        // The artists of the catalog (the ones without an owner), in their order, each with its cover and its number of songs.
         public async Task<IReadOnlyList<ArtistInfo>> GetArtistsAsync(CancellationToken cancellationToken = default)
         {
             try
@@ -30,6 +30,7 @@ namespace Mixtape.Application.Artists
 
                 return await dbContext.Artists
                     .AsNoTracking()
+                    .Where(x => x.UserKey == null)
                     .OrderBy(x => x.SortOrder)
                     .Select(x => new ArtistInfo
                     {
@@ -65,6 +66,7 @@ namespace Mixtape.Application.Artists
                         x.Key,
                         x.Slug,
                         x.Name,
+                        x.UserKey,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -93,6 +95,7 @@ namespace Mixtape.Application.Artists
                     Key = artist.Key,
                     Slug = artist.Slug,
                     Name = artist.Name,
+                    OwnerKey = artist.UserKey,
                     Tracks = tracks,
                 };
             }

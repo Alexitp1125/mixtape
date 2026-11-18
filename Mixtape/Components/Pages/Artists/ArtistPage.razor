@@ -7,19 +7,35 @@
 {
     <PageTitle>@artist.Name · Mixtape</PageTitle>
 
-    <a class="mx-back" href="@PageNames.Examples">← @L["Examples.Title"]</a>
+    <a class="mx-back" href="@BackUrl">← @BackText</a>
 
     <h1 class="mx-artist-title">
         @artist.Name
         <span>@L["Artist.Songs", artist.Tracks.Count]</span>
     </h1>
 
+    @* What the owner of a mixtape can do with it. Share is run by js/app-shell.js. *@
+    @if (isOwner)
+    {
+        <div class="mx-owner">
+            <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
+            <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
+        </div>
+    }
+
+    @if (artist.Tracks.Count == 0)
+    {
+        <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
+            <p>@(isOwner ? L["Mixtape.Empty"] : L["Home.EmptyText"])</p>
+        </RakoMessage>
+    }
+
     <ul class="mx-gallery">
         @foreach (TrackInfo track in artist.Tracks)
         {
             <li>
                 <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName))</div>
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName, track.Title))</div>
                     <span class="mx-gallery-caption">
                         <b>@track.Title</b>
                         @if (track.Performer != artist.Name)
@@ -37,7 +53,20 @@
     [Parameter]
     public string Slug { get; set; } = null!;
 
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
     private ArtistDetails? artist;
+
+    // True when the mixtape belongs to who is looking at it.
+    private bool isOwner;
+
+    // The artists of the catalog go back to the examples; a mixtape, to the start.
+    private string BackUrl => artist!.OwnerKey is null ? PageNames.Examples : PageNames.Home;
+
+    private string BackText => artist!.OwnerKey is null
+        ? L["Examples.Title"].Value
+        : isOwner ? L["Mine.Title"].Value : L["Layout.Home"].Value;
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,6 +75,9 @@
         if (artist is null)
         {
             Navigation.NotFound();
+            return;
         }
+
+        isOwner = artist.OwnerKey is not null && artist.OwnerKey == HttpContext.User.GetUserKey();
     }
 }

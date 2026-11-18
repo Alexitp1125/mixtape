@@ -2,12 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Mixtape.Application.Accounts;
 using Mixtape.Application.Artists;
 using Mixtape.Application.Catalog;
+using Mixtape.Application.Mixtapes;
 using Mixtape.Application.Tracks;
+using Mixtape.Application.Videos;
 using Mixtape.Covers;
 using Mixtape.Data;
 using Mixtape.Shared.Accounts;
 using Mixtape.Shared.Artists;
+using Mixtape.Shared.Mixtapes;
 using Mixtape.Shared.Tracks;
+using Mixtape.Shared.Videos;
 
 namespace Mixtape.DependencyInjection
 {
@@ -36,7 +40,11 @@ namespace Mixtape.DependencyInjection
             services.AddTransient<CatalogManager>();
             services.AddTransient<IAccountsService, AccountManager>();
             services.AddTransient<IArtistsService, ArtistManager>();
+            services.AddTransient<IMixtapesService, MixtapeManager>();
             services.AddTransient<ITracksService, TrackManager>();
+
+            // The questions to YouTube give up after 8 seconds.
+            services.AddHttpClient<IVideosService, VideoManager>(x => x.Timeout = TimeSpan.FromSeconds(8));
         }
     }
 }

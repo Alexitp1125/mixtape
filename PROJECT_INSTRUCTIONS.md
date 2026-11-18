@@ -9,19 +9,23 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
   muestra una carátula por grupo y cada grupo tiene su página. Jósean Log (5 canciones), Moneda
   Dura (4) y Mix (9, cada una con su intérprete), con portada propia, instalable como app, ⏮ ⏭
   con paso automático, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Escrita y en el PC,
-  sin probar: la entrega 1 del paso 2 (pantalla de bienvenida y entrar con nombre y PIN).
+- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Entrega 1 del paso 2
+  (bienvenida y entrar con nombre y PIN) probada por Alexi en local: bien. Escrita y en el PC,
+  sin probar: la primera parte de la entrega 2 (crear una mixtape y añadirle canciones con un
+  enlace de YouTube, con carátulas genéricas).
 - **Qué sigue:**
-  1. Entrega 1. Alexi crea la migración
-     (`dotnet ef migrations add AddUsers --project Mixtape.Data --startup-project Mixtape`) y
-     prueba en local: bienvenida en `/`, crear cuenta, salir, entrar, PIN mal 5 veces (bloqueo),
-     nombre repetido, `/examples` con las tres carátulas. Luego commit
-     (`feat: welcome page and sign in with a name and a PIN`) y push. **No se despliega sola**:
-     quien entra ve "Todavía no tienes mixtapes". Va con la entrega 2.
-  2. Avisar al chat de estructura: la app ya crea `/home/app/.aspnet/DataProtection-Keys`
+  1. Entrega 2, parte 1. Alexi crea la migración
+     (`dotnet ef migrations add AddArtistOwner --project Mixtape.Data --startup-project Mixtape`)
+     y prueba en local: el primer arranque dice `7 changes` (las carátulas genéricas); crear
+     una mixtape; añadir una canción con un enlace; un enlace que no es de YouTube; "Mixtapes
+     de ejemplo" sigue mostrando solo los tres grupos de Alexi; salir lleva a la bienvenida.
+     Luego commit (`feat: people make mixtapes and add songs from YouTube`).
+  2. Entrega 2, parte 2: mover una canción a otra mixtape o a una nueva (el nombre de la nueva
+     solo se puede escribir si se elige "Nueva mixtape"; lo pidió Alexi), quitar una canción y
+     borrar una mixtape.
+  3. Avisar al chat de estructura: la app ya crea `/home/app/.aspnet/DataProtection-Keys`
      (dueño `$APP_UID`); falta el volumen en `server-infra` para que las sesiones no se cierren
-     en cada despliegue.
-  3. Paso 2, entrega 2: crear una mixtape, añadir canciones y moverlas entre mixtapes.
+     en cada despliegue. Después, desplegar las entregas 1 y 2 juntas, con copia antes.
   4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
   5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
      está hecho.
@@ -92,6 +96,11 @@ y para recomendarlas con un enlace ("mírala aquí").
        En el catálogo de Alexi es cambiarla de bloque en `catalog.json` (el volcado ya lo hace)
        y dibujarle su carátula. Para los usuarios, un botón "Mover a…" en cada canción, con sus
        mixtapes y "Nueva mixtape"; las suyas usan las carátulas genéricas.
+     - **Demo `mixtape-mis-mixtapes.html` (2026-11-17), aprobada:** nueva mixtape (nombre y un
+       casete de 4 colores), página de la mixtape para su dueño, añadir canción en dos pasos
+       (enlace; luego título, artista y una de 3 portadas con el título dibujado) y mover. Las
+       carátulas genéricas entran en la entrega 2 y no en la 3. No hay reordenar canciones.
+       Alexi pidió cuidar la validación.
      - **Tres entregas:** (1) bienvenida y entrar con nombre y PIN; (2) crear una mixtape,
        añadir canciones y moverlas entre mixtapes; (3) carátulas genéricas, límites, borrado por Alexi y página de
        privacidad. La 1 no se despliega sola (se podría entrar a una pantalla vacía): va con la 2.
@@ -132,6 +141,9 @@ la app y viven solo en la base de datos.
      artista (Jósean Log va por la V; Moneda Dura, por la IV; Mix, por la IX).
    - La del artista sale de su nombre, sin número. Ni fotos, ni logos, ni las carátulas de sus
      discos.
+   - Las genéricas (`generic-tape-N.svg` para mixtapes, `generic-song-*.svg` para canciones)
+     las eligen los usuarios. Llevan una marca donde la app escribe el nombre o el título:
+     `<!--label-->` en el casete y `<!--title #color-->` en la de canción.
    - Sin animación tiene que verse bien: la pose de reposo va en el `transform` de la clase, no
      solo en la animación (la copia desenfocada y `prefers-reduced-motion` las quitan).
 4. Reiniciar la app (en el servidor, desplegar): al arrancar, el archivo se vuelca en la base
@@ -159,6 +171,11 @@ la app y viven solo en la base de datos.
 | **Cuentas: un nombre y un PIN, nada más.** Tabla `Users`; el PIN se guarda con el hash de `PasswordHasher` (viene con ASP.NET Core; `Mixtape.Application` lo usa con un `FrameworkReference`, sin paquete nuevo). El nombre se guarda como se escribió y en minúsculas (`NameKey`, único). | Sin datos de nadie y sin dependencias nuevas. Acordado el 2026-11-12 y el 2026-11-13. |
 | La sesión es la cookie de autenticación de ASP.NET Core (`mixtape-session`, 30 días desde la última visita, `Secure` siempre en producción), sin Identity. Las páginas leen quién entró de `HttpContext.User`. Salir es `POST /sign-out`. | Identity trae correo, roles y tablas que no se usan. Las páginas son SSR, así que tienen el `HttpContext`. |
 | 5 PIN incorrectos seguidos bloquean la cuenta 15 minutos (`AccountManager`). Máximo 30 cuentas nuevas por hora en todo el sitio, contadas en la base de datos. | Un PIN de 4 dígitos se adivina probando. Lo de las cuentas iba a ser el limitador de peticiones de ASP.NET Core, pero detrás de Caddy todos los visitantes llegan con la misma IP; contar en la tabla hace lo mismo en tres líneas. |
+| **La mixtape de una persona es un `Artist` con dueño** (`Artist.UserKey`). Los del catálogo no tienen dueño y son los únicos que salen en `/examples`. Todo lo que cambia una mixtape pasa por `MixtapeManager`, que comprueba el dueño. Límites en `MixtapeLimits`: 5 mixtapes, 20 canciones. | Idea de Alexi (2026-11-13): un artista hace de lista, sin tabla nueva. |
+| Las direcciones de lo que crean las personas llevan 8 letras al azar al final (`/artists/para-el-carro-3fa9c21b`; `Slugs.Create`). | Las mixtapes se ven solo con su enlace: nadie tiene que poder adivinarlo, y dos personas pueden usar el mismo nombre. |
+| **Carátulas genéricas:** archivos SVG con una marca donde va el texto; `CoverTitle` escribe ahí el nombre o el título (codificado, porque lo escribe una persona) cuando la página pide la carátula con título (`CoverStore.GetCover(archivo, título)`). El volcado les crea su fila en `Covers` con `IsGeneric`. | El título se dibuja al mostrar, así un cambio de título no toca archivos. |
+| **Añadir una canción** son dos pasos en un mismo formulario, sin JavaScript: el enlace (la app pregunta al oEmbed de YouTube, `VideoManager`, con 8 segundos de espera) y luego título, artista y portada. Se guarda el ID del video y lo que confirma la persona. | oEmbed dice si el video existe y si se deja reproducir fuera (responde 401 si no). Las condiciones de YouTube no dejan guardar sus datos más de 30 días. |
+| Las tarjetas de formulario (`.mx-form`, `.mx-field`, `.mx-error`, `.mx-choices`) están en `app.css`. Cada formulario valida dos veces: el navegador (`required`, `maxlength`, `type`) y el Manager, que devuelve un estado y la página lo traduce. | Las usan varias páginas. El navegador avisa antes; el servidor es el que decide. |
 | `/` es la bienvenida, o "Tus mixtapes" con la sesión abierta. El catálogo de Alexi vive en `/examples` ("Mixtapes de ejemplo"); desde la página de un grupo se vuelve ahí. | Idea de Alexi (2026-11-13): una pantalla de presentación queda más profesional, y lo suyo queda como ejemplo. |
 | En teléfonos de hasta 400 px, el botón Instalar muestra solo el icono y la barra va más apretada. | Con "Entrar"/"Salir" la barra no cabía; medido de 320 a 640 px, en navegador y como app instalada. |
 | `.mx-gallery` (rejilla de portadas), `.mx-back` (enlace de volver), `.mx-heading`, `.mx-btn` y las hojas detrás de la carátula de un grupo están en `app.css`. | Las usa más de una página, y el CSS de un componente solo vale dentro de él. |
@@ -264,6 +281,16 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-17 (noche): entrega 2, parte 1
+- Alexi probó la entrega 1: bien. Enseñó el aviso `ASP0016` del build: `POST /sign-out`
+  devolvía un resultado que ASP.NET Core descartaba (no redirigía). Arreglado: el método
+  escribe la redirección él mismo.
+- Bienvenida: las portadas son Doma, Bugambilia y Al Sudeste, y son un enlace a los ejemplos
+  (lo pidió Alexi para llegar rápido a sus canciones).
+- Demo de la entrega 2 aprobada. Escrita la parte 1: `Artist.UserKey`, `MixtapeManager`,
+  `VideoManager`, `Slugs`, `CoverTitle`, las 7 carátulas genéricas, `NewMixtape`, `AddTrack`,
+  "Tus mixtapes" en el inicio y los botones del dueño en la página de la mixtape.
 
 ### 2026-11-17 (después): entrega 1 del paso 2
 - Alexi subió y desplegó el Mix; lo escucha en el móvil.

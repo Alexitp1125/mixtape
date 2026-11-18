@@ -88,6 +88,156 @@ button {
     text-shadow: 0 1px 2px rgb(0 0 0 / .3);
 }
 
+/* Small action: a quiet link or button. */
+.mx-small {
+    padding: 0;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.mx-small:hover {
+    color: var(--text);
+}
+
+/* What the owner of a mixtape can do with it, under its name. */
+.mx-owner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin: -8px 0 32px;
+}
+
+.mx-owner .mx-btn {
+    padding: 9px 18px;
+}
+
+/* A form in a card: sign in, new mixtape, add a song. */
+.mx-form {
+    max-width: 420px;
+    margin: 16px auto 0;
+    padding: 28px;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--accent-2);
+}
+
+.mx-form-title {
+    margin: 0 0 22px;
+    font-size: 24px;
+}
+
+.mx-form .mx-btn {
+    width: 100%;
+    margin-top: 6px;
+}
+
+/* What went wrong, at the top of the form. */
+.mx-error {
+    margin: 0 0 18px;
+    padding: 10px 14px;
+    border: 1px solid var(--accent-3);
+    border-radius: 10px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.mx-field {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.mx-field span,
+.mx-choices legend {
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.mx-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 18px;
+}
+
+.mx-field input:read-only,
+.mx-field input:disabled {
+    opacity: .6;
+}
+
+.mx-note {
+    margin: 18px 0 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Covers to choose from, four in a row: the chosen one gets the frame. */
+.mx-choices {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+}
+
+.mx-choices legend {
+    margin-bottom: 8px;
+    padding: 0;
+}
+
+.mx-choices label {
+    position: relative;
+    cursor: pointer;
+}
+
+.mx-choices input {
+    position: absolute;
+    opacity: 0;
+}
+
+.mx-choices .mx-cover {
+    display: block;
+    border-radius: 8px;
+    box-shadow: none;
+    opacity: .55;
+}
+
+.mx-choices input:checked + .mx-cover {
+    outline: 3px solid var(--accent-1);
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+.mx-choices input:focus-visible + .mx-cover {
+    opacity: 1;
+}
+
+/* The video YouTube found from the link. */
+.mx-found {
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
 /* Title of a list page. */
 .mx-heading {
     margin: 0 0 28px;

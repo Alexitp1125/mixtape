@@ -1,0 +1,84 @@
+@attribute [Route(PageNames.NewMixtape)]
+@inject IMixtapesService MixtapesService
+@inject CoverStore CoverStore
+@inject NavigationManager Navigation
+
+<PageTitle>@L["Mine.New"] · Mixtape</PageTitle>
+
+<a class="mx-back" href="@PageNames.Home">← @L["Mine.Title"]</a>
+
+<form class="mx-form" method="post" @formname="new-mixtape" @onsubmit="SubmitAsync">
+    <AntiforgeryToken />
+
+    <h1 class="mx-form-title">@L["Mine.New"]</h1>
+
+    @if (error is not null)
+    {
+        <p class="mx-error" role="alert">@error</p>
+    }
+
+    <label class="mx-field">
+        <span>@L["Access.Name"]</span>
+        <input type="text" name="Name" value="@Name" maxlength="30" required />
+    </label>
+
+    <fieldset class="mx-choices">
+        <legend>@L["NewMixtape.Cover"]</legend>
+
+        @foreach (string fileName in CoverStore.GenericTapes)
+        {
+            <label>
+                <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, "Mixtape"))</span>
+            </label>
+        }
+    </fieldset>
+
+    <button class="mx-btn mx-btn-main" type="submit">@L["NewMixtape.Submit"]</button>
+</form>
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    [SupplyParameterFromForm(FormName = "new-mixtape")]
+    private string? Name { get; set; }
+
+    [SupplyParameterFromForm(FormName = "new-mixtape")]
+    private string? CoverFile { get; set; }
+
+    private string? error;
+
+    // The cover that was chosen or, before choosing, the first one.
+    private string? SelectedCover => CoverFile ?? CoverStore.GenericTapes.FirstOrDefault();
+
+    protected override void OnInitialized()
+    {
+        // Only for who signed in.
+        if (HttpContext.User.GetUserKey() is null)
+        {
+            Navigation.NavigateTo(PageNames.Access);
+        }
+    }
+
+    // Creates the mixtape and opens its page.
+    private async Task SubmitAsync()
+    {
+        Guid? userKey = HttpContext.User.GetUserKey();
+
+        if (userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.CreateAsync(userKey.Value, Name ?? "", CoverFile ?? "");
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(result.Slug));
+    }
+}

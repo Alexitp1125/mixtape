@@ -1,17 +1,40 @@
 @attribute [Route(PageNames.Home)]
+@inject IMixtapesService MixtapesService
 @inject CoverStore CoverStore
 
 <PageTitle>Mixtape</PageTitle>
 
-@if (HttpContext.User.Identity?.IsAuthenticated == true)
+@if (userKey is not null)
 {
-    @* With the session open: the mixtapes of the person. They can't be created yet. *@
+    @* With the session open: the mixtapes of the person and the tile to start a new one. *@
     <h1 class="mx-heading">@L["Mine.Title"]</h1>
 
-    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Mine.EmptyTitle"]">
-        <p>@L["Mine.EmptyText"]</p>
-        <a href="@PageNames.Examples">@L["Examples.Title"]</a>
-    </RakoMessage>
+    <ul class="mx-gallery">
+        @foreach (ArtistInfo mixtape in mixtapes)
+        {
+            <li>
+                <a class="mx-gallery-item mx-artist-item" href="@PageNames.ArtistUrl(mixtape.Slug)">
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(mixtape.CoverFileName, mixtape.Name))</div>
+                    <span class="mx-gallery-caption">
+                        <b>@mixtape.Name</b>
+                        <span>@L["Artist.Songs", mixtape.TrackCount]</span>
+                    </span>
+                </a>
+            </li>
+        }
+
+        <li>
+            <a class="mx-gallery-item mx-new" href="@PageNames.NewMixtape">
+                <div class="mx-cover" aria-hidden="true">+</div>
+                <span class="mx-gallery-caption">
+                    <b>@L["Mine.New"]</b>
+                    <span>@L["Mine.Count", mixtapes.Count, MixtapeLimits.MaxMixtapes]</span>
+                </span>
+            </a>
+        </li>
+    </ul>
+
+    <p class="mx-more"><a class="mx-small" href="@PageNames.Examples">@L["Examples.Title"] →</a></p>
 }
 else
 {
@@ -46,4 +69,19 @@ else
 @code {
     [CascadingParameter]
     public HttpContext HttpContext { get; set; } = null!;
+
+    // Who signed in; null for a visitor.
+    private Guid? userKey;
+
+    private IReadOnlyList<ArtistInfo> mixtapes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        if (userKey is not null)
+        {
+            mixtapes = await MixtapesService.GetMineAsync(userKey.Value);
+        }
+    }
 }

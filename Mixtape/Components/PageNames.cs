@@ -7,7 +7,9 @@ namespace Mixtape.Components
         public const string Access = "/access";
         public const string SignOut = "/sign-out";
         public const string Examples = "/examples";
+        public const string NewMixtape = "/mixtapes/new";
         public const string Artist = "/artists/{Slug}";
+        public const string AddTrack = "/artists/{Slug}/add";
         public const string Track = "/tracks/{Slug}";
         public const string NotFound = "/not-found";
         public const string Error = "/error";
@@ -16,6 +18,8 @@ namespace Mixtape.Components
         public static string AccessUrl(bool create) => create ? "/access?mode=create" : "/access";
 
         public static string ArtistUrl(string slug) => $"/artists/{slug}";
+
+        public static string AddTrackUrl(string slug) => $"/artists/{slug}/add";
 
         public static string TrackUrl(string slug) => $"/tracks/{slug}";
     }

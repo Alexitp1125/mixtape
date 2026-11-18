@@ -1,0 +1,160 @@
+@attribute [Route(PageNames.AddTrack)]
+@inject IArtistsService ArtistsService
+@inject IMixtapesService MixtapesService
+@inject IVideosService VideosService
+@inject CoverStore CoverStore
+@inject NavigationManager Navigation
+
+@if (mixtape is not null)
+{
+    <PageTitle>@L["Mixtape.AddTrack"] · @mixtape.Name · Mixtape</PageTitle>
+
+    <a class="mx-back" href="@PageNames.ArtistUrl(mixtape.Slug)">← @mixtape.Name</a>
+
+    @* Two steps in one form: first the link (the app asks YouTube about it), then the title, the artist and the cover. *@
+    <form class="mx-form" method="post" @formname="add-track" @onsubmit="SubmitAsync">
+        <AntiforgeryToken />
+
+        <h1 class="mx-form-title">@L["Mixtape.AddTrack"]</h1>
+
+        @if (error is not null)
+        {
+            <p class="mx-error" role="alert">@error</p>
+        }
+
+        <label class="mx-field">
+            <span>@L["AddTrack.Link"]</span>
+            <input type="url" name="Link" value="@Link" maxlength="200" required readonly="@IsFound" placeholder="https://youtu.be/…" />
+        </label>
+
+        @if (IsFound)
+        {
+            <input type="hidden" name="VideoId" value="@VideoId" />
+
+            <p class="mx-found">
+                @L["AddTrack.Found"]
+                <a href="@PageNames.AddTrackUrl(mixtape.Slug)">@L["AddTrack.OtherLink"]</a>
+            </p>
+
+            <label class="mx-field">
+                <span>@L["AddTrack.SongTitle"]</span>
+                <input type="text" name="Title" value="@Title" maxlength="120" required />
+            </label>
+
+            <label class="mx-field">
+                <span>@L["AddTrack.Performer"]</span>
+                <input type="text" name="Performer" value="@Performer" maxlength="120" required />
+            </label>
+
+            <fieldset class="mx-choices">
+                <legend>@L["AddTrack.Cover"]</legend>
+
+                @foreach (string fileName in CoverStore.GenericSongs)
+                {
+                    <label>
+                        <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                        <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, Title ?? ""))</span>
+                    </label>
+                }
+            </fieldset>
+
+            <button class="mx-btn mx-btn-main" type="submit">@L["AddTrack.Submit", mixtape.Name]</button>
+        }
+        else
+        {
+            <button class="mx-btn mx-btn-main" type="submit">@L["AddTrack.Find"]</button>
+        }
+    </form>
+}
+
+@code {
+    // Slug of the mixtape that gets the song.
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    [SupplyParameterFromForm(FormName = "add-track")]
+    private string? Link { get; set; }
+
+    // Empty in the first step; the video YouTube found in the second one.
+    [SupplyParameterFromForm(FormName = "add-track")]
+    private string? VideoId { get; set; }
+
+    [SupplyParameterFromForm(FormName = "add-track")]
+    private string? Title { get; set; }
+
+    [SupplyParameterFromForm(FormName = "add-track")]
+    private string? Performer { get; set; }
+
+    [SupplyParameterFromForm(FormName = "add-track")]
+    private string? CoverFile { get; set; }
+
+    private ArtistDetails? mixtape;
+    private Guid? userKey;
+    private string? error;
+
+    private bool IsFound => !string.IsNullOrEmpty(VideoId);
+
+    // The cover that was chosen or, before choosing, the first one.
+    private string? SelectedCover => CoverFile ?? CoverStore.GenericSongs.FirstOrDefault();
+
+    protected override async Task OnInitializedAsync()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        ArtistDetails? found = await ArtistsService.GetArtistAsync(Slug);
+
+        // Only the owner of the mixtape can add songs to it.
+        if (found is null || userKey is null || found.OwnerKey != userKey)
+        {
+            Navigation.NotFound();
+            return;
+        }
+
+        mixtape = found;
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (mixtape is null || userKey is null)
+        {
+            return;
+        }
+
+        // First step: asks YouTube about the link and fills in the title and the artist.
+        if (!IsFound)
+        {
+            VideoResult video = await VideosService.FindAsync(Link ?? "");
+
+            if (video.VideoId is null)
+            {
+                error = L[$"Video.Error.{video.Status}"].Value;
+                return;
+            }
+
+            VideoId = video.VideoId;
+            Title = video.Title;
+            Performer = video.Author;
+            return;
+        }
+
+        // Second step: saves the song and goes back to the mixtape.
+        MixtapeResult result = await MixtapesService.AddTrackAsync(
+            userKey.Value,
+            mixtape.Slug,
+            VideoId ?? "",
+            Title ?? "",
+            Performer ?? "",
+            CoverFile ?? "");
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(mixtape.Slug));
+    }
+}

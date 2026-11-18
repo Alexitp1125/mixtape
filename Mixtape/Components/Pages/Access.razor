@@ -10,17 +10,26 @@
 <a class="mx-back" href="@PageNames.Home">← @L["Layout.Home"]</a>
 
 @* One card with two tabs: create an account or sign in. The server handles the form; no JavaScript. *@
-<form class="mx-access" method="post" @formname="access" @onsubmit="SubmitAsync">
+<form class="mx-form" method="post" @formname="access" @onsubmit="SubmitAsync">
     <AntiforgeryToken />
 
+    @* The tab that is open is plain text; only the other one is a link. *@
     <nav class="mx-tabs">
-        <a href="@PageNames.AccessUrl(create: true)" aria-current="@Current(IsCreate)">@L["Access.Create"]</a>
-        <a href="@PageNames.AccessUrl(create: false)" aria-current="@Current(!IsCreate)">@L["Access.Enter"]</a>
+        @if (IsCreate)
+        {
+            <span aria-current="true">@L["Access.Create"]</span>
+            <a href="@PageNames.AccessUrl(create: false)">@L["Access.Enter"]</a>
+        }
+        else
+        {
+            <a href="@PageNames.AccessUrl(create: true)">@L["Access.Create"]</a>
+            <span aria-current="true">@L["Access.Enter"]</span>
+        }
     </nav>
 
     @if (error is not null)
     {
-        <p class="mx-access-error" role="alert">@error</p>
+        <p class="mx-error" role="alert">@error</p>
     }
 
     <label class="mx-field">
@@ -90,7 +99,4 @@
 
         Navigation.NavigateTo(PageNames.Home);
     }
-
-    private static string? Current(bool selected) =>
-        selected ? "true" : null;
 }

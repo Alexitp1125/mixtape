@@ -171,13 +171,85 @@
   <data name="Mine.Title" xml:space="preserve">
     <value>Tus mixtapes</value>
   </data>
-  <data name="Mine.EmptyTitle" xml:space="preserve">
-    <value>Todavía no tienes mixtapes</value>
-  </data>
-  <data name="Mine.EmptyText" xml:space="preserve">
-    <value>Muy pronto podrás crear la primera aquí.</value>
-  </data>
   <data name="Examples.Title" xml:space="preserve">
     <value>Mixtapes de ejemplo</value>
+  </data>
+  <data name="Mine.New" xml:space="preserve">
+    <value>Nueva mixtape</value>
+  </data>
+  <data name="Mine.Count" xml:space="preserve">
+    <value>{0} de {1}</value>
+  </data>
+  <data name="NewMixtape.Cover" xml:space="preserve">
+    <value>Carátula</value>
+  </data>
+  <data name="NewMixtape.Submit" xml:space="preserve">
+    <value>Crear mixtape</value>
+  </data>
+  <data name="Mixtape.AddTrack" xml:space="preserve">
+    <value>Añadir canción</value>
+  </data>
+  <data name="Mixtape.Empty" xml:space="preserve">
+    <value>Añade la primera canción con el botón de arriba.</value>
+  </data>
+  <data name="AddTrack.Link" xml:space="preserve">
+    <value>Enlace de YouTube</value>
+  </data>
+  <data name="AddTrack.Find" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="AddTrack.Found" xml:space="preserve">
+    <value>Encontrado en YouTube, y se puede reproducir aquí. Revisa el título y el artista.</value>
+  </data>
+  <data name="AddTrack.OtherLink" xml:space="preserve">
+    <value>Usar otro enlace</value>
+  </data>
+  <data name="AddTrack.SongTitle" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="AddTrack.Performer" xml:space="preserve">
+    <value>Artista</value>
+  </data>
+  <data name="AddTrack.Cover" xml:space="preserve">
+    <value>Portada</value>
+  </data>
+  <data name="AddTrack.Submit" xml:space="preserve">
+    <value>Añadir a {0}</value>
+  </data>
+  <data name="Mixtape.Error.NotFound" xml:space="preserve">
+    <value>Esa mixtape no existe o no es tuya.</value>
+  </data>
+  <data name="Mixtape.Error.NameInvalid" xml:space="preserve">
+    <value>El nombre tiene que tener de 1 a 30 caracteres.</value>
+  </data>
+  <data name="Mixtape.Error.TitleInvalid" xml:space="preserve">
+    <value>El título tiene que tener de 1 a 120 caracteres.</value>
+  </data>
+  <data name="Mixtape.Error.PerformerInvalid" xml:space="preserve">
+    <value>El artista tiene que tener de 1 a 120 caracteres.</value>
+  </data>
+  <data name="Mixtape.Error.CoverInvalid" xml:space="preserve">
+    <value>Elige una de las carátulas.</value>
+  </data>
+  <data name="Mixtape.Error.VideoInvalid" xml:space="preserve">
+    <value>Ese video no es válido. Busca el enlace otra vez.</value>
+  </data>
+  <data name="Mixtape.Error.TooManyMixtapes" xml:space="preserve">
+    <value>Ya tienes {0} mixtapes, el máximo.</value>
+  </data>
+  <data name="Mixtape.Error.TooManyTracks" xml:space="preserve">
+    <value>Esta mixtape ya tiene {1} canciones, el máximo.</value>
+  </data>
+  <data name="Video.Error.LinkInvalid" xml:space="preserve">
+    <value>Eso no es un enlace a un video de YouTube.</value>
+  </data>
+  <data name="Video.Error.NotFound" xml:space="preserve">
+    <value>YouTube no encuentra ese video, o es privado.</value>
+  </data>
+  <data name="Video.Error.NotEmbeddable" xml:space="preserve">
+    <value>El dueño de ese video no permite reproducirlo fuera de YouTube.</value>
+  </data>
+  <data name="Video.Error.Unavailable" xml:space="preserve">
+    <value>YouTube no respondió. Prueba otra vez en un momento.</value>
   </data>
 </root>

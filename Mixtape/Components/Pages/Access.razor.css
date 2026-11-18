@@ -1,15 +1,4 @@
-/* Card to create an account or sign in. */
-.mx-access {
-    max-width: 420px;
-    margin: 16px auto 0;
-    padding: 28px;
-    border: 2px solid var(--line);
-    border-radius: 16px;
-    background: var(--surface);
-    box-shadow: 6px 6px 0 var(--accent-2);
-}
-
-/* The two tabs, in a pill. */
+/* The two tabs of the access card, in a pill. The open one is a span; the other one, a link. */
 .mx-tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -19,67 +8,38 @@
     border-radius: 999px;
 }
 
-.mx-tabs a {
+.mx-tabs a,
+.mx-tabs span {
     padding: 8px 10px;
-    color: var(--text-muted);
     font-size: 15px;
     text-align: center;
+}
+
+.mx-tabs a {
+    color: var(--text-muted);
     text-decoration: none;
+    transition: color .2s ease;
 }
 
-.mx-tabs a[aria-current="true"] {
+.mx-tabs a:hover {
+    color: var(--text);
+}
+
+.mx-tabs span {
     background: var(--bg);
     color: var(--text);
 }
 
-.mx-access-error {
-    margin: 0 0 18px;
-    padding: 10px 14px;
-    border: 1px solid var(--accent-3);
-    border-radius: 10px;
-    font-size: 15px;
-    line-height: 1.4;
-}
-
-.mx-field {
-    display: grid;
-    gap: 6px;
-    margin-bottom: 18px;
-}
-
-.mx-field span {
-    color: var(--text-muted);
-    font-family: var(--font-label);
-    font-size: 11px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-}
-
-.mx-field input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--bg);
-    color: var(--text);
-    font: inherit;
-    font-size: 18px;
-}
-
+/* The PIN: four digits, each one over its own line. The width fits the four and the cursor after them. */
 .mx-field input.mx-pin {
-    width: 9ch;
+    width: calc(10.6ch + 6px);
+    padding: 12px 0 16px 1ch;
+    background-image: repeating-linear-gradient(90deg, var(--text-muted) 0 1.8ch, transparent 1.8ch 2.4ch);
+    background-repeat: no-repeat;
+    background-position: .6ch calc(100% - 10px);
+    background-size: 9ch 2px;
     font-family: var(--font-label);
-    letter-spacing: .5em;
-}
-
-.mx-access .mx-btn {
-    width: 100%;
-    margin-top: 6px;
-}
-
-.mx-note {
-    margin: 18px 0 0;
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 26px;
+    letter-spacing: 1.4ch;
+    caret-color: var(--accent-1);
 }

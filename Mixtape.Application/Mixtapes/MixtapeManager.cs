@@ -1,0 +1,210 @@
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Mixtape.Data;
+using Mixtape.Data.Entities;
+using Mixtape.Shared;
+using Mixtape.Shared.Artists;
+using Mixtape.Shared.Mixtapes;
+
+namespace Mixtape.Application.Mixtapes
+{
+    // The mixtapes of a person: listing them, creating one and adding songs to it.
+    // In the database a mixtape is an artist with an owner.
+    public sealed partial class MixtapeManager
+    {
+        // Start of the file names of the generic covers: cassettes for mixtapes, the others for songs.
+        private const string TapeCovers = "generic-tape-";
+        private const string SongCovers = "generic-song-";
+
+        private readonly IDbContextFactory<MixtapeDbContext> dbContextFactory;
+        private readonly ILogger<MixtapeManager> logger;
+
+        public MixtapeManager(
+            IDbContextFactory<MixtapeDbContext> dbContextFactory,
+            ILogger<MixtapeManager> logger)
+        {
+            this.dbContextFactory = dbContextFactory;
+            this.logger = logger;
+        }
+
+        // The mixtapes of a person, in the order they were created.
+        public async Task<IReadOnlyList<ArtistInfo>> GetMineAsync(Guid userKey, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                return await dbContext.Artists
+                    .AsNoTracking()
+                    .Where(x => x.UserKey == userKey)
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new ArtistInfo
+                    {
+                        Key = x.Key,
+                        Slug = x.Slug,
+                        Name = x.Name,
+                        CoverFileName = x.Cover != null ? x.Cover.FileName : null,
+                        TrackCount = x.Tracks.Count,
+                    })
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error listing the mixtapes.", logger);
+            }
+        }
+
+        // Creates a mixtape for a person.
+        public async Task<MixtapeResult> CreateAsync(Guid userKey, string name, string coverFileName, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                string cleanName = name.Trim();
+
+                if (cleanName.Length is < 1 or > 30)
+                {
+                    return Failed(MixtapeStatus.NameInvalid);
+                }
+
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                Cover? cover = await FindCoverAsync(dbContext, coverFileName, TapeCovers, cancellationToken);
+
+                if (cover is null)
+                {
+                    return Failed(MixtapeStatus.CoverInvalid);
+                }
+
+                if (await dbContext.Artists.CountAsync(x => x.UserKey == userKey, cancellationToken) >= MixtapeLimits.MaxMixtapes)
+                {
+                    return Failed(MixtapeStatus.TooManyMixtapes);
+                }
+
+                int lastOrder = await dbContext.Artists
+                    .Where(x => x.UserKey == userKey)
+                    .MaxAsync(x => (int?)x.SortOrder, cancellationToken) ?? -1;
+
+                Artist artist = new()
+                {
+                    Slug = Slugs.Create(cleanName),
+                    Name = cleanName,
+                    SortOrder = lastOrder + 1,
+                    UserKey = userKey,
+                    Cover = cover,
+                };
+
+                dbContext.Artists.Add(artist);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Succeeded(artist.Slug);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error creating the mixtape.", logger);
+            }
+        }
+
+        // Adds a song at the end of a mixtape. Only its owner can.
+        public async Task<MixtapeResult> AddTrackAsync(
+            Guid userKey,
+            string mixtapeSlug,
+            string videoId,
+            string title,
+            string performer,
+            string coverFileName,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                string cleanTitle = title.Trim();
+                string cleanPerformer = performer.Trim();
+
+                if (!Regex.IsMatch(videoId, "^[A-Za-z0-9_-]{11}$"))
+                {
+                    return Failed(MixtapeStatus.VideoInvalid);
+                }
+
+                if (cleanTitle.Length is < 1 or > 120)
+                {
+                    return Failed(MixtapeStatus.TitleInvalid);
+                }
+
+                if (cleanPerformer.Length is < 1 or > 120)
+                {
+                    return Failed(MixtapeStatus.PerformerInvalid);
+                }
+
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                Artist? artist = await dbContext.Artists
+                    .FirstOrDefaultAsync(x => x.Slug == mixtapeSlug && x.UserKey == userKey, cancellationToken);
+
+                if (artist is null)
+                {
+                    return Failed(MixtapeStatus.NotFound);
+                }
+
+                Cover? cover = await FindCoverAsync(dbContext, coverFileName, SongCovers, cancellationToken);
+
+                if (cover is null)
+                {
+                    return Failed(MixtapeStatus.CoverInvalid);
+                }
+
+                if (await dbContext.Tracks.CountAsync(x => x.ArtistKey == artist.Key, cancellationToken) >= MixtapeLimits.MaxTracks)
+                {
+                    return Failed(MixtapeStatus.TooManyTracks);
+                }
+
+                int lastOrder = await dbContext.Tracks
+                    .Where(x => x.ArtistKey == artist.Key)
+                    .MaxAsync(x => (int?)x.SortOrder, cancellationToken) ?? -1;
+
+                Track track = new()
+                {
+                    Slug = Slugs.Create(cleanTitle),
+                    Artist = artist,
+                    Title = cleanTitle,
+                    Performer = cleanPerformer,
+                    VideoId = videoId,
+                    SortOrder = lastOrder + 1,
+                    Cover = cover,
+                };
+
+                dbContext.Tracks.Add(track);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Succeeded(track.Slug);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error adding the song.", logger);
+            }
+        }
+
+        // A generic cover by its file name; null when it isn't one of that kind.
+        private static async Task<Cover?> FindCoverAsync(
+            MixtapeDbContext dbContext,
+            string fileName,
+            string kind,
+            CancellationToken cancellationToken)
+        {
+            if (!fileName.StartsWith(kind, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return await dbContext.Covers.FirstOrDefaultAsync(x => x.IsGeneric && x.FileName == fileName, cancellationToken);
+        }
+
+        private static MixtapeResult Failed(MixtapeStatus status) =>
+            new() { Status = status };
+
+        private static MixtapeResult Succeeded(string slug) =>
+            new() { Status = MixtapeStatus.Ok, Slug = slug };
+    }
+}
