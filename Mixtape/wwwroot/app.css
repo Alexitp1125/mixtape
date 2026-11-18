@@ -227,6 +227,39 @@ button {
     opacity: 1;
 }
 
+/* Options to choose one from, one per line. */
+.mx-options {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+}
+
+.mx-options legend {
+    margin-bottom: 8px;
+    padding: 0;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.mx-options label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.mx-options input {
+    accent-color: var(--accent-3);
+}
+
 /* The video YouTube found from the link. */
 .mx-found {
     margin: 0 0 20px;

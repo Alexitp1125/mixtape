@@ -5,8 +5,11 @@ namespace Mixtape.Shared.Mixtapes
     {
         Ok,
 
-        // The mixtape doesn't exist or belongs to someone else.
+        // The mixtape or the song doesn't exist or belongs to someone else.
         NotFound,
+
+        // The mixtape to move a song to isn't another mixtape of the same person.
+        TargetInvalid,
 
         // The name of the mixtape doesn't have 1 to 30 characters.
         NameInvalid,

@@ -217,7 +217,7 @@
     <value>Añadir a {0}</value>
   </data>
   <data name="Mixtape.Error.NotFound" xml:space="preserve">
-    <value>Esa mixtape no existe o no es tuya.</value>
+    <value>Eso no existe o no es tuyo.</value>
   </data>
   <data name="Mixtape.Error.NameInvalid" xml:space="preserve">
     <value>El nombre tiene que tener de 1 a 30 caracteres.</value>
@@ -251,5 +251,35 @@
   </data>
   <data name="Video.Error.Unavailable" xml:space="preserve">
     <value>YouTube no respondió. Prueba otra vez en un momento.</value>
+  </data>
+  <data name="Mixtape.Move" xml:space="preserve">
+    <value>Mover a…</value>
+  </data>
+  <data name="Mixtape.Remove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="Mixtape.Delete" xml:space="preserve">
+    <value>Borrar mixtape</value>
+  </data>
+  <data name="Mixtape.DeleteConfirm" xml:space="preserve">
+    <value>Se borra con todas sus canciones. No se puede deshacer.</value>
+  </data>
+  <data name="Mixtape.DeleteYes" xml:space="preserve">
+    <value>Sí, borrarla</value>
+  </data>
+  <data name="MoveTrack.Title" xml:space="preserve">
+    <value>Mover «{0}»</value>
+  </data>
+  <data name="MoveTrack.To" xml:space="preserve">
+    <value>Pasarla a</value>
+  </data>
+  <data name="MoveTrack.NewName" xml:space="preserve">
+    <value>Nombre de la nueva</value>
+  </data>
+  <data name="MoveTrack.Submit" xml:space="preserve">
+    <value>Mover</value>
+  </data>
+  <data name="Mixtape.Error.TargetInvalid" xml:space="preserve">
+    <value>Elige otra de tus mixtapes.</value>
   </data>
 </root>

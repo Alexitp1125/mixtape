@@ -9,25 +9,34 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
   muestra una carátula por grupo y cada grupo tiene su página. Jósean Log (5 canciones), Moneda
   Dura (4) y Mix (9, cada una con su intérprete), con portada propia, instalable como app, ⏮ ⏭
   con paso automático, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Entrega 1 del paso 2
-  (bienvenida y entrar con nombre y PIN) probada por Alexi en local: bien. Escrita y en el PC,
-  sin probar: la primera parte de la entrega 2 (crear una mixtape y añadirle canciones con un
-  enlace de YouTube, con carátulas genéricas).
+- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Del paso 2, probadas
+  por Alexi en local: la entrega 1 (bienvenida y entrar con nombre y PIN) y la primera parte de
+  la entrega 2 (crear una mixtape y añadirle canciones). Escrita y en el PC, sin probar: la
+  segunda parte de la entrega 2 (mover y quitar canciones, borrar una mixtape).
 - **Qué sigue:**
-  1. Entrega 2, parte 1. Alexi crea la migración
-     (`dotnet ef migrations add AddArtistOwner --project Mixtape.Data --startup-project Mixtape`)
-     y prueba en local: el primer arranque dice `7 changes` (las carátulas genéricas); crear
-     una mixtape; añadir una canción con un enlace; un enlace que no es de YouTube; "Mixtapes
-     de ejemplo" sigue mostrando solo los tres grupos de Alexi; salir lleva a la bienvenida.
-     Luego commit (`feat: people make mixtapes and add songs from YouTube`).
-  2. Entrega 2, parte 2: mover una canción a otra mixtape o a una nueva (el nombre de la nueva
-     solo se puede escribir si se elige "Nueva mixtape"; lo pidió Alexi), quitar una canción y
-     borrar una mixtape.
-  3. Avisar al chat de estructura: la app ya crea `/home/app/.aspnet/DataProtection-Keys`
-     (dueño `$APP_UID`); falta el volumen en `server-infra` para que las sesiones no se cierren
-     en cada despliegue. Después, desplegar las entregas 1 y 2 juntas, con copia antes.
-  4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
-  5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
+  1. Entrega 2, parte 2. Sin migración. Alexi prueba en local: mover una canción a otra
+     mixtape; moverla a una nueva (el nombre solo se puede escribir al elegir "Nueva mixtape");
+     quitar una canción; borrar una mixtape (pregunta antes). Luego commit
+     (`feat: move and remove songs, delete mixtapes`).
+  2. Desplegar las entregas 1 y 2 juntas, con copia antes. Son dos migraciones (`AddUsers` y
+     `AddArtistOwner`). Antes o después, avisar al chat de estructura: la app crea
+     `/home/app/.aspnet/DataProtection-Keys` (dueño `$APP_UID`) y falta el volumen en
+     `server-infra`; sin él, cada despliegue cierra las sesiones.
+  3. **Pase de experiencia de uso** (lo pidió Alexi el 2026-11-17 al probar la parte 2; con demo
+     antes):
+     - Añadir canción: que pueda ser una ventana sobre la página (modal) y, en cualquier caso,
+       una forma clara de cancelar. Lo mismo vale para "Nueva mixtape" y "Mover".
+     - Quitar una canción tiene que preguntar antes ("¿estás seguro?").
+     - "Borrar mixtape", "Mover a…" y "Quitar": con más forma de botón, o encima de la misma
+       carátula; revisar dónde van.
+  4. Entrega 3: que Alexi pueda borrar mixtapes ajenas (hoy solo desde la base de datos), la
+     página de privacidad y los remates.
+  5. **Funcional que no está hecho** (decidir si entra): cambiar el nombre o la carátula de
+     una mixtape; corregir el título, el artista o la portada de una canción (hoy hay que
+     quitarla y añadirla otra vez); reordenar canciones; cambiar el PIN o borrar la cuenta
+     propia; el proyecto `.Tests`.
+  6. Paso 3: página `/about` (`CONVENTIONS.md` §13).
+  7. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
      está hecho.
 
 ## Qué es
@@ -175,6 +184,9 @@ la app y viven solo en la base de datos.
 | Las direcciones de lo que crean las personas llevan 8 letras al azar al final (`/artists/para-el-carro-3fa9c21b`; `Slugs.Create`). | Las mixtapes se ven solo con su enlace: nadie tiene que poder adivinarlo, y dos personas pueden usar el mismo nombre. |
 | **Carátulas genéricas:** archivos SVG con una marca donde va el texto; `CoverTitle` escribe ahí el nombre o el título (codificado, porque lo escribe una persona) cuando la página pide la carátula con título (`CoverStore.GetCover(archivo, título)`). El volcado les crea su fila en `Covers` con `IsGeneric`. | El título se dibuja al mostrar, así un cambio de título no toca archivos. |
 | **Añadir una canción** son dos pasos en un mismo formulario, sin JavaScript: el enlace (la app pregunta al oEmbed de YouTube, `VideoManager`, con 8 segundos de espera) y luego título, artista y portada. Se guarda el ID del video y lo que confirma la persona. | oEmbed dice si el video existe y si se deja reproducir fuera (responde 401 si no). Las condiciones de YouTube no dejan guardar sus datos más de 30 días. |
+| **Mover, quitar y borrar** (`MixtapeManager`): una canción se mueve al final de otra mixtape del mismo dueño o de una nueva, que hereda la carátula de la mixtape de origen. En la página de la mixtape, todos los botones "Quitar" envían un mismo formulario (`form="remove-track"`) y el valor del botón dice qué canción. "Borrar mixtape" es un `<details>`: hay que abrirlo para ver el botón. | Un formulario por canción serían veinte. El `<details>` pregunta antes de borrar sin JavaScript. |
+| `js/forms.js`: un campo con `data-enable-with="id"` solo se puede usar mientras está elegida la opción con ese id. La página ya lo envía activado o desactivado; el script lo mantiene al cambiar de opción. | Lo pidió Alexi: al mover, el nombre de la mixtape nueva no se puede escribir si no se eligió "Nueva mixtape". Es lo único que HTML solo no hace. |
+| En el acceso, la pestaña abierta es texto (no un enlace) y el PIN son cuatro huecos con su raya (un solo campo, con `letter-spacing` y un fondo de rayas). | Detalles que vio Alexi: se podía pulsar la pestaña ya abierta, y con 4 dígitos el campo se desplazaba y solo se veían 3. |
 | Las tarjetas de formulario (`.mx-form`, `.mx-field`, `.mx-error`, `.mx-choices`) están en `app.css`. Cada formulario valida dos veces: el navegador (`required`, `maxlength`, `type`) y el Manager, que devuelve un estado y la página lo traduce. | Las usan varias páginas. El navegador avisa antes; el servidor es el que decide. |
 | `/` es la bienvenida, o "Tus mixtapes" con la sesión abierta. El catálogo de Alexi vive en `/examples` ("Mixtapes de ejemplo"); desde la página de un grupo se vuelve ahí. | Idea de Alexi (2026-11-13): una pantalla de presentación queda más profesional, y lo suyo queda como ejemplo. |
 | En teléfonos de hasta 400 px, el botón Instalar muestra solo el icono y la barra va más apretada. | Con "Entrar"/"Salir" la barra no cabía; medido de 320 a 640 px, en navegador y como app instalada. |
@@ -281,6 +293,13 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-17 (noche, después): entrega 2, parte 2
+- Alexi probó la parte 1: pudo crear una mixtape y añadir canciones. Vio dos detalles del
+  acceso (la pestaña abierta se podía pulsar; el PIN no enseñaba los 4 dígitos): corregidos.
+- Escrita la parte 2: `MoveTrackAsync`, `RemoveTrackAsync` y `DeleteAsync` en `MixtapeManager`,
+  la página `MoveTrack`, los botones de dueño bajo cada canción, "Borrar mixtape" y
+  `js/forms.js`.
 
 ### 2026-11-17 (noche): entrega 2, parte 1
 - Alexi probó la entrega 1: bien. Enseñó el aviso `ASP0016` del build: `POST /sign-out`

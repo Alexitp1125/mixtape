@@ -11,6 +11,7 @@ namespace Mixtape.Components
         public const string Artist = "/artists/{Slug}";
         public const string AddTrack = "/artists/{Slug}/add";
         public const string Track = "/tracks/{Slug}";
+        public const string MoveTrack = "/tracks/{Slug}/move";
         public const string NotFound = "/not-found";
         public const string Error = "/error";
 
@@ -22,5 +23,7 @@ namespace Mixtape.Components
         public static string AddTrackUrl(string slug) => $"/artists/{slug}/add";
 
         public static string TrackUrl(string slug) => $"/tracks/{slug}";
+
+        public static string MoveTrackUrl(string slug) => $"/tracks/{slug}/move";
     }
 }

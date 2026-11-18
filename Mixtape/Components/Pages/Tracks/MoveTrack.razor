@@ -1,0 +1,123 @@
+@attribute [Route(PageNames.MoveTrack)]
+@inject ITracksService TracksService
+@inject IMixtapesService MixtapesService
+@inject NavigationManager Navigation
+
+@if (track is not null)
+{
+    <PageTitle>@L["MoveTrack.Title", track.Title] · Mixtape</PageTitle>
+
+    <a class="mx-back" href="@PageNames.ArtistUrl(track.ArtistSlug)">← @track.ArtistName</a>
+
+    <form class="mx-form" method="post" @formname="move-track" @onsubmit="SubmitAsync">
+        <AntiforgeryToken />
+
+        <h1 class="mx-form-title">@L["MoveTrack.Title", track.Title]</h1>
+
+        @if (error is not null)
+        {
+            <p class="mx-error" role="alert">@error</p>
+        }
+
+        <fieldset class="mx-options">
+            <legend>@L["MoveTrack.To"]</legend>
+
+            @foreach (ArtistInfo mixtape in others)
+            {
+                <label>
+                    <input type="radio" name="Target" value="@mixtape.Slug" checked="@(mixtape.Slug == SelectedTarget)" required />
+                    @mixtape.Name
+                </label>
+            }
+
+            <label>
+                <input type="radio" name="Target" value="@NewTarget" id="move-new" checked="@(SelectedTarget == NewTarget)" required />
+                @L["Mine.New"]
+            </label>
+        </fieldset>
+
+        @* Only for a new mixtape: js/forms.js enables it when "New mixtape" is chosen. *@
+        <label class="mx-field">
+            <span>@L["MoveTrack.NewName"]</span>
+            <input type="text" name="NewName" value="@NewName" maxlength="30" required disabled="@(SelectedTarget != NewTarget)" data-enable-with="move-new" />
+        </label>
+
+        <button class="mx-btn mx-btn-main" type="submit">@L["MoveTrack.Submit"]</button>
+    </form>
+}
+
+@code {
+    // Value of the choice "New mixtape". The addresses of real mixtapes always end in random letters.
+    private const string NewTarget = "new";
+
+    // Slug of the song that moves.
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    // Slug of the mixtape that gets the song, or NewTarget.
+    [SupplyParameterFromForm(FormName = "move-track")]
+    private string? Target { get; set; }
+
+    [SupplyParameterFromForm(FormName = "move-track")]
+    private string? NewName { get; set; }
+
+    private TrackDetails? track;
+    private Guid? userKey;
+    private string? error;
+
+    // The other mixtapes of the person.
+    private IReadOnlyList<ArtistInfo> others = [];
+
+    // What was chosen or, before choosing, the first of the other mixtapes (a new one when there are none).
+    private string SelectedTarget => Target ?? others.FirstOrDefault()?.Slug ?? NewTarget;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        if (userKey is null)
+        {
+            Navigation.NotFound();
+            return;
+        }
+
+        TrackDetails? found = await TracksService.GetTrackAsync(Slug);
+        IReadOnlyList<ArtistInfo> mine = await MixtapesService.GetMineAsync(userKey.Value);
+
+        // Only the owner of the mixtape the song is in can move it.
+        if (found is null || !mine.Any(x => x.Slug == found.ArtistSlug))
+        {
+            Navigation.NotFound();
+            return;
+        }
+
+        track = found;
+        others = mine.Where(x => x.Slug != found.ArtistSlug).ToList();
+    }
+
+    // Moves the song and opens the mixtape that got it.
+    private async Task SubmitAsync()
+    {
+        if (track is null || userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.MoveTrackAsync(
+            userKey.Value,
+            track.Slug,
+            SelectedTarget == NewTarget ? null : SelectedTarget,
+            NewName);
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(result.Slug));
+    }
+}

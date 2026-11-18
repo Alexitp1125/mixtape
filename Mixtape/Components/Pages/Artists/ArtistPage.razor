@@ -1,5 +1,6 @@
 @attribute [Route(PageNames.Artist)]
 @inject IArtistsService ArtistsService
+@inject IMixtapesService MixtapesService
 @inject CoverStore CoverStore
 @inject NavigationManager Navigation
 
@@ -20,7 +21,28 @@
         <div class="mx-owner">
             <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
             <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
+
+            @* Deleting asks first: the button only shows after opening this line. *@
+            <details class="mx-confirm">
+                <summary class="mx-small">@L["Mixtape.Delete"]</summary>
+
+                <form method="post" @formname="delete-mixtape" @onsubmit="DeleteAsync">
+                    <AntiforgeryToken />
+                    <span>@L["Mixtape.DeleteConfirm"]</span>
+                    <button class="mx-btn" type="submit">@L["Mixtape.DeleteYes"]</button>
+                </form>
+            </details>
         </div>
+
+        @* The "remove" button under each song sends this form with the slug of its song. *@
+        <form id="remove-track" method="post" @formname="remove-track" @onsubmit="RemoveAsync">
+            <AntiforgeryToken />
+        </form>
+
+        @if (error is not null)
+        {
+            <p class="mx-error" role="alert">@error</p>
+        }
     }
 
     @if (artist.Tracks.Count == 0)
@@ -44,6 +66,14 @@
                         }
                     </span>
                 </a>
+
+                @if (isOwner)
+                {
+                    <div class="mx-song-actions">
+                        <a class="mx-small" href="@PageNames.MoveTrackUrl(track.Slug)">@L["Mixtape.Move"]</a>
+                        <button class="mx-small" type="submit" form="remove-track" name="RemoveSlug" value="@track.Slug">@L["Mixtape.Remove"]</button>
+                    </div>
+                }
             </li>
         }
     </ul>
@@ -56,7 +86,13 @@
     [CascadingParameter]
     public HttpContext HttpContext { get; set; } = null!;
 
+    // Slug of the song to remove: the value of the button that was pressed.
+    [SupplyParameterFromForm(FormName = "remove-track")]
+    private string? RemoveSlug { get; set; }
+
     private ArtistDetails? artist;
+    private Guid? userKey;
+    private string? error;
 
     // True when the mixtape belongs to who is looking at it.
     private bool isOwner;
@@ -78,6 +114,45 @@
             return;
         }
 
-        isOwner = artist.OwnerKey is not null && artist.OwnerKey == HttpContext.User.GetUserKey();
+        userKey = HttpContext.User.GetUserKey();
+        isOwner = artist.OwnerKey is not null && artist.OwnerKey == userKey;
+    }
+
+    // Takes a song out of the mixtape and shows the page again.
+    private async Task RemoveAsync()
+    {
+        if (artist is null || userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.RemoveTrackAsync(userKey.Value, RemoveSlug ?? "");
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(artist.Slug));
+    }
+
+    // Deletes the mixtape with its songs and goes back to the start.
+    private async Task DeleteAsync()
+    {
+        if (artist is null || userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.DeleteAsync(userKey.Value, artist.Slug);
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.Home);
     }
 }

@@ -11,6 +11,9 @@ namespace Mixtape.Application.Mixtapes
         Task<MixtapeResult> IMixtapesService.CreateAsync(Guid userKey, string name, string coverFileName, CancellationToken cancellationToken) =>
             CreateAsync(userKey, name, coverFileName, cancellationToken);
 
+        Task<MixtapeResult> IMixtapesService.DeleteAsync(Guid userKey, string mixtapeSlug, CancellationToken cancellationToken) =>
+            DeleteAsync(userKey, mixtapeSlug, cancellationToken);
+
         Task<MixtapeResult> IMixtapesService.AddTrackAsync(
             Guid userKey,
             string mixtapeSlug,
@@ -20,5 +23,16 @@ namespace Mixtape.Application.Mixtapes
             string coverFileName,
             CancellationToken cancellationToken) =>
             AddTrackAsync(userKey, mixtapeSlug, videoId, title, performer, coverFileName, cancellationToken);
+
+        Task<MixtapeResult> IMixtapesService.MoveTrackAsync(
+            Guid userKey,
+            string trackSlug,
+            string? targetSlug,
+            string? newName,
+            CancellationToken cancellationToken) =>
+            MoveTrackAsync(userKey, trackSlug, targetSlug, newName, cancellationToken);
+
+        Task<MixtapeResult> IMixtapesService.RemoveTrackAsync(Guid userKey, string trackSlug, CancellationToken cancellationToken) =>
+            RemoveTrackAsync(userKey, trackSlug, cancellationToken);
     }
 }
