@@ -28,11 +28,12 @@ else
             </div>
         </div>
 
-        <div class="mx-hero-art" aria-hidden="true">
+        @* The three covers are a link to the example mixtapes. *@
+        <a class="mx-hero-art" href="@PageNames.Examples" aria-label="@L["Welcome.Example"]">
             <div class="mx-cover">@((MarkupString)CoverStore.GetCover("doma.svg"))</div>
-            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("b.svg"))</div>
-            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("ojos-de-aitana.svg"))</div>
-        </div>
+            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("bugambilia.svg"))</div>
+            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("al-sudeste.svg"))</div>
+        </a>
     </section>
 
     <ol class="mx-steps">

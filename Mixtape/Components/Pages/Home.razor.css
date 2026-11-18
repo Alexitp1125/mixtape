@@ -43,8 +43,9 @@
     color: var(--text);
 }
 
-/* Three covers, one on top of the others. */
+/* Three covers, one on top of the others. They are a link to the examples. */
 .mx-hero-art {
+    display: block;
     position: relative;
     aspect-ratio: 1.08;
 }
@@ -52,6 +53,11 @@
 .mx-hero-art .mx-cover {
     position: absolute;
     width: 60%;
+    transition: box-shadow .2s ease;
+}
+
+.mx-hero-art:hover .mx-cover {
+    box-shadow: 8px 8px 0 var(--accent-3);
 }
 
 .mx-hero-art .mx-cover:nth-child(1) {
@@ -70,6 +76,10 @@
     bottom: 0;
     left: 20%;
     box-shadow: 6px 6px 0 var(--accent-2), 12px 12px 0 var(--accent-3);
+}
+
+.mx-hero-art:hover .mx-cover:nth-child(3) {
+    box-shadow: 8px 8px 0 var(--accent-2), 16px 16px 0 var(--accent-3);
 }
 
 /* How it works, in three steps. */
