@@ -1,9 +1,10 @@
 # Mixtape
 
-A music player with a city-pop look: favorite songs grouped by artist, each with its own page and cover, ready to share with a link. Part of [alexitp1125.com](https://alexitp1125.com).
+A music player with a city-pop look: make a mixtape from YouTube links, give it a cover and share it with a link. Part of [alexitp1125.com](https://alexitp1125.com).
 
 - Audio always plays through the official YouTube player.
 - Covers are original designs.
+- An account is a name and a 4-digit PIN. Nothing else is stored.
 - Installable as an app on phones and computers.
 
 **Status:** live at [mixtape.alexitp1125.com](https://mixtape.alexitp1125.com).

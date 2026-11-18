@@ -104,7 +104,7 @@ y para recomendarlas con un enlace ("mírala aquí").
      - **Demo `mixtape-mis-mixtapes.html` (2026-11-17), aprobada:** nueva mixtape (nombre y un
        casete de 4 colores), página de la mixtape para su dueño, añadir canción en dos pasos
        (enlace; luego título, artista y una de 3 portadas con el título dibujado) y mover. Las
-       carátulas genéricas entran en la entrega 2 y no en la 3. No hay reordenar canciones.
+       carátulas genéricas entran en la entrega 2 y no en la 3. No hay reordenar canciones (llegó después: subir o bajar un puesto).
        Alexi pidió cuidar la validación.
      - **Tres entregas:** (1) bienvenida y entrar con nombre y PIN; (2) crear una mixtape,
        añadir canciones y moverlas entre mixtapes; (3) carátulas genéricas, límites, borrado por Alexi y página de
@@ -162,7 +162,7 @@ la app y viven solo en la base de datos.
 | Nombre **Mixtape** (antes `Lyrics`). | Una mixtape es una lista de canciones que uno hace y comparte: vale para la v1 (las de Alexi) y la v2 (la lista de cada uno). Retro, como la marca. |
 | **Sin letras en la v1.** | Las letras de otros necesitan licencia. Mostrar una sola línea no cambia eso. Ver "Letras" más abajo. |
 | Portadas propias con la paleta de la marca; sin el nombre del artista en la portada. El crédito va debajo. | Que se vean de la familia de la plataforma y no parezcan las oficiales. |
-| **Sin Bootstrap** (excepción a §4). | El diseño es CSS propio. El único formulario (entrar) son dos campos y un botón; se revisa si llegan formularios más grandes. |
+| **Sin Bootstrap** (excepción a §4). | El diseño es CSS propio. Los formularios son pocos y cortos (entrar, mixtape, canción, mover, cuenta) y comparten las clases `.mx-form` de `app.css`. |
 | Proyectos (v2): `Mixtape.Data` (entidades, `MixtapeDbContext`, migraciones), `Mixtape.Application` (`ArtistManager`, `TrackManager`, `CatalogManager`) y `Mixtape.Shared` (`IArtistsService`, `ArtistInfo`, `ArtistDetails`, `ITracksService`, `TrackInfo`, `TrackDetails`, `AppException`). Sin API ni servicio HTTP todavía. | El Manager devuelve modelos que también recibe `SongPlayer` en el navegador, así que tienen que estar en `.Shared`. La API entra cuando un componente del navegador pida datos (paso 2). |
 | Base de datos PostgreSQL `mixtape` (§3). Tablas `Artists`, `Tracks` y `Covers`, con nombres en mayúscula inicial como en Apollo. Usuarios y listas se crean en el paso 2, con su migración. | En SQL a mano hay que poner comillas (`select * from "Tracks"`); la app no lo nota. No se crean tablas vacías. |
 | El catálogo de Alexi se escribe en `Content/catalog.json` y al arrancar se vuelca en la base de datos (`CatalogManager.SyncAsync`). Las páginas leen siempre de la base de datos. | Queda en git junto a sus portadas, no hay que repetir nada a mano en dos bases de datos (PC y servidor) y, si se pierde la base de datos, vuelve solo. |
@@ -194,7 +194,7 @@ la app y viven solo en la base de datos.
 | En el acceso, la pestaña abierta es texto (no un enlace) y el PIN son cuatro huecos con su raya (un solo campo, con `letter-spacing` y un fondo de rayas). | Detalles que vio Alexi: se podía pulsar la pestaña ya abierta, y con 4 dígitos el campo se desplazaba y solo se veían 3. |
 | Las tarjetas de formulario (`.mx-form`, `.mx-field`, `.mx-error`, `.mx-choices`) están en `app.css`. Cada formulario valida dos veces: el navegador (`required`, `maxlength`, `type`) y el Manager, que devuelve un estado y la página lo traduce. | Las usan varias páginas. El navegador avisa antes; el servidor es el que decide. |
 | `/` es la bienvenida, o "Tus mixtapes" con la sesión abierta. El catálogo de Alexi vive en `/examples` ("Mixtapes de ejemplo"); desde la página de un grupo se vuelve ahí. | Idea de Alexi (2026-11-13): una pantalla de presentación queda más profesional, y lo suyo queda como ejemplo. |
-| En teléfonos de hasta 400 px, el botón Instalar muestra solo el icono y la barra va más apretada. | Con "Entrar"/"Salir" la barra no cabía; medido de 320 a 640 px, en navegador y como app instalada. |
+| En teléfonos de hasta 400 px, el botón Instalar muestra solo el icono y la barra va más apretada. | Con el enlace de la sesión ("Entrar"; con la sesión abierta, el icono de la cuenta) la barra no cabía; medido de 320 a 640 px, en navegador y como app instalada. |
 | `.mx-gallery` (rejilla de portadas), `.mx-back` (enlace de volver), `.mx-heading`, `.mx-artist-title`, `.mx-btn`, `.mx-form-actions` (Cancelar y la acción) y las hojas detrás de la carátula de un grupo están en `app.css`. | Las usa más de una página, y el CSS de un componente solo vale dentro de él. |
 | En el log no salen las consultas SQL de EF (`Microsoft.EntityFrameworkCore.Database.Command` en `Warning`, en `appsettings.json`). Sí salen las migraciones y `Catalog synced`. | Cada página escribía su consulta entera y tapaba lo que importa. Para verlas un rato, cambiar ese nivel a `Information` y no subir el cambio. |
 | Idioma: lo decide el servidor (cookie si el usuario eligió, si no el idioma del navegador) y el WebAssembly arranca con el mismo (`applicationCulture`). | Una sola fuente de verdad. El cambio de idioma recarga la página entera para que el WebAssembly arranque en el nuevo idioma. |
@@ -276,13 +276,35 @@ El build tarda unos 2–3 minutos. En el log del arranque salen cosas que no son
 
 - `Cannot load library libgssapi_krb5.so.2`: el conector de Postgres busca una librería de
   Kerberos que la imagen no trae y que no se usa (se entra con usuario y contraseña).
-- Los avisos de que las claves de Data Protection viven dentro del contenedor: se arreglan en
-  el paso 2, con la carpeta en el `Dockerfile` y el volumen.
+- Los avisos de que las claves de Data Protection viven dentro del contenedor: se van cuando
+  `server-infra` tenga el volumen (ver "Pendiente en `server-infra`").
 - Solo con la base de datos vacía: un `fail` al leer `__EFMigrationsHistory`. La tabla aún no
   existe; EF la crea a continuación.
 
-Al recrear el contenedor, una pestaña que estaba abierta pierde la conexión y pide recargar;
-no hay sesiones ni datos que perder.
+Al recrear el contenedor, una pestaña que estaba abierta pierde la conexión y pide recargar.
+Los datos no se pierden (están en PostgreSQL). Las sesiones sí se cierran en cada despliegue
+mientras falte el volumen: hay que entrar otra vez con nombre y PIN.
+
+### Pendiente en `server-infra` (lo hace el chat de estructura)
+
+La cookie de sesión va cifrada con una llave que ASP.NET Core guarda en
+`/home/app/.aspnet/DataProtection-Keys`, dentro del contenedor. Cada despliegue crea el
+contenedor de nuevo, la carpeta nace vacía, la app hace una llave nueva y las cookies de antes
+dejan de valer. El `Dockerfile` de Mixtape ya crea esa carpeta con dueño `$APP_UID`; falta
+montarle un volumen con nombre en el servicio `mixtape` del compose:
+
+```yaml
+services:
+  mixtape:
+    volumes:
+      - mixtape-keys:/home/app/.aspnet/DataProtection-Keys
+
+volumes:
+  mixtape-keys:
+```
+
+Cómo se comprueba: entrar en la app, desplegar otra vez y ver que la sesión sigue abierta; en
+el log del arranque ya no sale el aviso de Data Protection.
 
 ## Letras: lo investigado (2026-10-20)
 
