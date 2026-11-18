@@ -115,11 +115,7 @@
     height: 17px;
 }
 
-/* Sign in (a link) or sign out (a button). */
-.mx-bar-end form {
-    display: flex;
-}
-
+/* The link to sign in. */
 .mx-session {
     padding: 4px 2px;
     color: var(--text-muted);

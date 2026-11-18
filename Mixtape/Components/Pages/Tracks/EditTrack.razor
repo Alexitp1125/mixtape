@@ -1,0 +1,133 @@
+@attribute [Route(PageNames.EditTrack)]
+@inject ITracksService TracksService
+@inject IArtistsService ArtistsService
+@inject IMixtapesService MixtapesService
+@inject CoverStore CoverStore
+@inject NavigationManager Navigation
+
+@if (track is not null && mixtape is not null)
+{
+    <PageTitle>@L["EditTrack.Title"] · @track.Title · Mixtape</PageTitle>
+
+    @* The form is a window over the mixtape the song is in. It starts with what the song has. The video doesn't change. *@
+    <div class="mx-modal">
+        <form class="mx-form" method="post" @formname="edit-track" @onsubmit="SubmitAsync">
+            <AntiforgeryToken />
+
+            <a class="mx-modal-close" href="@PageNames.ArtistUrl(mixtape.Slug)" aria-label="@L["Common.Close"]">✕</a>
+
+            <h1 class="mx-form-title">@L["EditTrack.Title"]</h1>
+
+            @if (error is not null)
+            {
+                <p class="mx-error" role="alert">@error</p>
+            }
+
+            <label class="mx-field">
+                <span>@L["AddTrack.SongTitle"]</span>
+                <input type="text" name="Title" value="@CurrentTitle" maxlength="120" required />
+            </label>
+
+            <label class="mx-field">
+                <span>@L["AddTrack.Performer"]</span>
+                <input type="text" name="Performer" value="@(Performer ?? track.Performer)" maxlength="120" required />
+            </label>
+
+            <fieldset class="mx-choices">
+                <legend>@L["AddTrack.Cover"]</legend>
+
+                @foreach (string fileName in CoverStore.GenericSongs)
+                {
+                    <label>
+                        <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                        <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, CurrentTitle))</span>
+                    </label>
+                }
+            </fieldset>
+
+            <div class="mx-form-actions">
+                <a class="mx-btn" href="@PageNames.ArtistUrl(mixtape.Slug)">@L["Common.Cancel"]</a>
+                <button class="mx-btn mx-btn-main" type="submit">@L["Common.Save"]</button>
+            </div>
+        </form>
+    </div>
+
+    @* Behind the window, the mixtape as it is now. It cannot be used while the window is open. *@
+    <div inert aria-hidden="true">
+        <MixtapeView Artist="mixtape" ShowLimit="true" EmptyText="@L["Mixtape.Empty"].Value" />
+    </div>
+}
+
+@code {
+    // Slug of the song that changes.
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    [SupplyParameterFromForm(FormName = "edit-track")]
+    private string? Title { get; set; }
+
+    [SupplyParameterFromForm(FormName = "edit-track")]
+    private string? Performer { get; set; }
+
+    [SupplyParameterFromForm(FormName = "edit-track")]
+    private string? CoverFile { get; set; }
+
+    private TrackDetails? track;
+
+    // The mixtape the song is in: what shows behind the window.
+    private ArtistDetails? mixtape;
+
+    private Guid? userKey;
+    private string? error;
+
+    // What was written or, before writing, the title the song has.
+    private string CurrentTitle => Title ?? track?.Title ?? "";
+
+    // The cover that was chosen or, before choosing, the one the song has.
+    private string? SelectedCover => CoverFile ?? track?.CoverFileName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        TrackDetails? found = await TracksService.GetTrackAsync(Slug);
+        ArtistDetails? foundMixtape = found is null ? null : await ArtistsService.GetArtistAsync(found.ArtistSlug);
+
+        // Only the owner of the mixtape the song is in can change it.
+        if (found is null || foundMixtape is null || userKey is null || foundMixtape.OwnerKey != userKey)
+        {
+            Navigation.NotFound();
+            return;
+        }
+
+        track = found;
+        mixtape = foundMixtape;
+    }
+
+    // Saves the title, the artist and the cover and goes back to the mixtape, where the song is.
+    private async Task SubmitAsync()
+    {
+        if (track is null || mixtape is null || userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.UpdateTrackAsync(
+            userKey.Value,
+            track.Slug,
+            Title ?? "",
+            Performer ?? "",
+            CoverFile ?? "");
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(mixtape.Slug, track.Slug));
+    }
+}

@@ -29,17 +29,3 @@
     background: var(--bg);
     color: var(--text);
 }
-
-/* The PIN: four digits, each one over its own line. The width fits the four and the cursor after them. */
-.mx-field input.mx-pin {
-    width: calc(10.6ch + 6px);
-    padding: 12px 0 16px 1ch;
-    background-image: repeating-linear-gradient(90deg, var(--text-muted) 0 1.8ch, transparent 1.8ch 2.4ch);
-    background-repeat: no-repeat;
-    background-position: .6ch calc(100% - 10px);
-    background-size: 9ch 2px;
-    font-family: var(--font-label);
-    font-size: 26px;
-    letter-spacing: 1.4ch;
-    caret-color: var(--accent-1);
-}

@@ -30,6 +30,7 @@
                         <span class="mx-btn mx-btn-off">@L["Mixtape.Full"]</span>
                     }
                     <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
+                    <a class="mx-btn" href="@PageNames.EditMixtapeUrl(artist.Slug)">@L["Mixtape.Edit"]</a>
                     <button class="mx-btn mx-btn-danger" type="button" popovertarget="delete-mixtape">@L["Mixtape.Delete"]</button>
                 </div>
 
@@ -45,8 +46,8 @@
                     </form>
                 </div>
 
-                @* The "yes, remove it" button of each song sends this form with the slug of its song. *@
-                <form id="remove-track" method="post" @formname="remove-track" @onsubmit="RemoveAsync">
+                @* The buttons of each song send this form: the name of the button says what to do and its value, which song. *@
+                <form id="song-action" method="post" @formname="song-action" @onsubmit="SongActionAsync">
                     <AntiforgeryToken />
                 </form>
             }
@@ -62,7 +63,19 @@
                     <h2>@track.Title</h2>
 
                     <div class="mx-sheet-list">
+                        <a href="@PageNames.EditTrackUrl(track.Slug)">@L["Mixtape.EditTrack"]</a>
                         <a href="@PageNames.MoveTrackUrl(track.Slug)">@L["Mixtape.Move"]</a>
+
+                        @* The first song doesn't go up and the last one doesn't go down. *@
+                        @if (track != artist.Tracks.First())
+                        {
+                            <button type="submit" form="song-action" name="UpSlug" value="@track.Slug">@L["Mixtape.Up"]</button>
+                        }
+
+                        @if (track != artist.Tracks.Last())
+                        {
+                            <button type="submit" form="song-action" name="DownSlug" value="@track.Slug">@L["Mixtape.Down"]</button>
+                        }
 
                         @* Removing asks first: the line opens and shows the question. *@
                         <details class="mx-sheet-ask">
@@ -71,7 +84,7 @@
 
                             <div class="mx-form-actions">
                                 <button class="mx-btn" type="button" popovertarget="@SheetId(track)" popovertargetaction="hide">@L["Common.Cancel"]</button>
-                                <button class="mx-btn mx-btn-danger" type="submit" form="remove-track" name="RemoveSlug" value="@track.Slug">@L["Mixtape.RemoveYes"]</button>
+                                <button class="mx-btn mx-btn-danger" type="submit" form="song-action" name="RemoveSlug" value="@track.Slug">@L["Mixtape.RemoveYes"]</button>
                             </div>
                         </details>
                     </div>
@@ -88,8 +101,14 @@
     [CascadingParameter]
     public HttpContext HttpContext { get; set; } = null!;
 
-    // Slug of the song to remove: the value of the button that was pressed.
-    [SupplyParameterFromForm(FormName = "remove-track")]
+    // Slug of the song, in the button that was pressed: to move it up, to move it down or to remove it.
+    [SupplyParameterFromForm(FormName = "song-action")]
+    private string? UpSlug { get; set; }
+
+    [SupplyParameterFromForm(FormName = "song-action")]
+    private string? DownSlug { get; set; }
+
+    [SupplyParameterFromForm(FormName = "song-action")]
     private string? RemoveSlug { get; set; }
 
     private ArtistDetails? artist;
@@ -123,15 +142,20 @@
     // Id of the window with the actions of a song.
     private static string SheetId(TrackInfo track) => $"song-{track.Slug}";
 
-    // Takes a song out of the mixtape and shows the page again.
-    private async Task RemoveAsync()
+    // Removes a song or moves it one place, and shows the page again.
+    private async Task SongActionAsync()
     {
         if (artist is null || userKey is null)
         {
             return;
         }
 
-        MixtapeResult result = await MixtapesService.RemoveTrackAsync(userKey.Value, RemoveSlug ?? "");
+        // The song that moves; empty when the button was the one to remove.
+        string movedSlug = UpSlug ?? DownSlug ?? "";
+
+        MixtapeResult result = RemoveSlug is not null
+            ? await MixtapesService.RemoveTrackAsync(userKey.Value, RemoveSlug)
+            : await MixtapesService.ShiftTrackAsync(userKey.Value, movedSlug, up: UpSlug is not null);
 
         if (result.Slug is null)
         {
@@ -139,7 +163,10 @@
             return;
         }
 
-        Navigation.NavigateTo(PageNames.ArtistUrl(artist.Slug));
+        // After moving a song, the page opens where that song is.
+        Navigation.NavigateTo(RemoveSlug is not null
+            ? PageNames.ArtistUrl(artist.Slug)
+            : PageNames.ArtistUrl(artist.Slug, movedSlug));
     }
 
     // Deletes the mixtape with its songs and goes back to the start.

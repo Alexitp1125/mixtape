@@ -8,7 +8,7 @@ using Mixtape.Shared.Accounts;
 
 namespace Mixtape.Application.Accounts
 {
-    // Creates accounts and checks the name and the PIN of who signs in.
+    // Creates accounts, checks the name and the PIN of who signs in, changes the PIN and deletes accounts.
     public sealed partial class AccountManager
     {
         // Wrong PINs in a row that lock an account, and for how long.
@@ -95,33 +95,117 @@ namespace Mixtape.Application.Accounts
                     return Failed(AccountStatus.WrongNameOrPin);
                 }
 
-                if (user.LockedUntil > now)
-                {
-                    return Failed(AccountStatus.Locked);
-                }
-
-                if (pinHasher.VerifyHashedPassword(user, user.PinHash, pin) == PasswordVerificationResult.Failed)
-                {
-                    bool locks = user.FailedCount + 1 >= MaxFailures;
-
-                    user.FailedCount = locks ? 0 : user.FailedCount + 1;
-                    user.LockedUntil = locks ? now + LockTime : null;
-                    await dbContext.SaveChangesAsync(cancellationToken);
-
-                    return Failed(locks ? AccountStatus.Locked : AccountStatus.WrongNameOrPin);
-                }
-
-                user.FailedCount = 0;
-                user.LockedUntil = null;
+                AccountStatus status = CheckPin(user, pin, now);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                return Succeeded(user);
+                // Signing in never says which of the two was wrong.
+                return status switch
+                {
+                    AccountStatus.Ok => Succeeded(user),
+                    AccountStatus.WrongPin => Failed(AccountStatus.WrongNameOrPin),
+                    _ => Failed(status),
+                };
             }
             catch (Exception ex)
             when (ex is not AppException)
             {
                 throw ex.Handle("Error signing in.", logger);
             }
+        }
+
+        // Changes the PIN of an account. Asks for the current one, and its wrong tries count like the ones of signing in.
+        public async Task<AccountResult> ChangePinAsync(Guid userKey, string currentPin, string newPin, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (!IsPin(newPin))
+                {
+                    return Failed(AccountStatus.PinInvalid);
+                }
+
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Key == userKey, cancellationToken);
+
+                if (user is null)
+                {
+                    return Failed(AccountStatus.NotFound);
+                }
+
+                AccountStatus status = CheckPin(user, currentPin, DateTime.UtcNow);
+
+                if (status == AccountStatus.Ok)
+                {
+                    user.PinHash = pinHasher.HashPassword(user, newPin);
+                }
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return status == AccountStatus.Ok ? Succeeded(user) : Failed(status);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error changing the PIN.", logger);
+            }
+        }
+
+        // Deletes an account with its mixtapes. Asks for the PIN. The database deletes the songs with their mixtape.
+        public async Task<AccountResult> DeleteAsync(Guid userKey, string pin, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Key == userKey, cancellationToken);
+
+                if (user is null)
+                {
+                    return Failed(AccountStatus.NotFound);
+                }
+
+                AccountStatus status = CheckPin(user, pin, DateTime.UtcNow);
+
+                if (status == AccountStatus.Ok)
+                {
+                    dbContext.Artists.RemoveRange(await dbContext.Artists.Where(x => x.UserKey == userKey).ToListAsync(cancellationToken));
+                    dbContext.Users.Remove(user);
+                }
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return status == AccountStatus.Ok ? Succeeded(user) : Failed(status);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error deleting the account.", logger);
+            }
+        }
+
+        // Checks the PIN of an account and keeps its count of wrong PINs: too many in a row lock it for a while.
+        // It changes the account; whoever calls saves the changes.
+        private AccountStatus CheckPin(User user, string pin, DateTime now)
+        {
+            if (user.LockedUntil > now)
+            {
+                return AccountStatus.Locked;
+            }
+
+            if (pinHasher.VerifyHashedPassword(user, user.PinHash, pin) == PasswordVerificationResult.Failed)
+            {
+                bool locks = user.FailedCount + 1 >= MaxFailures;
+
+                user.FailedCount = locks ? 0 : user.FailedCount + 1;
+                user.LockedUntil = locks ? now + LockTime : null;
+
+                return locks ? AccountStatus.Locked : AccountStatus.WrongPin;
+            }
+
+            user.FailedCount = 0;
+            user.LockedUntil = null;
+
+            return AccountStatus.Ok;
         }
 
         // A PIN is exactly 4 digits.

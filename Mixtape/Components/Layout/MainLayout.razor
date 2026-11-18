@@ -36,12 +36,12 @@
                 </svg>
             </button>
 
-            @* The session: a link to sign in, or a button to sign out. *@
+            @* The session: a link to sign in, or the icon that opens the account page. *@
             @if (IsSignedIn)
             {
-                <form method="post" action="@PageNames.SignOut">
-                    <button class="mx-session" type="submit">@L["Layout.SignOut"]</button>
-                </form>
+                <a class="mx-icon-btn" href="@PageNames.Account" aria-label="@L["Layout.Account"]">
+                    <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="3" /><path d="M2.5 14a5.5 5.5 0 0 1 11 0" /></svg>
+                </a>
             }
             else
             {

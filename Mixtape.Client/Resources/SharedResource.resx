@@ -117,6 +117,9 @@
   <data name="Layout.SignOut" xml:space="preserve">
     <value>Sign out</value>
   </data>
+  <data name="Layout.Account" xml:space="preserve">
+    <value>Your account</value>
+  </data>
   <data name="Welcome.Tagline" xml:space="preserve">
     <value>Your YouTube songs, together in a mixtape with its own cover and a link to share it.</value>
   </data>
@@ -165,11 +168,47 @@
   <data name="Access.Error.WrongNameOrPin" xml:space="preserve">
     <value>The name or the PIN is wrong.</value>
   </data>
+  <data name="Access.Error.WrongPin" xml:space="preserve">
+    <value>That PIN is not right.</value>
+  </data>
+  <data name="Access.Error.NotFound" xml:space="preserve">
+    <value>That account no longer exists.</value>
+  </data>
   <data name="Access.Error.Locked" xml:space="preserve">
     <value>Too many wrong PINs. Try again in 15 minutes.</value>
   </data>
   <data name="Access.Error.TooManyAccounts" xml:space="preserve">
     <value>Too many new accounts right now. Try again later.</value>
+  </data>
+  <data name="Account.Session" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="Account.ChangePin" xml:space="preserve">
+    <value>Change the PIN</value>
+  </data>
+  <data name="Account.CurrentPin" xml:space="preserve">
+    <value>Current PIN</value>
+  </data>
+  <data name="Account.NewPin" xml:space="preserve">
+    <value>New PIN</value>
+  </data>
+  <data name="Account.PinChanged" xml:space="preserve">
+    <value>PIN changed.</value>
+  </data>
+  <data name="Account.Delete" xml:space="preserve">
+    <value>Delete the account</value>
+  </data>
+  <data name="Account.DeleteNote" xml:space="preserve">
+    <value>It is deleted with all your mixtapes and their songs. This can't be undone.</value>
+  </data>
+  <data name="Account.DeleteButton" xml:space="preserve">
+    <value>Delete my account</value>
+  </data>
+  <data name="Account.DeleteTitle" xml:space="preserve">
+    <value>Delete your account?</value>
+  </data>
+  <data name="Account.DeletePin" xml:space="preserve">
+    <value>Your PIN, to confirm</value>
   </data>
   <data name="Mine.Title" xml:space="preserve">
     <value>Your mixtapes</value>
@@ -191,6 +230,12 @@
   </data>
   <data name="NewMixtape.Submit" xml:space="preserve">
     <value>Create mixtape</value>
+  </data>
+  <data name="EditMixtape.Title" xml:space="preserve">
+    <value>Edit mixtape</value>
+  </data>
+  <data name="EditTrack.Title" xml:space="preserve">
+    <value>Edit song</value>
   </data>
   <data name="Mixtape.AddTrack" xml:space="preserve">
     <value>Add song</value>
@@ -261,11 +306,23 @@
   <data name="Mixtape.Move" xml:space="preserve">
     <value>Move to another mixtape…</value>
   </data>
+  <data name="Mixtape.EditTrack" xml:space="preserve">
+    <value>Edit title, artist and cover</value>
+  </data>
+  <data name="Mixtape.Up" xml:space="preserve">
+    <value>Move up one place</value>
+  </data>
+  <data name="Mixtape.Down" xml:space="preserve">
+    <value>Move down one place</value>
+  </data>
   <data name="Mixtape.Remove" xml:space="preserve">
     <value>Remove from the mixtape</value>
   </data>
   <data name="Mixtape.Delete" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="Mixtape.Edit" xml:space="preserve">
+    <value>Edit</value>
   </data>
   <data name="Mixtape.DeleteConfirm" xml:space="preserve">
     <value>It is deleted with all its songs. This can't be undone.</value>
@@ -278,6 +335,9 @@
   </data>
   <data name="Common.Close" xml:space="preserve">
     <value>Close</value>
+  </data>
+  <data name="Common.Save" xml:space="preserve">
+    <value>Save</value>
   </data>
   <data name="Mixtape.Songs" xml:space="preserve">
     <value>{0} of {1} songs</value>

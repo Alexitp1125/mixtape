@@ -1,6 +1,6 @@
 namespace Mixtape.Shared.Accounts
 {
-    // How creating an account or signing in ended.
+    // How creating an account, signing in or changing an account ended.
     public enum AccountStatus
     {
         Ok,
@@ -15,6 +15,12 @@ namespace Mixtape.Shared.Accounts
         NameTaken,
 
         WrongNameOrPin,
+
+        // The PIN isn't the one of the account (to change the PIN or to delete the account).
+        WrongPin,
+
+        // The account doesn't exist any more.
+        NotFound,
 
         // Too many wrong PINs in a row: the account is locked for a while.
         Locked,

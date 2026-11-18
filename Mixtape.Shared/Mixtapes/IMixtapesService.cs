@@ -11,6 +11,14 @@ namespace Mixtape.Shared.Mixtapes
         // Creates a mixtape with a name (1 to 30 characters) and one of the generic cassette covers.
         Task<MixtapeResult> CreateAsync(Guid userKey, string name, string coverFileName, CancellationToken cancellationToken = default);
 
+        // Changes the name and the cover of a mixtape. Its slug stays the same.
+        Task<MixtapeResult> UpdateAsync(
+            Guid userKey,
+            string mixtapeSlug,
+            string name,
+            string coverFileName,
+            CancellationToken cancellationToken = default);
+
         // Deletes a mixtape with its songs.
         Task<MixtapeResult> DeleteAsync(Guid userKey, string mixtapeSlug, CancellationToken cancellationToken = default);
 
@@ -23,6 +31,18 @@ namespace Mixtape.Shared.Mixtapes
             string performer,
             string coverFileName,
             CancellationToken cancellationToken = default);
+
+        // Changes the title, the artist and the cover of a song. The result has the slug of its mixtape.
+        Task<MixtapeResult> UpdateTrackAsync(
+            Guid userKey,
+            string trackSlug,
+            string title,
+            string performer,
+            string coverFileName,
+            CancellationToken cancellationToken = default);
+
+        // Moves a song one place up or down in its mixtape. The result has the slug of that mixtape.
+        Task<MixtapeResult> ShiftTrackAsync(Guid userKey, string trackSlug, bool up, CancellationToken cancellationToken = default);
 
         // Moves a song to another mixtape of the same person (targetSlug) or, without one, to a new mixtape called newName.
         // The result has the slug of the mixtape that got the song.

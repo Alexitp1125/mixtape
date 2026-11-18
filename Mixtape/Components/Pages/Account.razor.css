@@ -1,0 +1,15 @@
+/* The account page: one card for each thing (the session, the PIN and deleting the account). */
+.mx-account {
+    display: grid;
+    gap: 22px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.mx-account .mx-form {
+    margin: 0;
+}
+
+.mx-account .mx-note {
+    margin: 0 0 18px;
+}

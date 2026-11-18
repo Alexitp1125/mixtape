@@ -11,6 +11,9 @@ namespace Mixtape.Shared.Artists
 
         public string Name { get; init; } = null!;
 
+        // File of its cover inside Content/covers; null when it has none.
+        public string? CoverFileName { get; init; }
+
         // Account the mixtape belongs to; null for the artists of the catalog.
         public Guid? OwnerKey { get; init; }
 

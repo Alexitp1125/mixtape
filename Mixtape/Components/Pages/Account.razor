@@ -1,0 +1,157 @@
+@attribute [Route(PageNames.Account)]
+@using Microsoft.AspNetCore.Authentication
+@inject IAccountsService AccountsService
+@inject NavigationManager Navigation
+
+<PageTitle>@L["Layout.Account"] · Mixtape</PageTitle>
+
+@if (userKey is not null)
+{
+    <a class="mx-back" href="@PageNames.Home">← @L["Mine.Title"]</a>
+
+    <h1 class="mx-artist-title">
+        @L["Layout.Account"]
+        <span>@HttpContext.User.Identity?.Name</span>
+    </h1>
+
+    <div class="mx-account">
+        @* Closing the session is a POST to /sign-out (AccountEndpoints). *@
+        <form class="mx-form" method="post" action="@PageNames.SignOut">
+            <h2 class="mx-form-title">@L["Account.Session"]</h2>
+
+            <button class="mx-btn" type="submit">@L["Layout.SignOut"]</button>
+        </form>
+
+        <form class="mx-form" method="post" @formname="change-pin" @onsubmit="ChangePinAsync">
+            <AntiforgeryToken />
+
+            <h2 class="mx-form-title">@L["Account.ChangePin"]</h2>
+
+            @if (pinError is not null)
+            {
+                <p class="mx-error" role="alert">@pinError</p>
+            }
+            else if (PinState == "changed")
+            {
+                <p class="mx-done" role="status">@L["Account.PinChanged"]</p>
+            }
+
+            <label class="mx-field">
+                <span>@L["Account.CurrentPin"]</span>
+                <input class="mx-pin" type="password" name="CurrentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="off" />
+            </label>
+
+            <label class="mx-field">
+                <span>@L["Account.NewPin"]</span>
+                <input class="mx-pin" type="password" name="NewPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="off" />
+            </label>
+
+            <button class="mx-btn mx-btn-main" type="submit">@L["Account.ChangePin"]</button>
+        </form>
+
+        <div class="mx-form">
+            <h2 class="mx-form-title">@L["Account.Delete"]</h2>
+
+            @if (deleteError is not null)
+            {
+                <p class="mx-error" role="alert">@deleteError</p>
+            }
+
+            <p class="mx-note">@L["Account.DeleteNote"]</p>
+
+            <button class="mx-btn mx-btn-danger" type="button" popovertarget="delete-account">@L["Account.DeleteButton"]</button>
+        </div>
+
+        @* Deleting the account asks first, in a small window, and asks for the PIN there. *@
+        <div class="mx-sheet" id="delete-account" popover>
+            <h2>@L["Account.DeleteTitle"]</h2>
+            <p>@L["Account.DeleteNote"]</p>
+
+            <form method="post" @formname="delete-account" @onsubmit="DeleteAsync">
+                <AntiforgeryToken />
+
+                <label class="mx-field">
+                    <span>@L["Account.DeletePin"]</span>
+                    <input class="mx-pin" type="password" name="DeletePin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="off" />
+                </label>
+
+                <div class="mx-form-actions">
+                    <button class="mx-btn" type="button" popovertarget="delete-account" popovertargetaction="hide">@L["Common.Cancel"]</button>
+                    <button class="mx-btn mx-btn-danger" type="submit">@L["Mixtape.DeleteYes"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    // "changed" right after changing the PIN: the page says so.
+    [SupplyParameterFromQuery(Name = "pin")]
+    private string? PinState { get; set; }
+
+    [SupplyParameterFromForm(FormName = "change-pin")]
+    private string? CurrentPin { get; set; }
+
+    [SupplyParameterFromForm(FormName = "change-pin")]
+    private string? NewPin { get; set; }
+
+    [SupplyParameterFromForm(FormName = "delete-account")]
+    private string? DeletePin { get; set; }
+
+    private Guid? userKey;
+    private string? pinError;
+    private string? deleteError;
+
+    protected override void OnInitialized()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        // Only for who signed in.
+        if (userKey is null)
+        {
+            Navigation.NavigateTo(PageNames.Access);
+        }
+    }
+
+    // Changes the PIN and shows the page again, saying so.
+    private async Task ChangePinAsync()
+    {
+        if (userKey is null)
+        {
+            return;
+        }
+
+        AccountResult result = await AccountsService.ChangePinAsync(userKey.Value, CurrentPin ?? "", NewPin ?? "");
+
+        if (result.Account is null)
+        {
+            pinError = L[$"Access.Error.{result.Status}"].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.AccountPinChanged);
+    }
+
+    // Deletes the account with its mixtapes, closes the session and goes back to the start.
+    private async Task DeleteAsync()
+    {
+        if (userKey is null)
+        {
+            return;
+        }
+
+        AccountResult result = await AccountsService.DeleteAsync(userKey.Value, DeletePin ?? "");
+
+        if (result.Account is null)
+        {
+            deleteError = L[$"Access.Error.{result.Status}"].Value;
+            return;
+        }
+
+        await HttpContext.SignOutAsync();
+        Navigation.NavigateTo(PageNames.Home);
+    }
+}

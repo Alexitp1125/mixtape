@@ -288,14 +288,19 @@ body:has(.mx-modal) .mx-footer {
     margin: 12px 0;
 }
 
-/* What went wrong, at the top of the form. */
-.mx-error {
+/* What went wrong or, with mx-done, what went well, at the top of the form. */
+.mx-error,
+.mx-done {
     margin: 0 0 18px;
     padding: 10px 14px;
     border: 1px solid var(--accent-3);
     border-radius: 10px;
     font-size: 15px;
     line-height: 1.4;
+}
+
+.mx-done {
+    border-color: var(--accent-1);
 }
 
 .mx-field {
@@ -327,6 +332,26 @@ body:has(.mx-modal) .mx-footer {
 .mx-field input:read-only,
 .mx-field input:disabled {
     opacity: .6;
+}
+
+/* The PIN: four digits, each one over its own line (to sign in and in the account page).
+   The width fits the four and the cursor after them. */
+.mx-field input.mx-pin {
+    width: calc(10.6ch + 6px);
+    padding: 12px 0 16px 1ch;
+    background-image: repeating-linear-gradient(90deg, var(--text-muted) 0 1.8ch, transparent 1.8ch 2.4ch);
+    background-repeat: no-repeat;
+    background-position: .6ch calc(100% - 10px);
+    background-size: 9ch 2px;
+    font-family: var(--font-label);
+    font-size: 26px;
+    letter-spacing: 1.4ch;
+    caret-color: var(--accent-1);
+}
+
+/* Edge puts an eye inside password fields to show what was typed. Here it would cover the fourth digit. */
+.mx-field input.mx-pin::-ms-reveal {
+    display: none;
 }
 
 .mx-note {
@@ -479,9 +504,10 @@ body:has(.mx-modal) .mx-footer {
     list-style: none;
 }
 
-/* Each tile can carry a button on its cover. */
+/* Each tile can carry a button on its cover. The margin is for when the page opens at one tile. */
 .mx-gallery li {
     position: relative;
+    scroll-margin-top: 24px;
 }
 
 .mx-gallery-item {

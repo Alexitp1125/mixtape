@@ -117,6 +117,9 @@
   <data name="Layout.SignOut" xml:space="preserve">
     <value>Salir</value>
   </data>
+  <data name="Layout.Account" xml:space="preserve">
+    <value>Tu cuenta</value>
+  </data>
   <data name="Welcome.Tagline" xml:space="preserve">
     <value>Tus canciones de YouTube, juntas en una mixtape con su carátula y un enlace para compartirla.</value>
   </data>
@@ -165,11 +168,47 @@
   <data name="Access.Error.WrongNameOrPin" xml:space="preserve">
     <value>El nombre o el PIN no coinciden.</value>
   </data>
+  <data name="Access.Error.WrongPin" xml:space="preserve">
+    <value>Ese PIN no es correcto.</value>
+  </data>
+  <data name="Access.Error.NotFound" xml:space="preserve">
+    <value>Esa cuenta ya no existe.</value>
+  </data>
   <data name="Access.Error.Locked" xml:space="preserve">
     <value>Demasiados PIN incorrectos. Prueba otra vez en 15 minutos.</value>
   </data>
   <data name="Access.Error.TooManyAccounts" xml:space="preserve">
     <value>Se están creando muchas cuentas ahora mismo. Prueba más tarde.</value>
+  </data>
+  <data name="Account.Session" xml:space="preserve">
+    <value>Sesión</value>
+  </data>
+  <data name="Account.ChangePin" xml:space="preserve">
+    <value>Cambiar el PIN</value>
+  </data>
+  <data name="Account.CurrentPin" xml:space="preserve">
+    <value>PIN actual</value>
+  </data>
+  <data name="Account.NewPin" xml:space="preserve">
+    <value>PIN nuevo</value>
+  </data>
+  <data name="Account.PinChanged" xml:space="preserve">
+    <value>PIN cambiado.</value>
+  </data>
+  <data name="Account.Delete" xml:space="preserve">
+    <value>Borrar la cuenta</value>
+  </data>
+  <data name="Account.DeleteNote" xml:space="preserve">
+    <value>Se borra con todas tus mixtapes y sus canciones. No se puede deshacer.</value>
+  </data>
+  <data name="Account.DeleteButton" xml:space="preserve">
+    <value>Borrar mi cuenta</value>
+  </data>
+  <data name="Account.DeleteTitle" xml:space="preserve">
+    <value>¿Borrar tu cuenta?</value>
+  </data>
+  <data name="Account.DeletePin" xml:space="preserve">
+    <value>Tu PIN, para confirmar</value>
   </data>
   <data name="Mine.Title" xml:space="preserve">
     <value>Tus mixtapes</value>
@@ -191,6 +230,12 @@
   </data>
   <data name="NewMixtape.Submit" xml:space="preserve">
     <value>Crear mixtape</value>
+  </data>
+  <data name="EditMixtape.Title" xml:space="preserve">
+    <value>Editar mixtape</value>
+  </data>
+  <data name="EditTrack.Title" xml:space="preserve">
+    <value>Editar canción</value>
   </data>
   <data name="Mixtape.AddTrack" xml:space="preserve">
     <value>Añadir canción</value>
@@ -261,11 +306,23 @@
   <data name="Mixtape.Move" xml:space="preserve">
     <value>Mover a otra mixtape…</value>
   </data>
+  <data name="Mixtape.EditTrack" xml:space="preserve">
+    <value>Editar título, artista y portada</value>
+  </data>
+  <data name="Mixtape.Up" xml:space="preserve">
+    <value>Subir un puesto</value>
+  </data>
+  <data name="Mixtape.Down" xml:space="preserve">
+    <value>Bajar un puesto</value>
+  </data>
   <data name="Mixtape.Remove" xml:space="preserve">
     <value>Quitar de la mixtape</value>
   </data>
   <data name="Mixtape.Delete" xml:space="preserve">
     <value>Borrar</value>
+  </data>
+  <data name="Mixtape.Edit" xml:space="preserve">
+    <value>Editar</value>
   </data>
   <data name="Mixtape.DeleteConfirm" xml:space="preserve">
     <value>Se borra con todas sus canciones. No se puede deshacer.</value>
@@ -278,6 +335,9 @@
   </data>
   <data name="Common.Close" xml:space="preserve">
     <value>Cerrar</value>
+  </data>
+  <data name="Common.Save" xml:space="preserve">
+    <value>Guardar</value>
   </data>
   <data name="Mixtape.Songs" xml:space="preserve">
     <value>{0} de {1} canciones</value>

@@ -9,27 +9,24 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
   muestra una carátula por grupo y cada grupo tiene su página. Jósean Log (5 canciones), Moneda
   Dura (4) y Mix (9, cada una con su intérprete), con portada propia, instalable como app, ⏮ ⏭
   con paso automático, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Del paso 2, probadas
-  por Alexi en local: la entrega 1 (bienvenida y entrar con nombre y PIN) y la entrega 2 (crear
-  una mixtape, añadirle canciones, moverlas, quitarlas y borrar la mixtape). Escrito y en el PC,
-  también: el pase de experiencia de uso (acciones sobre la carátula, preguntas antes de quitar
-  o borrar, formularios como ventana), con su commit. Escritos y en el PC, sin probar: tres
-  remates de la revisión ("1 canción", mixtape llena y límite de mixtapes, y la barra fuera
-  del teclado con una ventana abierta).
+- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Del paso 2, probados
+  por Alexi en local y con commit: la entrega 1 (bienvenida y entrar con nombre y PIN), la
+  entrega 2 (crear una mixtape, añadirle canciones, moverlas, quitarlas y borrar la mixtape), el
+  pase de experiencia de uso y sus tres remates. Escritos y en el PC, sin probar: los huecos
+  funcionales (editar una mixtape, editar una canción, subir o bajar una canción y la página de
+  la cuenta).
 - **Qué sigue** (orden acordado el 2026-11-17 por la noche):
-  1. Remates de la revisión. Sin migración. Alexi prueba en local: una mixtape con una sola
-     canción dice "1 canción"; con una ventana abierta, Tab no sale del formulario. Los límites
-     (20 canciones, 5 mixtapes) se ven al llegar a ellos. Luego commit
-     (`fix: singular song count, full mixtapes and keyboard in windows`).
-  2. **Huecos funcionales** (un commit, sin pruebas automáticas): cambiar el nombre o la
-     carátula de una mixtape; corregir el título, el artista o la portada de una canción; subir
-     o bajar una canción un puesto; página de la cuenta (salir, cambiar el PIN pidiendo el
-     actual, borrar la cuenta propia pidiendo el PIN y preguntando antes), con un icono en la
-     barra en lugar de "Salir". Están dibujados en la demo `mixtape-experiencia.html`.
-  3. Desplegar las entregas 1 y 2 juntas, con copia antes. Son dos migraciones (`AddUsers` y
+  1. Huecos funcionales. Sin migración. Alexi prueba en local: "Editar" cambia el nombre y la
+     carátula de la mixtape; en el "⋯" de una canción, "Editar título, artista y portada",
+     "Subir un puesto" y "Bajar un puesto"; el icono de la barra abre "Tu cuenta" (salir,
+     cambiar el PIN, borrar la cuenta con una cuenta de prueba). Luego commit
+     (`feat: edit mixtapes and songs, reorder songs, account page`).
+  2. Desplegar las entregas 1 y 2 juntas, con copia antes. Son dos migraciones (`AddUsers` y
      `AddArtistOwner`). Antes o después, avisar al chat de estructura: la app crea
      `/home/app/.aspnet/DataProtection-Keys` (dueño `$APP_UID`) y falta el volumen en
-     `server-infra`; sin él, cada despliegue cierra las sesiones.
+     `server-infra`; sin él, cada despliegue cierra las sesiones. Después lo prueban Alexi y
+     otras personas, y de ahí salen ideas para cerrar.
+  3. Lo que salga de esas pruebas.
   4. Proyecto `.Tests` (pruebas automáticas).
   5. Entrega 3: que Alexi pueda borrar mixtapes ajenas (hoy solo desde la base de datos), la
      página de privacidad y los remates.
@@ -187,6 +184,11 @@ la app y viven solo en la base de datos.
 | **Acciones y preguntas en ventanas pequeñas** (`.mx-sheet`), con el atributo `popover` de HTML: el botón "⋯" sobre cada carátula abre las acciones de esa canción ("Mover a otra mixtape…" y "Quitar de la mixtape"); "Borrar" abre la pregunta. Quitar pregunta dentro de la misma ventana con un `<details>`. "Cancelar" cierra con `popovertargetaction="hide"`; también cierran Escape y pulsar fuera. | Lo pidió Alexi (2026-11-17): los botones encima de la carátula y un "¿seguro?" antes de quitar. `popover` abre, cierra y oscurece el fondo sin JavaScript. Hace falta un navegador de 2024 en adelante (Chrome 114, Safari 17, Firefox 125); en uno más viejo las ventanas saldrían abiertas dentro de la página. |
 | **Los formularios son una ventana sobre su página** (`.mx-modal`): "Añadir canción" y "Mover" sobre la mixtape, "Nueva mixtape" sobre "Tus mixtapes". Siguen siendo páginas con su dirección (`/artists/{slug}/add`, `/tracks/{slug}/move`, `/mixtapes/new`): la página pinta primero el formulario y detrás, sin poder usarse (`inert`), lo mismo que la página a la que se vuelve. Se cierra con ✕, "Cancelar" o Escape (`js/forms.js` sigue el enlace de ✕). | Lo pidió Alexi: que se vea como una ventana y con una forma clara de cancelar. Al ser páginas, el formulario se sigue procesando en el servidor sin JavaScript y el botón Atrás funciona. El formulario va primero para que el foco caiga en su título al llegar. Mientras hay una ventana, la barra y el pie se esconden (`body:has(.mx-modal)` con `visibility: hidden`): así tampoco se llega a ellos con el teclado, sin JavaScript. |
 | Al llegar a un límite se dice en el sitio del botón: con 20 canciones, "Mixtape llena" (`.mx-btn-off`) en lugar de "Añadir canción"; con 5 mixtapes, la casilla "Nueva mixtape" deja de ser un enlace y dice "Límite alcanzado". El Manager sigue comprobando el límite. | Antes se podía rellenar el formulario entero y el aviso salía al final. |
+| **Editar** una mixtape (nombre y carátula) o una canción (título, artista y portada) no cambia su dirección: el slug se queda como estaba. El video de una canción tampoco se cambia (para eso, quitarla y añadirla). | Los enlaces ya compartidos siguen funcionando. |
+| **Subir o bajar una canción** es cambiarle el puesto (`SortOrder`) con la de al lado (`ShiftTrackAsync`). Los botones de cada canción (subir, bajar y "Sí, quitarla") envían un mismo formulario (`form="song-action"`): el nombre del botón dice qué hacer y su valor, qué canción. Al volver, la página se abre donde está esa canción (`/artists/{slug}#track-{slug}`). | Dos filas cambiadas, sin renumerar la lista. Un formulario para todo, no tres por canción. Sin el `#`, tras cada puesto habría que bajar otra vez hasta la canción. |
+| **Página de la cuenta** (`/account`), con un icono en la barra en lugar de "Salir": salir, cambiar el PIN y borrar la cuenta. Cambiar el PIN pide el actual. Borrar la cuenta pregunta en una ventana pequeña y pide el PIN ahí; borra sus mixtapes y canciones y cierra la sesión. Un PIN incorrecto aquí cuenta igual que al entrar (`AccountManager.CheckPin`): 5 seguidos bloquean 15 minutos. | Sin correo no hay otra forma de comprobar que es su dueño. El PIN va dentro de la ventana para que Enter en ese campo no pueda borrar la cuenta sin haber visto la pregunta. |
+| Cambiar el PIN o borrar la cuenta no cierra las sesiones abiertas en otros dispositivos (la cookie dura 30 días). Con la cuenta borrada, esa sesión ve "Tus mixtapes" vacío y no puede crear nada (`MixtapeManager.CreateAsync` comprueba que la cuenta existe). | Cerrarlas pediría consultar la base de datos en cada visita. Para una app de mixtapes con PIN, no compensa. |
+| El campo del PIN (`.mx-pin`) y el aviso de "hecho" (`.mx-done`) están en `app.css`. El PIN esconde el ojo que Edge pone en los campos de contraseña (`::-ms-reveal`). | Los usan el acceso y la página de la cuenta. El ojo tapaba el cuarto dígito (lo vio Alexi el 2026-11-17). |
 | `MixtapeView` (nombre, número de canciones y carátulas de una mixtape) y `MyMixtapes` (las mixtapes de la persona y la casilla "Nueva mixtape") son componentes en `Components/Mixtapes`. `MixtapeView` deja dos huecos: `OwnerTools` (bajo el nombre) y `SongTools` (sobre cada carátula). | Los pintan su página y también las ventanas, que los enseñan detrás. Los huecos dejan los botones del dueño en `ArtistPage`, que es quien sabe quién mira. |
 | `js/forms.js`: un campo con `data-enable-with="id"` solo se puede usar mientras está elegida la opción con ese id. La página ya lo envía activado o desactivado; el script lo mantiene al cambiar de opción. | Lo pidió Alexi: al mover, el nombre de la mixtape nueva no se puede escribir si no se eligió "Nueva mixtape". Es lo único que HTML solo no hace. |
 | En el acceso, la pestaña abierta es texto (no un enlace) y el PIN son cuatro huecos con su raya (un solo campo, con `letter-spacing` y un fondo de rayas). | Detalles que vio Alexi: se podía pulsar la pestaña ya abierta, y con 4 dígitos el campo se desplazaba y solo se veían 3. |
@@ -296,6 +298,19 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-17 (noche, lo último): huecos funcionales
+- Alexi probó los remates y hizo el commit. Pidió los huecos para desplegar y que lo prueben
+  él y otras personas.
+- Escrito: `UpdateAsync`, `UpdateTrackAsync` y `ShiftTrackAsync` en `MixtapeManager`;
+  `ChangePinAsync` y `DeleteAsync` en `AccountManager` (con `CheckPin`, que ahora también usa
+  `SignInAsync`); páginas `EditMixtape`, `EditTrack` y `Account`; botón "Editar" y acciones
+  nuevas en el "⋯"; icono de la cuenta en la barra; `ArtistDetails.CoverFileName`.
+- Comprobado con capturas (PC, teléfono y 320 px, con el CSS real): la lista de acciones, la
+  página de la cuenta, la ventana de borrar la cuenta y la de editar. Sin compilar: lo compila
+  y lo prueba Alexi. Sin migración.
+- Alexi vio en Edge un ojo dentro del campo del PIN que tapaba el cuarto dígito: escondido con
+  `::-ms-reveal`. No se pudo comprobar aquí (solo hay Chromium); lo comprueba Alexi en Edge.
 
 ### 2026-11-17 (noche, al final): pase de experiencia de uso
 - Alexi probó la parte 2 y le pareció bien. Pidió: añadir canción como ventana y con una forma

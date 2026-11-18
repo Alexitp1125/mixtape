@@ -9,5 +9,11 @@ namespace Mixtape.Application.Accounts
 
         Task<AccountResult> IAccountsService.SignInAsync(string name, string pin, CancellationToken cancellationToken) =>
             SignInAsync(name, pin, cancellationToken);
+
+        Task<AccountResult> IAccountsService.ChangePinAsync(Guid userKey, string currentPin, string newPin, CancellationToken cancellationToken) =>
+            ChangePinAsync(userKey, currentPin, newPin, cancellationToken);
+
+        Task<AccountResult> IAccountsService.DeleteAsync(Guid userKey, string pin, CancellationToken cancellationToken) =>
+            DeleteAsync(userKey, pin, cancellationToken);
     }
 }

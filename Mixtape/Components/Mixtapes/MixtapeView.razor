@@ -19,7 +19,7 @@
 <ul class="mx-gallery">
     @foreach (TrackInfo track in Artist.Tracks)
     {
-        <li>
+        <li id="@PageNames.TrackId(track.Slug)">
             <a class="mx-gallery-item" href="@PageNames.TrackUrl(track.Slug)">
                 <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(track.CoverFileName, track.Title))</div>
                 <span class="mx-gallery-caption">

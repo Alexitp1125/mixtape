@@ -1,0 +1,113 @@
+@attribute [Route(PageNames.EditMixtape)]
+@inject IArtistsService ArtistsService
+@inject IMixtapesService MixtapesService
+@inject CoverStore CoverStore
+@inject NavigationManager Navigation
+
+@if (mixtape is not null)
+{
+    <PageTitle>@L["EditMixtape.Title"] · @mixtape.Name · Mixtape</PageTitle>
+
+    @* The form is a window over the mixtape. It starts with the name and the cover the mixtape has. *@
+    <div class="mx-modal">
+        <form class="mx-form" method="post" @formname="edit-mixtape" @onsubmit="SubmitAsync">
+            <AntiforgeryToken />
+
+            <a class="mx-modal-close" href="@PageNames.ArtistUrl(mixtape.Slug)" aria-label="@L["Common.Close"]">✕</a>
+
+            <h1 class="mx-form-title">@L["EditMixtape.Title"]</h1>
+
+            @if (error is not null)
+            {
+                <p class="mx-error" role="alert">@error</p>
+            }
+
+            <label class="mx-field">
+                <span>@L["Access.Name"]</span>
+                <input type="text" name="Name" value="@CurrentName" maxlength="30" required />
+            </label>
+
+            <fieldset class="mx-choices">
+                <legend>@L["NewMixtape.Cover"]</legend>
+
+                @foreach (string fileName in CoverStore.GenericTapes)
+                {
+                    <label>
+                        <input type="radio" name="CoverFile" value="@fileName" checked="@(fileName == SelectedCover)" required />
+                        <span class="mx-cover">@((MarkupString)CoverStore.GetCover(fileName, CurrentName))</span>
+                    </label>
+                }
+            </fieldset>
+
+            <div class="mx-form-actions">
+                <a class="mx-btn" href="@PageNames.ArtistUrl(mixtape.Slug)">@L["Common.Cancel"]</a>
+                <button class="mx-btn mx-btn-main" type="submit">@L["Common.Save"]</button>
+            </div>
+        </form>
+    </div>
+
+    @* Behind the window, the mixtape as it is now. It cannot be used while the window is open. *@
+    <div inert aria-hidden="true">
+        <MixtapeView Artist="mixtape" ShowLimit="true" EmptyText="@L["Mixtape.Empty"].Value" />
+    </div>
+}
+
+@code {
+    // Slug of the mixtape that changes.
+    [Parameter]
+    public string Slug { get; set; } = null!;
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    [SupplyParameterFromForm(FormName = "edit-mixtape")]
+    private string? Name { get; set; }
+
+    [SupplyParameterFromForm(FormName = "edit-mixtape")]
+    private string? CoverFile { get; set; }
+
+    private ArtistDetails? mixtape;
+    private Guid? userKey;
+    private string? error;
+
+    // What was written or, before writing, the name the mixtape has.
+    private string CurrentName => Name ?? mixtape?.Name ?? "";
+
+    // The cover that was chosen or, before choosing, the one the mixtape has.
+    private string? SelectedCover => CoverFile ?? mixtape?.CoverFileName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userKey = HttpContext.User.GetUserKey();
+
+        ArtistDetails? found = await ArtistsService.GetArtistAsync(Slug);
+
+        // Only the owner of the mixtape can change it.
+        if (found is null || userKey is null || found.OwnerKey != userKey)
+        {
+            Navigation.NotFound();
+            return;
+        }
+
+        mixtape = found;
+    }
+
+    // Saves the name and the cover and goes back to the mixtape.
+    private async Task SubmitAsync()
+    {
+        if (mixtape is null || userKey is null)
+        {
+            return;
+        }
+
+        MixtapeResult result = await MixtapesService.UpdateAsync(userKey.Value, mixtape.Slug, Name ?? "", CoverFile ?? "");
+
+        if (result.Slug is null)
+        {
+            error = L[$"Mixtape.Error.{result.Status}", MixtapeLimits.MaxMixtapes, MixtapeLimits.MaxTracks].Value;
+            return;
+        }
+
+        Navigation.NavigateTo(PageNames.ArtistUrl(mixtape.Slug));
+    }
+}

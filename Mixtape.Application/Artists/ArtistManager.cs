@@ -67,6 +67,7 @@ namespace Mixtape.Application.Artists
                         x.Slug,
                         x.Name,
                         x.UserKey,
+                        CoverFileName = x.Cover != null ? x.Cover.FileName : null,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -95,6 +96,7 @@ namespace Mixtape.Application.Artists
                     Key = artist.Key,
                     Slug = artist.Slug,
                     Name = artist.Name,
+                    CoverFileName = artist.CoverFileName,
                     OwnerKey = artist.UserKey,
                     Tracks = tracks,
                 };

@@ -9,7 +9,7 @@ using Mixtape.Shared.Mixtapes;
 
 namespace Mixtape.Application.Mixtapes
 {
-    // The mixtapes of a person: listing, creating and deleting them, and adding, moving and removing their songs.
+    // The mixtapes of a person: listing, creating, changing and deleting them, and adding, changing, moving and removing their songs.
     // In the database a mixtape is an artist with an owner.
     public sealed partial class MixtapeManager
     {
@@ -82,6 +82,12 @@ namespace Mixtape.Application.Mixtapes
                     return Failed(MixtapeStatus.TooManyMixtapes);
                 }
 
+                // The account can be gone while a session of it is still open somewhere.
+                if (!await dbContext.Users.AnyAsync(x => x.Key == userKey, cancellationToken))
+                {
+                    return Failed(MixtapeStatus.NotFound);
+                }
+
                 Artist artist = new()
                 {
                     Slug = Slugs.Create(cleanName),
@@ -100,6 +106,52 @@ namespace Mixtape.Application.Mixtapes
             when (ex is not AppException)
             {
                 throw ex.Handle("Error creating the mixtape.", logger);
+            }
+        }
+
+        // Changes the name and the cover of a mixtape. Its slug stays the same, so the links already shared keep working.
+        public async Task<MixtapeResult> UpdateAsync(
+            Guid userKey,
+            string mixtapeSlug,
+            string name,
+            string coverFileName,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                string cleanName = name.Trim();
+
+                if (cleanName.Length is < 1 or > 30)
+                {
+                    return Failed(MixtapeStatus.NameInvalid);
+                }
+
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                Artist? artist = await FindMixtapeAsync(dbContext, userKey, mixtapeSlug, cancellationToken);
+
+                if (artist is null)
+                {
+                    return Failed(MixtapeStatus.NotFound);
+                }
+
+                Cover? cover = await FindCoverAsync(dbContext, coverFileName, TapeCovers, cancellationToken);
+
+                if (cover is null)
+                {
+                    return Failed(MixtapeStatus.CoverInvalid);
+                }
+
+                artist.Name = cleanName;
+                artist.Cover = cover;
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Succeeded(artist.Slug);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error changing the mixtape.", logger);
             }
         }
 
@@ -135,8 +187,7 @@ namespace Mixtape.Application.Mixtapes
 
                 using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
 
-                Artist? artist = await dbContext.Artists
-                    .FirstOrDefaultAsync(x => x.Slug == mixtapeSlug && x.UserKey == userKey, cancellationToken);
+                Artist? artist = await FindMixtapeAsync(dbContext, userKey, mixtapeSlug, cancellationToken);
 
                 if (artist is null)
                 {
@@ -178,6 +229,105 @@ namespace Mixtape.Application.Mixtapes
             }
         }
 
+        // Changes the title, the artist and the cover of a song. The video stays the same.
+        public async Task<MixtapeResult> UpdateTrackAsync(
+            Guid userKey,
+            string trackSlug,
+            string title,
+            string performer,
+            string coverFileName,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                string cleanTitle = title.Trim();
+                string cleanPerformer = performer.Trim();
+
+                if (cleanTitle.Length is < 1 or > 120)
+                {
+                    return Failed(MixtapeStatus.TitleInvalid);
+                }
+
+                if (cleanPerformer.Length is < 1 or > 120)
+                {
+                    return Failed(MixtapeStatus.PerformerInvalid);
+                }
+
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                Track? track = await FindTrackAsync(dbContext, userKey, trackSlug, cancellationToken);
+
+                if (track is null)
+                {
+                    return Failed(MixtapeStatus.NotFound);
+                }
+
+                Cover? cover = await FindCoverAsync(dbContext, coverFileName, SongCovers, cancellationToken);
+
+                if (cover is null)
+                {
+                    return Failed(MixtapeStatus.CoverInvalid);
+                }
+
+                track.Title = cleanTitle;
+                track.Performer = cleanPerformer;
+                track.Cover = cover;
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Succeeded(track.Artist.Slug);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error changing the song.", logger);
+            }
+        }
+
+        // Moves a song one place up or down in its mixtape: it trades places with the song next to it.
+        // The first song doesn't go up and the last one doesn't go down.
+        public async Task<MixtapeResult> ShiftTrackAsync(Guid userKey, string trackSlug, bool up, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
+
+                Track? track = await FindTrackAsync(dbContext, userKey, trackSlug, cancellationToken);
+
+                if (track is null)
+                {
+                    return Failed(MixtapeStatus.NotFound);
+                }
+
+                Guid artistKey = track.ArtistKey;
+                int order = track.SortOrder;
+
+                // The song before it (to go up) or after it (to go down).
+                Track? other = up
+                    ? await dbContext.Tracks
+                        .Where(x => x.ArtistKey == artistKey && x.SortOrder < order)
+                        .OrderByDescending(x => x.SortOrder)
+                        .FirstOrDefaultAsync(cancellationToken)
+                    : await dbContext.Tracks
+                        .Where(x => x.ArtistKey == artistKey && x.SortOrder > order)
+                        .OrderBy(x => x.SortOrder)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                if (other is not null)
+                {
+                    track.SortOrder = other.SortOrder;
+                    other.SortOrder = order;
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                return Succeeded(track.Artist.Slug);
+            }
+            catch (Exception ex)
+            when (ex is not AppException)
+            {
+                throw ex.Handle("Error moving the song up or down.", logger);
+            }
+        }
+
         // Deletes a mixtape. The database deletes its songs with it.
         public async Task<MixtapeResult> DeleteAsync(Guid userKey, string mixtapeSlug, CancellationToken cancellationToken = default)
         {
@@ -185,8 +335,7 @@ namespace Mixtape.Application.Mixtapes
             {
                 using MixtapeDbContext dbContext = dbContextFactory.CreateDbContext();
 
-                Artist? artist = await dbContext.Artists
-                    .FirstOrDefaultAsync(x => x.Slug == mixtapeSlug && x.UserKey == userKey, cancellationToken);
+                Artist? artist = await FindMixtapeAsync(dbContext, userKey, mixtapeSlug, cancellationToken);
 
                 if (artist is null)
                 {
@@ -309,6 +458,14 @@ namespace Mixtape.Application.Mixtapes
                 throw ex.Handle("Error removing the song.", logger);
             }
         }
+
+        // A mixtape of that person; null when there is none.
+        private static Task<Artist?> FindMixtapeAsync(
+            MixtapeDbContext dbContext,
+            Guid userKey,
+            string mixtapeSlug,
+            CancellationToken cancellationToken) =>
+            dbContext.Artists.FirstOrDefaultAsync(x => x.Slug == mixtapeSlug && x.UserKey == userKey, cancellationToken);
 
         // A song of a mixtape of that person, with its mixtape; null when there is none.
         private static Task<Track?> FindTrackAsync(
