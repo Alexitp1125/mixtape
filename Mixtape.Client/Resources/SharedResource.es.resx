@@ -39,6 +39,9 @@
   <data name="Artist.Songs" xml:space="preserve">
     <value>{0} canciones</value>
   </data>
+  <data name="Artist.OneSong" xml:space="preserve">
+    <value>1 canción</value>
+  </data>
   <data name="Player.Play" xml:space="preserve">
     <value>Reproducir</value>
   </data>
@@ -180,6 +183,9 @@
   <data name="Mine.Count" xml:space="preserve">
     <value>{0} de {1}</value>
   </data>
+  <data name="Mine.Full" xml:space="preserve">
+    <value>Límite alcanzado</value>
+  </data>
   <data name="NewMixtape.Cover" xml:space="preserve">
     <value>Carátula</value>
   </data>
@@ -275,6 +281,9 @@
   </data>
   <data name="Mixtape.Songs" xml:space="preserve">
     <value>{0} de {1} canciones</value>
+  </data>
+  <data name="Mixtape.Full" xml:space="preserve">
+    <value>Mixtape llena</value>
   </data>
   <data name="Mixtape.DeleteTitle" xml:space="preserve">
     <value>¿Borrar «{0}»?</value>

@@ -10,6 +10,16 @@
     font-weight: 200;
 }
 
+/* The same tile when no more mixtapes fit: dimmed, and it does not move under the pointer. */
+.mx-new-off {
+    opacity: .5;
+}
+
+.mx-new-off:hover .mx-cover {
+    transform: none;
+    box-shadow: none;
+}
+
 .mx-more {
     margin: 44px 0 0;
 }

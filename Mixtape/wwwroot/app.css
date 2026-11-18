@@ -96,6 +96,18 @@ button {
     color: var(--accent-3);
 }
 
+/* In the place of a button that cannot be used now: it says why. */
+.mx-btn-off,
+.mx-btn-off:hover {
+    border-color: var(--border);
+    border-style: dashed;
+    background: none;
+    box-shadow: none;
+    color: var(--text-muted);
+    transform: none;
+    cursor: default;
+}
+
 /* Small action: a quiet link or button. */
 .mx-small {
     padding: 0;
@@ -169,6 +181,12 @@ button {
     overscroll-behavior: contain;
     background: color-mix(in srgb, var(--bg) 70%, transparent);
     backdrop-filter: blur(6px);
+}
+
+/* While the window is open, the bar and the footer are hidden: the keyboard cannot reach them either. */
+body:has(.mx-modal) .mx-bar,
+body:has(.mx-modal) .mx-footer {
+    visibility: hidden;
 }
 
 .mx-modal .mx-form {

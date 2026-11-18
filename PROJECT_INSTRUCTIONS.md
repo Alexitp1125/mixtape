@@ -12,14 +12,15 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 - **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Del paso 2, probadas
   por Alexi en local: la entrega 1 (bienvenida y entrar con nombre y PIN) y la entrega 2 (crear
   una mixtape, añadirle canciones, moverlas, quitarlas y borrar la mixtape). Escrito y en el PC,
-  sin probar: el pase de experiencia de uso (acciones sobre la carátula, preguntas antes de
-  quitar o borrar, formularios como ventana).
+  también: el pase de experiencia de uso (acciones sobre la carátula, preguntas antes de quitar
+  o borrar, formularios como ventana), con su commit. Escritos y en el PC, sin probar: tres
+  remates de la revisión ("1 canción", mixtape llena y límite de mixtapes, y la barra fuera
+  del teclado con una ventana abierta).
 - **Qué sigue** (orden acordado el 2026-11-17 por la noche):
-  1. Pase de experiencia de uso. Sin migración. Alexi prueba en local: el botón "⋯" de cada
-     carátula abre "Mover a otra mixtape…" y "Quitar de la mixtape", que pregunta antes;
-     "Borrar" pregunta en una ventana pequeña; "Añadir canción", "Nueva mixtape" y "Mover" se
-     abren sobre la página y se cierran con ✕, "Cancelar" o Escape. Luego commit
-     (`feat: actions on covers, confirmations and forms as windows`).
+  1. Remates de la revisión. Sin migración. Alexi prueba en local: una mixtape con una sola
+     canción dice "1 canción"; con una ventana abierta, Tab no sale del formulario. Los límites
+     (20 canciones, 5 mixtapes) se ven al llegar a ellos. Luego commit
+     (`fix: singular song count, full mixtapes and keyboard in windows`).
   2. **Huecos funcionales** (un commit, sin pruebas automáticas): cambiar el nombre o la
      carátula de una mixtape; corregir el título, el artista o la portada de una canción; subir
      o bajar una canción un puesto; página de la cuenta (salir, cambiar el PIN pidiendo el
@@ -184,7 +185,8 @@ la app y viven solo en la base de datos.
 | **Añadir una canción** son dos pasos en un mismo formulario, sin JavaScript: el enlace (la app pregunta al oEmbed de YouTube, `VideoManager`, con 8 segundos de espera) y luego título, artista y portada. Se guarda el ID del video y lo que confirma la persona. | oEmbed dice si el video existe y si se deja reproducir fuera (responde 401 si no). Las condiciones de YouTube no dejan guardar sus datos más de 30 días. |
 | **Mover, quitar y borrar** (`MixtapeManager`): una canción se mueve al final de otra mixtape del mismo dueño o de una nueva, que hereda la carátula de la mixtape de origen. En la página de la mixtape, todos los botones "Sí, quitarla" envían un mismo formulario (`form="remove-track"`) y el valor del botón dice qué canción. | Un formulario por canción serían veinte. |
 | **Acciones y preguntas en ventanas pequeñas** (`.mx-sheet`), con el atributo `popover` de HTML: el botón "⋯" sobre cada carátula abre las acciones de esa canción ("Mover a otra mixtape…" y "Quitar de la mixtape"); "Borrar" abre la pregunta. Quitar pregunta dentro de la misma ventana con un `<details>`. "Cancelar" cierra con `popovertargetaction="hide"`; también cierran Escape y pulsar fuera. | Lo pidió Alexi (2026-11-17): los botones encima de la carátula y un "¿seguro?" antes de quitar. `popover` abre, cierra y oscurece el fondo sin JavaScript. Hace falta un navegador de 2024 en adelante (Chrome 114, Safari 17, Firefox 125); en uno más viejo las ventanas saldrían abiertas dentro de la página. |
-| **Los formularios son una ventana sobre su página** (`.mx-modal`): "Añadir canción" y "Mover" sobre la mixtape, "Nueva mixtape" sobre "Tus mixtapes". Siguen siendo páginas con su dirección (`/artists/{slug}/add`, `/tracks/{slug}/move`, `/mixtapes/new`): la página pinta primero el formulario y detrás, sin poder usarse (`inert`), lo mismo que la página a la que se vuelve. Se cierra con ✕, "Cancelar" o Escape (`js/forms.js` sigue el enlace de ✕). | Lo pidió Alexi: que se vea como una ventana y con una forma clara de cancelar. Al ser páginas, el formulario se sigue procesando en el servidor sin JavaScript y el botón Atrás funciona. El formulario va primero para que el foco caiga en su título al llegar. La barra de arriba queda tapada, pero con el teclado todavía se puede llegar a ella. |
+| **Los formularios son una ventana sobre su página** (`.mx-modal`): "Añadir canción" y "Mover" sobre la mixtape, "Nueva mixtape" sobre "Tus mixtapes". Siguen siendo páginas con su dirección (`/artists/{slug}/add`, `/tracks/{slug}/move`, `/mixtapes/new`): la página pinta primero el formulario y detrás, sin poder usarse (`inert`), lo mismo que la página a la que se vuelve. Se cierra con ✕, "Cancelar" o Escape (`js/forms.js` sigue el enlace de ✕). | Lo pidió Alexi: que se vea como una ventana y con una forma clara de cancelar. Al ser páginas, el formulario se sigue procesando en el servidor sin JavaScript y el botón Atrás funciona. El formulario va primero para que el foco caiga en su título al llegar. Mientras hay una ventana, la barra y el pie se esconden (`body:has(.mx-modal)` con `visibility: hidden`): así tampoco se llega a ellos con el teclado, sin JavaScript. |
+| Al llegar a un límite se dice en el sitio del botón: con 20 canciones, "Mixtape llena" (`.mx-btn-off`) en lugar de "Añadir canción"; con 5 mixtapes, la casilla "Nueva mixtape" deja de ser un enlace y dice "Límite alcanzado". El Manager sigue comprobando el límite. | Antes se podía rellenar el formulario entero y el aviso salía al final. |
 | `MixtapeView` (nombre, número de canciones y carátulas de una mixtape) y `MyMixtapes` (las mixtapes de la persona y la casilla "Nueva mixtape") son componentes en `Components/Mixtapes`. `MixtapeView` deja dos huecos: `OwnerTools` (bajo el nombre) y `SongTools` (sobre cada carátula). | Los pintan su página y también las ventanas, que los enseñan detrás. Los huecos dejan los botones del dueño en `ArtistPage`, que es quien sabe quién mira. |
 | `js/forms.js`: un campo con `data-enable-with="id"` solo se puede usar mientras está elegida la opción con ese id. La página ya lo envía activado o desactivado; el script lo mantiene al cambiar de opción. | Lo pidió Alexi: al mover, el nombre de la mixtape nueva no se puede escribir si no se eligió "Nueva mixtape". Es lo único que HTML solo no hace. |
 | En el acceso, la pestaña abierta es texto (no un enlace) y el PIN son cuatro huecos con su raya (un solo campo, con `letter-spacing` y un fondo de rayas). | Detalles que vio Alexi: se podía pulsar la pestaña ya abierta, y con 4 dígitos el campo se desplazaba y solo se veían 3. |
@@ -306,6 +308,9 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 - Comprobado con capturas (PC y teléfono, con el CSS real): las ventanas, un título largo junto
   a la ✕ y los dos botones. Sin compilar: lo compila y lo prueba Alexi.
 - Acordado el orden de lo que queda (ver "Qué sigue").
+- Alexi lo probó y le pareció perfecto; commit hecho. Pidió los tres remates que salieron de la
+  revisión, y están escritos: "1 canción" en singular; "Mixtape llena" y "Límite alcanzado" al
+  llegar a los límites; la barra y el pie escondidos mientras hay una ventana.
 
 ### 2026-11-17 (noche, después): entrega 2, parte 2
 - Alexi probó la parte 1: pudo crear una mixtape y añadir canciones. Vio dos detalles del

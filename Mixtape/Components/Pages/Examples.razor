@@ -24,7 +24,7 @@ else
                     <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(artist.CoverFileName))</div>
                     <span class="mx-gallery-caption">
                         <b>@artist.Name</b>
-                        <span>@L["Artist.Songs", artist.TrackCount]</span>
+                        <span>@L[artist.TrackCount == 1 ? "Artist.OneSong" : "Artist.Songs", artist.TrackCount]</span>
                     </span>
                 </a>
             </li>

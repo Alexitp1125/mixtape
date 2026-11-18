@@ -11,20 +11,34 @@
                 <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(mixtape.CoverFileName, mixtape.Name))</div>
                 <span class="mx-gallery-caption">
                     <b>@mixtape.Name</b>
-                    <span>@L["Artist.Songs", mixtape.TrackCount]</span>
+                    <span>@L[mixtape.TrackCount == 1 ? "Artist.OneSong" : "Artist.Songs", mixtape.TrackCount]</span>
                 </span>
             </a>
         </li>
     }
 
     <li>
-        <a class="mx-gallery-item mx-new" href="@PageNames.NewMixtape">
-            <div class="mx-cover" aria-hidden="true">+</div>
-            <span class="mx-gallery-caption">
-                <b>@L["Mine.New"]</b>
-                <span>@L["Mine.Count", Mixtapes.Count, MixtapeLimits.MaxMixtapes]</span>
-            </span>
-        </a>
+        @if (Mixtapes.Count < MixtapeLimits.MaxMixtapes)
+        {
+            <a class="mx-gallery-item mx-new" href="@PageNames.NewMixtape">
+                <div class="mx-cover" aria-hidden="true">+</div>
+                <span class="mx-gallery-caption">
+                    <b>@L["Mine.New"]</b>
+                    <span>@L["Mine.Count", Mixtapes.Count, MixtapeLimits.MaxMixtapes]</span>
+                </span>
+            </a>
+        }
+        else
+        {
+            @* With all the mixtapes a person can have, the tile is not a link: it only says so. *@
+            <div class="mx-gallery-item mx-new mx-new-off">
+                <div class="mx-cover" aria-hidden="true">+</div>
+                <span class="mx-gallery-caption">
+                    <b>@L["Mine.Full"]</b>
+                    <span>@L["Mine.Count", Mixtapes.Count, MixtapeLimits.MaxMixtapes]</span>
+                </span>
+            </div>
+        }
     </li>
 </ul>
 

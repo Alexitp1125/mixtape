@@ -4,7 +4,7 @@
 
 <h1 class="mx-artist-title">
     @Artist.Name
-    <span>@(ShowLimit ? L["Mixtape.Songs", Artist.Tracks.Count, MixtapeLimits.MaxTracks] : L["Artist.Songs", Artist.Tracks.Count])</span>
+    <span>@(ShowLimit ? L["Mixtape.Songs", Artist.Tracks.Count, MixtapeLimits.MaxTracks] : L[Artist.Tracks.Count == 1 ? "Artist.OneSong" : "Artist.Songs", Artist.Tracks.Count])</span>
 </h1>
 
 @OwnerTools

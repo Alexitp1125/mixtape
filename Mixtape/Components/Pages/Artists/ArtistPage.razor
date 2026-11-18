@@ -20,7 +20,15 @@
             @if (isOwner)
             {
                 <div class="mx-owner">
-                    <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
+                    @* A full mixtape says so in the place of the button. *@
+                    @if (artist.Tracks.Count < MixtapeLimits.MaxTracks)
+                    {
+                        <a class="mx-btn mx-btn-main" href="@PageNames.AddTrackUrl(artist.Slug)">@L["Mixtape.AddTrack"]</a>
+                    }
+                    else
+                    {
+                        <span class="mx-btn mx-btn-off">@L["Mixtape.Full"]</span>
+                    }
                     <button class="mx-btn" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]">@L["Layout.Share"]</button>
                     <button class="mx-btn mx-btn-danger" type="button" popovertarget="delete-mixtape">@L["Mixtape.Delete"]</button>
                 </div>
