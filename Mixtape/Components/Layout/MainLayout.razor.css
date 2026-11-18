@@ -1,4 +1,4 @@
-/* Brand bar: Rako + app name, Install, language, theme and link to the platform. Same look as the hub bar.
+/* Brand bar: Rako + app name, Install, language, theme, session and link to the platform. Same look as the hub bar.
    In the installed app it also shows Back, Share and Reload (pwa/app-shell.js runs them). */
 .mx-bar {
     padding-top: env(safe-area-inset-top);
@@ -115,6 +115,27 @@
     height: 17px;
 }
 
+/* Sign in (a link) or sign out (a button). */
+.mx-bar-end form {
+    display: flex;
+}
+
+.mx-session {
+    padding: 4px 2px;
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: color .2s ease;
+}
+
+.mx-session:hover {
+    color: var(--text);
+}
+
 .mx-platform {
     padding: 4px 6px;
     color: var(--text-muted);
@@ -223,5 +244,22 @@
 
     .mx-footer .mx-platform {
         display: inline;
+    }
+}
+
+/* Small phones: Install without its word and a tighter bar, so everything fits. */
+@media (max-width: 400px) {
+    .mx-install span {
+        display: none;
+    }
+
+    .mx-bar-inner {
+        gap: 8px;
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-left: max(12px, env(safe-area-inset-left));
+    }
+
+    .mx-bar-end {
+        gap: 7px;
     }
 }

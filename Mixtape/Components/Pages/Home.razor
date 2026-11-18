@@ -1,40 +1,48 @@
 @attribute [Route(PageNames.Home)]
-@inject IArtistsService ArtistsService
 @inject CoverStore CoverStore
 
 <PageTitle>Mixtape</PageTitle>
 
-@if (artists.Count == 0)
+@if (HttpContext.User.Identity?.IsAuthenticated == true)
 {
-    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
-        <p>@L["Home.EmptyText"]</p>
+    @* With the session open: the mixtapes of the person. They can't be created yet. *@
+    <h1 class="mx-heading">@L["Mine.Title"]</h1>
+
+    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Mine.EmptyTitle"]">
+        <p>@L["Mine.EmptyText"]</p>
+        <a href="@PageNames.Examples">@L["Examples.Title"]</a>
     </RakoMessage>
 }
 else
 {
-    <h1 class="mx-heading">@L["Home.Title"]</h1>
+    @* Welcome: what the app is, the two ways in and a few covers. *@
+    <section class="mx-hero">
+        <div>
+            <h1>Mixtape</h1>
+            <p>@L["Welcome.Tagline"]</p>
 
-    <ul class="mx-gallery">
-        @foreach (ArtistInfo artist in artists)
-        {
-            <li>
-                <a class="mx-gallery-item mx-artist-item" href="@PageNames.ArtistUrl(artist.Slug)">
-                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(artist.CoverFileName))</div>
-                    <span class="mx-gallery-caption">
-                        <b>@artist.Name</b>
-                        <span>@L["Artist.Songs", artist.TrackCount]</span>
-                    </span>
-                </a>
-            </li>
-        }
-    </ul>
+            <div class="mx-actions">
+                <a class="mx-btn mx-btn-main" href="@PageNames.AccessUrl(create: true)">@L["Welcome.Create"]</a>
+                <a class="mx-btn" href="@PageNames.AccessUrl(create: false)">@L["Layout.SignIn"]</a>
+                <a class="mx-link" href="@PageNames.Examples">@L["Welcome.Example"] →</a>
+            </div>
+        </div>
+
+        <div class="mx-hero-art" aria-hidden="true">
+            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("doma.svg"))</div>
+            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("b.svg"))</div>
+            <div class="mx-cover">@((MarkupString)CoverStore.GetCover("ojos-de-aitana.svg"))</div>
+        </div>
+    </section>
+
+    <ol class="mx-steps">
+        <li><b>01</b><span>@L["Welcome.Step1"]</span></li>
+        <li><b>02</b><span>@L["Welcome.Step2"]</span></li>
+        <li><b>03</b><span>@L["Welcome.Step3"]</span></li>
+    </ol>
 }
 
 @code {
-    private IReadOnlyList<ArtistInfo> artists = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        artists = await ArtistsService.GetArtistsAsync();
-    }
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
 }

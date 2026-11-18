@@ -36,9 +36,6 @@
   <data name="Error.Text" xml:space="preserve">
     <value>Try again in a moment.</value>
   </data>
-  <data name="Home.Title" xml:space="preserve">
-    <value>Mixtapes</value>
-  </data>
   <data name="Artist.Songs" xml:space="preserve">
     <value>{0} songs</value>
   </data>
@@ -107,5 +104,80 @@
   </data>
   <data name="Player.Next" xml:space="preserve">
     <value>Next song</value>
+  </data>
+  <data name="Layout.Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Layout.SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Layout.SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Welcome.Tagline" xml:space="preserve">
+    <value>Your YouTube songs, together in a mixtape with its own cover and a link to share it.</value>
+  </data>
+  <data name="Welcome.Create" xml:space="preserve">
+    <value>Make my mixtape</value>
+  </data>
+  <data name="Welcome.Example" xml:space="preserve">
+    <value>See an example</value>
+  </data>
+  <data name="Welcome.Step1" xml:space="preserve">
+    <value>Paste the link of a YouTube video.</value>
+  </data>
+  <data name="Welcome.Step2" xml:space="preserve">
+    <value>Put it in a mixtape and pick its cover.</value>
+  </data>
+  <data name="Welcome.Step3" xml:space="preserve">
+    <value>Listen to it here or share the link.</value>
+  </data>
+  <data name="Access.Create" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="Access.Enter" xml:space="preserve">
+    <value>I have an account</value>
+  </data>
+  <data name="Access.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Access.Pin" xml:space="preserve">
+    <value>4-digit PIN</value>
+  </data>
+  <data name="Access.NoteCreate" xml:space="preserve">
+    <value>We only keep the name and the PIN. No email: if you forget the PIN, it can't be recovered.</value>
+  </data>
+  <data name="Access.NoteEnter" xml:space="preserve">
+    <value>After 5 wrong PINs in a row, the account is locked for 15 minutes.</value>
+  </data>
+  <data name="Access.Error.NameInvalid" xml:space="preserve">
+    <value>The name needs 3 to 30 characters.</value>
+  </data>
+  <data name="Access.Error.PinInvalid" xml:space="preserve">
+    <value>The PIN is 4 digits.</value>
+  </data>
+  <data name="Access.Error.NameTaken" xml:space="preserve">
+    <value>That name is taken. Try another one.</value>
+  </data>
+  <data name="Access.Error.WrongNameOrPin" xml:space="preserve">
+    <value>The name or the PIN is wrong.</value>
+  </data>
+  <data name="Access.Error.Locked" xml:space="preserve">
+    <value>Too many wrong PINs. Try again in 15 minutes.</value>
+  </data>
+  <data name="Access.Error.TooManyAccounts" xml:space="preserve">
+    <value>Too many new accounts right now. Try again later.</value>
+  </data>
+  <data name="Mine.Title" xml:space="preserve">
+    <value>Your mixtapes</value>
+  </data>
+  <data name="Mine.EmptyTitle" xml:space="preserve">
+    <value>No mixtapes yet</value>
+  </data>
+  <data name="Mine.EmptyText" xml:space="preserve">
+    <value>Soon you will be able to make the first one here.</value>
+  </data>
+  <data name="Examples.Title" xml:space="preserve">
+    <value>Example mixtapes</value>
   </data>
 </root>

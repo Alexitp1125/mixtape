@@ -1,0 +1,85 @@
+/* Card to create an account or sign in. */
+.mx-access {
+    max-width: 420px;
+    margin: 16px auto 0;
+    padding: 28px;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--accent-2);
+}
+
+/* The two tabs, in a pill. */
+.mx-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+}
+
+.mx-tabs a {
+    padding: 8px 10px;
+    color: var(--text-muted);
+    font-size: 15px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.mx-tabs a[aria-current="true"] {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.mx-access-error {
+    margin: 0 0 18px;
+    padding: 10px 14px;
+    border: 1px solid var(--accent-3);
+    border-radius: 10px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.mx-field {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.mx-field span {
+    color: var(--text-muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.mx-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 18px;
+}
+
+.mx-field input.mx-pin {
+    width: 9ch;
+    font-family: var(--font-label);
+    letter-spacing: .5em;
+}
+
+.mx-access .mx-btn {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.mx-note {
+    margin: 18px 0 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}

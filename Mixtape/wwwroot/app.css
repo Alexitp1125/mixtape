@@ -63,7 +63,42 @@ button {
     height: 100%;
 }
 
-/* Link back to the level above: the artists, or the artist of a song. */
+/* Button, as a link or as a real button. */
+.mx-btn {
+    display: inline-flex;
+    justify-content: center;
+    padding: 12px 22px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--accent-2);
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.mx-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 6px 6px 0 var(--accent-3);
+}
+
+.mx-btn-main {
+    background: var(--accent);
+    color: var(--cream);
+    text-shadow: 0 1px 2px rgb(0 0 0 / .3);
+}
+
+/* Title of a list page. */
+.mx-heading {
+    margin: 0 0 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 16px;
+    letter-spacing: .38em;
+    text-transform: uppercase;
+}
+
+/* Link back to the level above: the start, the examples, or the artist of a song. */
 .mx-back {
     display: inline-flex;
     margin-bottom: 28px;
@@ -137,6 +172,15 @@ button {
     }
 }
 
+/* Cover of an artist or a mixtape: two more sheets behind it, because there are songs inside. */
+.mx-artist-item .mx-cover {
+    box-shadow: 6px 6px 0 var(--accent-2), 12px 12px 0 var(--accent-3);
+}
+
+.mx-artist-item:hover .mx-cover {
+    box-shadow: 8px 8px 0 var(--accent-2), 16px 16px 0 var(--accent-3);
+}
+
 /* Error bar for interactive components. Blazor makes it visible. */
 #blazor-error-ui {
     display: none;
@@ -160,14 +204,21 @@ button {
     cursor: pointer;
 }
 
-/* Brand bar (MainLayout) on small phones: only Rako when the bar is full (Install showing, or the installed app). */
-@media (max-width: 400px) {
+/* Brand bar (MainLayout) on phones: only Rako when the bar is full (Install showing, or the installed app). */
+@media (max-width: 520px) {
     .mx-bar:has(.mx-install:not([hidden])) .mx-brand span {
         display: none;
     }
 }
 
-@media (max-width: 400px) and (display-mode: standalone) {
+@media (max-width: 520px) and (display-mode: standalone) {
+    .mx-bar .mx-brand span {
+        display: none;
+    }
+}
+
+/* Under 380px the name never fits next to the session link. */
+@media (max-width: 380px) {
     .mx-bar .mx-brand span {
         display: none;
     }

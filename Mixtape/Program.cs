@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Mixtape.Accounts;
 using Mixtape.Application.Catalog;
 using Mixtape.Catalog;
 using Mixtape.Components;
@@ -14,6 +16,18 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Session: a cookie that says who signed in. It lasts 30 days from the last visit.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "mixtape-session";
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
+        options.LoginPath = PageNames.Access;
+    });
+
 builder.Services.AddMixtape(builder.Configuration);
 
 WebApplication app = builder.Build();
@@ -43,10 +57,12 @@ app.UseStatusCodePagesWithReExecute(PageNames.NotFound, createScopeForStatusCode
 // Language: cookie set by /culture/{culture}, otherwise the browser's language.
 app.UseRequestLocalization(SupportedCultures.All);
 
+app.UseAuthentication();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapCultureEndpoints();
+app.MapAccountEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();

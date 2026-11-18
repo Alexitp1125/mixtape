@@ -1,0 +1,96 @@
+@attribute [Route(PageNames.Access)]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IAccountsService AccountsService
+@inject NavigationManager Navigation
+
+<PageTitle>@(IsCreate ? L["Access.Create"] : L["Layout.SignIn"]) · Mixtape</PageTitle>
+
+<a class="mx-back" href="@PageNames.Home">← @L["Layout.Home"]</a>
+
+@* One card with two tabs: create an account or sign in. The server handles the form; no JavaScript. *@
+<form class="mx-access" method="post" @formname="access" @onsubmit="SubmitAsync">
+    <AntiforgeryToken />
+
+    <nav class="mx-tabs">
+        <a href="@PageNames.AccessUrl(create: true)" aria-current="@Current(IsCreate)">@L["Access.Create"]</a>
+        <a href="@PageNames.AccessUrl(create: false)" aria-current="@Current(!IsCreate)">@L["Access.Enter"]</a>
+    </nav>
+
+    @if (error is not null)
+    {
+        <p class="mx-access-error" role="alert">@error</p>
+    }
+
+    <label class="mx-field">
+        <span>@L["Access.Name"]</span>
+        <input type="text" name="Name" value="@Name" minlength="3" maxlength="30" required autocomplete="username" />
+    </label>
+
+    <label class="mx-field">
+        <span>@L["Access.Pin"]</span>
+        <input class="mx-pin" type="password" name="Pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="off" />
+    </label>
+
+    <button class="mx-btn mx-btn-main" type="submit">@(IsCreate ? L["Access.Create"] : L["Layout.SignIn"])</button>
+
+    <p class="mx-note">@(IsCreate ? L["Access.NoteCreate"] : L["Access.NoteEnter"])</p>
+</form>
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = null!;
+
+    // "create" shows the tab to create an account; anything else, the one to sign in.
+    [SupplyParameterFromQuery(Name = "mode")]
+    private string? Mode { get; set; }
+
+    [SupplyParameterFromForm(FormName = "access")]
+    private string? Name { get; set; }
+
+    [SupplyParameterFromForm(FormName = "access")]
+    private string? Pin { get; set; }
+
+    private string? error;
+
+    private bool IsCreate => Mode == "create";
+
+    protected override void OnInitialized()
+    {
+        // Who already signed in has nothing to do here.
+        if (HttpContext.User.Identity?.IsAuthenticated == true)
+        {
+            Navigation.NavigateTo(PageNames.Home);
+        }
+    }
+
+    // Creates the account or checks the PIN and, when it goes well, opens the session.
+    private async Task SubmitAsync()
+    {
+        AccountResult result = IsCreate
+            ? await AccountsService.CreateAsync(Name ?? "", Pin ?? "")
+            : await AccountsService.SignInAsync(Name ?? "", Pin ?? "");
+
+        if (result.Account is null)
+        {
+            error = L[$"Access.Error.{result.Status}"].Value;
+            return;
+        }
+
+        Claim[] claims =
+        [
+            new Claim(ClaimTypes.NameIdentifier, result.Account.Key.ToString()),
+            new Claim(ClaimTypes.Name, result.Account.Name),
+        ];
+
+        await HttpContext.SignInAsync(
+            new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)),
+            new AuthenticationProperties { IsPersistent = true });
+
+        Navigation.NavigateTo(PageNames.Home);
+    }
+
+    private static string? Current(bool selected) =>
+        selected ? "true" : null;
+}

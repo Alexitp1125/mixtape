@@ -5,25 +5,22 @@ Sigue `dev-conventions`. Aquí solo va lo propio de esta app.
 ## Resumen
 
 - **Dónde estoy:** en producción en https://mixtape.alexitp1125.com está la v1.1 más el paso 1
-  de la v2 completo (commits 1, 2 y 3): el catálogo se lee de PostgreSQL; el inicio muestra una
-  carátula por artista y cada artista tiene su página. Jósean Log (5 canciones) y Moneda Dura
-  (4), con portada propia, instalable como app, ⏮ ⏭ con paso automático, tema claro, EN/ES. Sin
-  letras. Repo en GitHub (`Alexitp1125/mixtape`).
-- **Lo último (2026-11-17):** escrito y en el PC, sin probar: el grupo "Mix" (9 canciones de
-  varios artistas, para uso personal de Alexi), el intérprete por canción (`Track.Performer`) y
-  el título "Mixtapes" en el inicio.
+  de la v2 completo y el grupo "Mix": el catálogo se lee de PostgreSQL; el inicio ("Mixtapes")
+  muestra una carátula por grupo y cada grupo tiene su página. Jósean Log (5 canciones), Moneda
+  Dura (4) y Mix (9, cada una con su intérprete), con portada propia, instalable como app, ⏮ ⏭
+  con paso automático, tema claro, EN/ES. Sin letras. Repo en GitHub (`Alexitp1125/mixtape`).
+- **Lo último (2026-11-17):** Mix subido, desplegado y en uso por Alexi. Escrita y en el PC,
+  sin probar: la entrega 1 del paso 2 (pantalla de bienvenida y entrar con nombre y PIN).
 - **Qué sigue:**
-  1. Mix. Alexi crea la migración
-     (`dotnet ef migrations add AddTrackPerformer --project Mixtape.Data --startup-project Mixtape`)
-     y prueba en local: el inicio con 3 carátulas, la página de Mix con el intérprete debajo de
-     cada canción, el primer arranque dice `Catalog synced: 3 artists, 18 tracks, 20 changes`,
-     y los 9 videos se dejan reproducir (no se pudo comprobar desde el chat). Luego commit
-     (`feat: mix group with a performer per song`), push y despliegue con copia antes.
-  2. Paso 2, entrega 1 (bienvenida y entrar con nombre y PIN): aprobada por Alexi el
-     2026-11-17 ("hagamos esa entrega 1 y así me hago una idea mejor"). Se escribe cuando el Mix
-     esté en un commit, para no mezclar las dos migraciones. La propuesta está en la hoja de
-     ruta. Ahí el `Dockerfile` crea `/home/app/.aspnet/DataProtection-Keys` con dueño `$APP_UID`
-     antes de `USER`, y hay que avisar al chat de estructura para que añada el volumen.
+  1. Entrega 1. Alexi crea la migración
+     (`dotnet ef migrations add AddUsers --project Mixtape.Data --startup-project Mixtape`) y
+     prueba en local: bienvenida en `/`, crear cuenta, salir, entrar, PIN mal 5 veces (bloqueo),
+     nombre repetido, `/examples` con las tres carátulas. Luego commit
+     (`feat: welcome page and sign in with a name and a PIN`) y push. **No se despliega sola**:
+     quien entra ve "Todavía no tienes mixtapes". Va con la entrega 2.
+  2. Avisar al chat de estructura: la app ya crea `/home/app/.aspnet/DataProtection-Keys`
+     (dueño `$APP_UID`); falta el volumen en `server-infra` para que las sesiones no se cierren
+     en cada despliegue.
   3. Paso 2, entrega 2: crear una mixtape, añadir canciones y moverlas entre mixtapes.
   4. Paso 3: página `/about` (`CONVENTIONS.md` §13).
   5. Chat del hub: tarjeta de Mixtape en *Live* con su enlace y `<install installurl>`, si no
@@ -98,15 +95,14 @@ y para recomendarlas con un enlace ("mírala aquí").
      - **Tres entregas:** (1) bienvenida y entrar con nombre y PIN; (2) crear una mixtape,
        añadir canciones y moverlas entre mixtapes; (3) carátulas genéricas, límites, borrado por Alexi y página de
        privacidad. La 1 no se despliega sola (se podría entrar a una pantalla vacía): va con la 2.
-     - **Propuesta de código de la entrega 1 (aprobada el 2026-11-17):** tabla `Users`
-       (migración `AddUsers`: nombre, PIN con hash de `PasswordHasher`, fallos seguidos y
-       bloqueado hasta); `AccountManager` en `.Application` (crear cuenta, comprobar nombre y
-       PIN, bloqueo); sesión con la cookie de ASP.NET Core, sin Identity; páginas `/`
-       (bienvenida o mixtapes), `/access` (una tarjeta con dos pestañas) y `/examples`;
+     - **Entrega 1, escrita el 2026-11-17:** tabla `Users` (migración `AddUsers`: nombre, PIN
+       con hash de `PasswordHasher`, fallos seguidos y bloqueada hasta); `AccountManager` en
+       `.Application` (crear cuenta, comprobar nombre y PIN, bloqueo); sesión con la cookie de
+       ASP.NET Core, sin Identity; páginas `/` (bienvenida, o "Tus mixtapes" con la sesión
+       abierta), `/access` (una tarjeta con dos pestañas) y `/examples` (el catálogo de Alexi);
        formularios HTML que procesa el servidor, sin JavaScript; "Entrar"/"Salir" en la barra;
-       límite de peticiones al crear cuentas; la carpeta de claves en el `Dockerfile`. Seguimos
-       sin Bootstrap (dos campos y un botón). El nombre: de 3 a 30 caracteres, único sin
-       distinguir mayúsculas.
+       la carpeta de claves en el `Dockerfile`. Sin Bootstrap. El nombre: de 3 a 30 caracteres,
+       único sin distinguir mayúsculas.
   3. **El "extra":** una explicación breve del proyecto (qué es y cómo está hecho). Mismo
      formato que Chartwave; lo define el chat de configuración.
 - **Más adelante: portadas generadas.** Las portadas actuales como plantillas; el título elige
@@ -149,7 +145,7 @@ la app y viven solo en la base de datos.
 | Nombre **Mixtape** (antes `Lyrics`). | Una mixtape es una lista de canciones que uno hace y comparte: vale para la v1 (las de Alexi) y la v2 (la lista de cada uno). Retro, como la marca. |
 | **Sin letras en la v1.** | Las letras de otros necesitan licencia. Mostrar una sola línea no cambia eso. Ver "Letras" más abajo. |
 | Portadas propias con la paleta de la marca; sin el nombre del artista en la portada. El crédito va debajo. | Que se vean de la familia de la plataforma y no parezcan las oficiales. |
-| **Sin Bootstrap** (excepción a §4). | Nada lo usa: no hay formularios ni tablas, y el diseño es CSS propio. Entra si llega un formulario (la v2). |
+| **Sin Bootstrap** (excepción a §4). | El diseño es CSS propio. El único formulario (entrar) son dos campos y un botón; se revisa si llegan formularios más grandes. |
 | Proyectos (v2): `Mixtape.Data` (entidades, `MixtapeDbContext`, migraciones), `Mixtape.Application` (`ArtistManager`, `TrackManager`, `CatalogManager`) y `Mixtape.Shared` (`IArtistsService`, `ArtistInfo`, `ArtistDetails`, `ITracksService`, `TrackInfo`, `TrackDetails`, `AppException`). Sin API ni servicio HTTP todavía. | El Manager devuelve modelos que también recibe `SongPlayer` en el navegador, así que tienen que estar en `.Shared`. La API entra cuando un componente del navegador pida datos (paso 2). |
 | Base de datos PostgreSQL `mixtape` (§3). Tablas `Artists`, `Tracks` y `Covers`, con nombres en mayúscula inicial como en Apollo. Usuarios y listas se crean en el paso 2, con su migración. | En SQL a mano hay que poner comillas (`select * from "Tracks"`); la app no lo nota. No se crean tablas vacías. |
 | El catálogo de Alexi se escribe en `Content/catalog.json` y al arrancar se vuelca en la base de datos (`CatalogManager.SyncAsync`). Las páginas leen siempre de la base de datos. | Queda en git junto a sus portadas, no hay que repetir nada a mano en dos bases de datos (PC y servidor) y, si se pierde la base de datos, vuelve solo. |
@@ -160,7 +156,12 @@ la app y viven solo en la base de datos.
 | Las carátulas de artista salen del nombre (Jósean Log: ondas de sonido; Moneda Dura: un puñado de monedas), no de fotos, logos ni de las carátulas de sus discos. Una portada puede tomar la idea de la canción (Los Ojos de Aitana: amanece en La Habana), nunca una frase de la letra. | Son obra de otros, como las letras. |
 | Cada canción puede llevar su intérprete (`Track.Performer`, `performer` en `catalog.json`). Si está vacío, vale el nombre de su artista. Se muestra bajo el título de la canción y, en la página del grupo, solo cuando no coincide con el nombre del grupo. `ArtistName` sigue siendo el nombre del grupo (el enlace de volver). | "Mix" junta canciones de varios artistas; sin esto, debajo de "Saturno" pondría "Mix". Acordado el 2026-11-17. |
 | El inicio se titula "Mixtapes" (antes "Artistas"), en los dos idiomas. | Con "Mix" ya no son solo artistas, y es el nombre acordado para los grupos de los usuarios. |
-| `.mx-gallery` (rejilla de portadas) y `.mx-back` (enlace de volver) están en `app.css`. | Cada una la usan dos páginas, y el CSS de un componente solo vale dentro de él. |
+| **Cuentas: un nombre y un PIN, nada más.** Tabla `Users`; el PIN se guarda con el hash de `PasswordHasher` (viene con ASP.NET Core; `Mixtape.Application` lo usa con un `FrameworkReference`, sin paquete nuevo). El nombre se guarda como se escribió y en minúsculas (`NameKey`, único). | Sin datos de nadie y sin dependencias nuevas. Acordado el 2026-11-12 y el 2026-11-13. |
+| La sesión es la cookie de autenticación de ASP.NET Core (`mixtape-session`, 30 días desde la última visita, `Secure` siempre en producción), sin Identity. Las páginas leen quién entró de `HttpContext.User`. Salir es `POST /sign-out`. | Identity trae correo, roles y tablas que no se usan. Las páginas son SSR, así que tienen el `HttpContext`. |
+| 5 PIN incorrectos seguidos bloquean la cuenta 15 minutos (`AccountManager`). Máximo 30 cuentas nuevas por hora en todo el sitio, contadas en la base de datos. | Un PIN de 4 dígitos se adivina probando. Lo de las cuentas iba a ser el limitador de peticiones de ASP.NET Core, pero detrás de Caddy todos los visitantes llegan con la misma IP; contar en la tabla hace lo mismo en tres líneas. |
+| `/` es la bienvenida, o "Tus mixtapes" con la sesión abierta. El catálogo de Alexi vive en `/examples` ("Mixtapes de ejemplo"); desde la página de un grupo se vuelve ahí. | Idea de Alexi (2026-11-13): una pantalla de presentación queda más profesional, y lo suyo queda como ejemplo. |
+| En teléfonos de hasta 400 px, el botón Instalar muestra solo el icono y la barra va más apretada. | Con "Entrar"/"Salir" la barra no cabía; medido de 320 a 640 px, en navegador y como app instalada. |
+| `.mx-gallery` (rejilla de portadas), `.mx-back` (enlace de volver), `.mx-heading`, `.mx-btn` y las hojas detrás de la carátula de un grupo están en `app.css`. | Las usa más de una página, y el CSS de un componente solo vale dentro de él. |
 | En el log no salen las consultas SQL de EF (`Microsoft.EntityFrameworkCore.Database.Command` en `Warning`, en `appsettings.json`). Sí salen las migraciones y `Catalog synced`. | Cada página escribía su consulta entera y tapaba lo que importa. Para verlas un rato, cambiar ese nivel a `Information` y no subir el cambio. |
 | Idioma: lo decide el servidor (cookie si el usuario eligió, si no el idioma del navegador) y el WebAssembly arranca con el mismo (`applicationCulture`). | Una sola fuente de verdad. El cambio de idioma recarga la página entera para que el WebAssembly arranque en el nuevo idioma. |
 | Los textos de la interfaz (`SharedResource` y sus `.resx`) viven en `.Client`. | El host referencia al cliente, así los dos los usan sin necesitar `.Shared`. |
@@ -263,6 +264,14 @@ Por si algún día vuelven, solo con letras propias, con permiso o de dominio p�
 | Permiso del artista o de su editora | Lo que autoricen. | Canción por canción. |
 
 ## Bitácora
+
+### 2026-11-17 (después): entrega 1 del paso 2
+- Alexi subió y desplegó el Mix; lo escucha en el móvil.
+- Escrita la entrega 1: `User`, `AccountManager`, `IAccountsService`, `Access`, `Examples`,
+  `Home` como bienvenida, la sesión en la barra, `POST /sign-out` y la carpeta de claves en el
+  `Dockerfile`.
+- Cambios sobre la propuesta: el límite de cuentas nuevas se cuenta en la base de datos (no
+  con el limitador de peticiones) y `PasswordHasher` entra con un `FrameworkReference`.
 
 ### 2026-11-17: grupo "Mix"
 - Alexi confirmó que el commit 3 quedó "subido y probado".

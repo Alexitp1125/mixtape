@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Mixtape.Application.Accounts;
 using Mixtape.Application.Artists;
 using Mixtape.Application.Catalog;
 using Mixtape.Application.Tracks;
 using Mixtape.Covers;
 using Mixtape.Data;
+using Mixtape.Shared.Accounts;
 using Mixtape.Shared.Artists;
 using Mixtape.Shared.Tracks;
 
@@ -32,6 +34,7 @@ namespace Mixtape.DependencyInjection
         {
             services.AddSingleton<CoverStore>();
             services.AddTransient<CatalogManager>();
+            services.AddTransient<IAccountsService, AccountManager>();
             services.AddTransient<IArtistsService, ArtistManager>();
             services.AddTransient<ITracksService, TrackManager>();
         }

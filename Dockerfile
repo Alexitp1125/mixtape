@@ -17,6 +17,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app .
 
+# Folder for the keys that protect the session cookie. A volume on the server keeps it between deploys.
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && chown -R $APP_UID /home/app/.aspnet
+
 USER $APP_UID
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Mixtape.dll"]

@@ -16,5 +16,7 @@ namespace Mixtape.Data
         public DbSet<Cover> Covers => Set<Cover>();
 
         public DbSet<Track> Tracks => Set<Track>();
+
+        public DbSet<User> Users => Set<User>();
     }
 }

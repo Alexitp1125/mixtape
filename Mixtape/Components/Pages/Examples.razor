@@ -1,0 +1,42 @@
+@attribute [Route(PageNames.Examples)]
+@inject IArtistsService ArtistsService
+@inject CoverStore CoverStore
+
+<PageTitle>@L["Examples.Title"] · Mixtape</PageTitle>
+
+<a class="mx-back" href="@PageNames.Home">← @L["Layout.Home"]</a>
+
+@if (artists.Count == 0)
+{
+    <RakoMessage Image="brand/rako-empty.svg" Title="@L["Home.EmptyTitle"]">
+        <p>@L["Home.EmptyText"]</p>
+    </RakoMessage>
+}
+else
+{
+    <h1 class="mx-heading">@L["Examples.Title"]</h1>
+
+    <ul class="mx-gallery">
+        @foreach (ArtistInfo artist in artists)
+        {
+            <li>
+                <a class="mx-gallery-item mx-artist-item" href="@PageNames.ArtistUrl(artist.Slug)">
+                    <div class="mx-cover" aria-hidden="true">@((MarkupString)CoverStore.GetCover(artist.CoverFileName))</div>
+                    <span class="mx-gallery-caption">
+                        <b>@artist.Name</b>
+                        <span>@L["Artist.Songs", artist.TrackCount]</span>
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private IReadOnlyList<ArtistInfo> artists = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        artists = await ArtistsService.GetArtistsAsync();
+    }
+}

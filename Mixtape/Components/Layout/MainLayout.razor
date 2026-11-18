@@ -17,9 +17,9 @@
         </a>
 
         <div class="mx-bar-end">
-            <button class="mx-install" type="button" data-app-install hidden>
+            <button class="mx-install" type="button" data-app-install hidden aria-label="@L["Layout.Install"]">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                @L["Layout.Install"]
+                <span>@L["Layout.Install"]</span>
             </button>
 
             @* Full page load on purpose: WebAssembly has to restart in the new language. *@
@@ -35,6 +35,18 @@
                     <path d="M8 1.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor" />
                 </svg>
             </button>
+
+            @* The session: a link to sign in, or a button to sign out. *@
+            @if (IsSignedIn)
+            {
+                <form method="post" action="@PageNames.SignOut">
+                    <button class="mx-session" type="submit">@L["Layout.SignOut"]</button>
+                </form>
+            }
+            else
+            {
+                <a class="mx-session" href="@PageNames.Access">@L["Layout.SignIn"]</a>
+            }
 
             <button class="mx-icon-btn mx-app-only" type="button" data-app-share data-copied="@L["Layout.LinkCopied"]" aria-label="@L["Layout.Share"]">
                 <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="3.5" r="2" /><circle cx="4" cy="8" r="2" /><circle cx="12" cy="12.5" r="2" /><path d="M5.8 7l4.4-2.5M5.8 9l4.4 2.5" /></svg>
@@ -78,7 +90,12 @@
 </div>
 
 @code {
-    // Back only makes sense away from the song list.
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    private bool IsSignedIn => HttpContext?.User.Identity?.IsAuthenticated == true;
+
+    // Back only makes sense away from the start page.
     private bool IsHome => new Uri(Navigation.Uri).AbsolutePath == PageNames.Home;
 
     // Link that saves the language and comes back to the current page.
